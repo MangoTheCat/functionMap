@@ -1,0 +1,14 @@
+Package: functionMap
+Maintainer: Mango Solutions <developers@mango-solutions.com>
+License: GPL-2
+Title: Draw the functions map for a R package
+LazyData: yes
+Type: Package
+LazyLoad: yes
+Author: Mango Solutions <developers@mango-solutions.com>
+Description: Draw the functions map for a R package
+Version: 0.0-1
+Date: 2013-12-18
+Depends: R (>= 3.0.0), network, linkcomm
+Suggests: RUnit
+

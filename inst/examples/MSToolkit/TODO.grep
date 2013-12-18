@@ -1,0 +1,52 @@
+MSToolkit/R/generateData.R-  # KEYWORDS: high, generate
+MSToolkit/R/generateData.R-	###############################################################################
+MSToolkit/R/generateData.R-  # TESTME
+MSToolkit/R/generateData.R-  
+MSToolkit/R/generateData.R-   
+MSToolkit/R/generateData.R:  # TODO: Better way of extracting default arguments to this function
+MSToolkit/R/generateData.R-  defNames <- c("treatSubj", "treatType", "respName", "treatOrder", "conCovCrit", "conCovDigits", "conCovMaxDraws", "extCovSameRow", "extCovDataId", 
+MSToolkit/R/generateData.R-    "genParErrStruc", "respDist", "respErrStruc", "respDigits", "mcarProp", "mcarRule", "dropFunExtraArgs", "interimMethod", "seed", "idCol", "doseCol", "timeCol",
+MSToolkit/R/generateData.R-    "trtCol", "parOmitFlag", "respOmitFlag", "missingFlag", "interimCol", "parBtwSuffix", "deleteDirs", "covDiff", "treatDiff", "extParDataId")
+MSToolkit/R/generateData.R-  callNames <- union(names(match.call())[-1], defNames)
+MSToolkit/R/generateData.R-
+--
+MSToolkit/R/convertToSASCode.R-  
+MSToolkit/R/convertToSASCode.R-  # Parse inputs
+MSToolkit/R/convertToSASCode.R-  if (!length(code)) return("")
+MSToolkit/R/convertToSASCode.R-  if (!is.matrix(code) & !is.vector(code)) ectdStop("Unrecognised format for SAS Code conversion")
+MSToolkit/R/convertToSASCode.R-  if (is.matrix(code) && ncol(code) != 3) ectdStop("Matrix to convert to SAS Code must have 3 columns")
+MSToolkit/R/convertToSASCode.R:  # <TODO>
+MSToolkit/R/convertToSASCode.R-  # <=, >=, <, >
+MSToolkit/R/convertToSASCode.R-  repSas <- cbind(c("==", "!=", "\\&", "\\|"), c("EQ", "NE", "AND", "OR"))  # Replace strings for SAS syntax
+MSToolkit/R/convertToSASCode.R:  # </TODO>
+MSToolkit/R/convertToSASCode.R-  
+MSToolkit/R/convertToSASCode.R-  # Data changes if a matrix has been provided
+MSToolkit/R/convertToSASCode.R-  sasCode <- if (is.matrix(code)) {
+MSToolkit/R/convertToSASCode.R-     for (i in 1:nrow(repSas)) code[,1] <- gsub(repSas[i,1], repSas[i,2], code[,1])
+MSToolkit/R/convertToSASCode.R-     paste("IF", code[,1], "THEN", code[,2], "=", code[,3], ";", collapse="")  
+--
+MSToolkit/R/addResidualError.R-
+MSToolkit/R/addResidualError.R-  .requiredArgs(response, "The `response` variable is required")
+MSToolkit/R/addResidualError.R-  .requiredArgs(covariance, "The `covariance` is required")
+MSToolkit/R/addResidualError.R-  set.seed(seed)
+MSToolkit/R/addResidualError.R-
+MSToolkit/R/addResidualError.R:  # <TODO>
+MSToolkit/R/addResidualError.R-  # currently handle only one variable
+MSToolkit/R/addResidualError.R-  covariance <- parseCovMatrix( covariance, 1)                  
+MSToolkit/R/addResidualError.R:  # </TODO>
+MSToolkit/R/addResidualError.R-
+MSToolkit/R/addResidualError.R-  errFun <- if(is.function(errStruc)) errStruc else {
+MSToolkit/R/addResidualError.R-    errStruc <- initialChar( errStruc, "ap", 
+MSToolkit/R/addResidualError.R-      "`errStruc` should be `additive`, `proportionnal` or a function")
+MSToolkit/R/addResidualError.R-    switch( errStruc, 
+--
+MSToolkit/TODO:TODO(*): Transpose matrix from column wise to row wise, then update examples to match
+MSToolkit/TODO:TODO(*): Some unit tests in runit.datastorage.R still call "stop"
+MSToolkit/TODO:TODO(*): add msg argument to all unit and system tests
+MSToolkit/TODO:TODO(RP): What happens if we ask for dropout but there is no time variable?
+MSToolkit/TODO:TODO(*): Should createDirectories use match.arg?  If so, need to update function and tests
+MSToolkit/TODO:TODO(*): Update checkMicroFormat and checkMacroFormat to identify required data structures
+MSToolkit/TODO:TODO(*): Update interimAnalysis to identify requirements of interim function
+MSToolkit/TODO:TODO(*): Add unit test for compileSummary function
+MSToolkit/TODO-
+--

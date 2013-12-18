@@ -1,0 +1,7 @@
+# don't export the function .something
+# and the packagee's operators %~%, %!~%, ...
+exportPattern("^[^\\.%]")
+export(".ectdEnv")
+
+importFrom( MASS, mvrnorm)
+
