@@ -1,6 +1,8 @@
 
 ##' Create the network object for the map of functions
 ##'
+##' If return a matrix, the row means the functions be invoked by the function of rowname, 1 means 'invoked'. 
+##' 
 ##' @title Create the network object for the map of functions
 ##' @param funlist A list of functiions structure. The result of the function \code{\link{parseRfolder}}.
 ##' @param omitpattern An regular expression. The function names which match the regular expression will be omitted.
