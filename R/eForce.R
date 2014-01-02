@@ -14,61 +14,6 @@
 #' testData <- matrix(1:25, nrow=5)
 #' plot(eForce(testData))
 
-
-
-
-
-#####################################
-##  The network graph:
-##	       Jobs(10)
-##	      //1    \\2
-##       //    3  \\
-##    Gates(9)----Obama(8)
-##
-##  The weighted network Matrix would be:
-##        Jobs   Gates  Obama
-##  Jobs   0       1      2
-##  Gates  1       0      3
-##  Obama  2       3      0
-##
-##  The property data.frame:
-##         category   value    color
-##  Jobs   "人物"       10   '#ff7f50'
-##  Gates  "朋友"       8    '#87cdfa'
-##  Obama  "朋友"       9    '#87cdfa'
-#######################################
-
-
-
-# networkMatrix <- matrix(c(
-# 	c(0, 1, 2, 1, 2, 3, 6, 6, 1, 1, 1 ),
-# 	c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ),
-#	c(2, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0 ),
-#	c(1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0 ),
-#	c(2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 ),
-#	c(3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 ),
-#	c(6, 0, 1, 1, 1, 1, 0, 6, 0, 1, 0 ),
-#	c(6, 0, 0, 1, 0, 0, 6, 0, 0, 0, 0 ),
-#	c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ),
-#	c(1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 ),
-#	c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
-#	), ncol=11
-# )
-
-# propertyDf <- data.frame(
-#	category = c("人物", "家人", "家人", "家人", "家人", "朋友", 
-#				"朋友", "朋友", "朋友", "朋友", "朋友"),
-#	name = c("Steven Jobs", "Lisa Jobs", "Paul Jobs", " Kalala Jobs",
-#			"Lauren Powell", "Steve woz Ike", "Obama", "Bill Gates", 
-# 			"Jonathan", "Tim Cook", "Wayne"),
-#	value = c(10, 2, 3, 3, 7, 5, 8, 9, 4, 4, 0)
-#  )
-
-# rownames(propertyDf) = propertyDf$name
-
-# eForce(networkMatrix=networkMatrix, propertyDf=propertyDf)
-
-
 eForce = function(networkMatrix, propertyDf=NULL, size = c(1024, 768),
 	title = NULL, subtitle = NULL, title.x = "center", title.y = "top", 
 	legend = TRUE, legend.x = "left", legend.y= "top", legend.orient=c("horizontal", "vertical"), 
@@ -87,16 +32,16 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1024, 768),
 	opt$title = list(
 		text = title,
 		subtext = subtitle,
-		x = matchPos.x(title.x),
-		y = matchPos.y(title.y)
+		x = .matchPos.x(title.x),
+		y = .matchPos.y(title.y)
 	)
 	
 	
 	if(legend){
 		opt$legend = list(
 			show =  "true",
-			x = matchPos.x(legend.x),
-			y = matchPos.y(legend.y),
+			x = .matchPos.x(legend.x),
+			y = .matchPos.y(legend.y),
 			orient =  match.arg(legend.orient)
 		)
 	}else{
@@ -118,8 +63,8 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1024, 768),
 	# toolbox format
 	opt$toolbox=list(
 		show = ifelse(toolbox, "true", "false"),
-		x = matchPos.x(toolbox.x), 
-		y = matchPos.y(toolbox.y),
+		x = .matchPos.x(toolbox.x), 
+		y = .matchPos.y(toolbox.y),
 		feature = list(
 			mark = ifelse(mark, "true", "false"),
 			restore = "true",
