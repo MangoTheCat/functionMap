@@ -9,6 +9,6 @@ Author: Mango Solutions <developers@mango-solutions.com>
 Description: Draw the functions map for a R package
 Version: 0.0-1
 Date: 2013-12-18
-Depends: R (>= 3.0.0), network, linkcomm
+Depends: R (>= 3.0.0), network, linkcomm, RJSONIO, tools
 Suggests: RUnit
 
