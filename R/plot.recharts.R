@@ -49,7 +49,7 @@ plot.recharts <- function (x, tag = NULL, Local = FALSE, ...)
 		print(x, file = file)
 
 		if (Local){
-			file.copy(file.path(getOption("recharts.template.dir"), "js"), root.dir, recursive = TRUE )
+			file.copy(system.file("js", package = "functionMap"), root.dir, recursive = TRUE )
 			localHTML <- readLines(file)
 			localHtml <- gsub("http://echarts.baidu.com/doc/example/www", ".", localHTML)
 			write(localHtml, file = file)
@@ -100,12 +100,11 @@ print.recharts <- function (x, tag = NULL, file = "", ...)
         paste(".", tag, sep = ""))
     output <- unlist(x$outList)
 	print(tag)
-	if (exists("jsLoaderFlag")){
-		if (jsLoaderFlag && tag==".chart"){
-			output <- gsub("<script src='http://echarts.baidu.com/doc/example/www/js/esl.js'></script>","",output) 
-		}
-		jsLoaderFlag <<- TRUE
+	
+	if (getOption("recharts.jsLoaderFlag") && tag==".chart"){
+		output <- gsub("<script src='http://echarts.baidu.com/doc/example/www/js/esl.js'></script>", "", output) 
 	}
+	
     tag.names <- names(output)
     .id <- apply(t(tag), 2, function(y) grep(paste("\\", y, sep = ""), 
         tag.names))
