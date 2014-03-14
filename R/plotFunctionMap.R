@@ -19,7 +19,7 @@
 ##' n1 <- createNetwork(lfun)
 ##' plotFunctionMap(n1)
 ##' }
-##' 
+##' @export
 
 plotFunctionMap <- function(networkobj, displayisolates = FALSE, displaylabels = TRUE, 
 		label.cex = 1, arrowhead.cex = 0.8, edge.lwd = 0.1,vertex.col = rep(2, networkobj$gal$n),
@@ -33,6 +33,59 @@ plotFunctionMap <- function(networkobj, displayisolates = FALSE, displaylabels =
 }
 
 
+##' Parse Rd docs get function export information
+##' @param packagedir path to root of package
+##' @return a data.frame summary for exported (as you documented in Rd by \@export)
+##' @export
+parse_roxygen_export = function(packagedir) {
+    require(roxygen2)
+    rc = namespace_roclet()
+    re = roxygen2:::parse_package(normalizePath(packagedir), roxygen2:::source_package)
+    ns = roxygen2:::roc_process.namespace(rc, re)
+    n1 = sapply(ns, function(x) parse(text=x)[[1]])
+    d  = data.frame(name=character(), type=character(), S3.type=character(), stringsAsFactors=FALSE)
+    for(e in n1){
+        if (e[[1]]=='export') {
+            for(j in 2:(length(e))){
+                d[NROW(d)+1,]=c(as.character(e[[j]]), 'function', NA)
+            }
+        } else if (e[[1]]=='S3method') {
+                d[NROW(d)+1,]=c(as.character(e[[2]]), 'S3method', as.character(e[[3]]))
+        }
+    }
+    attr(d,'original.information')=n1
+    d
+}
 
-
+##' wrapper for plotFunctionMap
+##'
+##' If the packagedir has Rd docs, it will create colorful plot for vertices
+##' @param packagedir path to root of package
+##' @examples \dontrun{
+##'   plotFunctionMap.package('/src/ggplot2', width=10, height=10, displayisolates=TRUE, displaylabels=FALSE)
+##'   plotFunctionMap.package('/src/plyr', width=10, height=10, displayisolates=TRUE, label.cex=0.2)
+##'   plotFunctionMap.package('/src/foreach', width=10, height=10, displayisolates=TRUE, label.cex=0.2)
+##' } 
+##' @export
+plotFunctionMap.package = function(packagedir,relabel=TRUE,...) {
+    pdir = normalizePath(packagedir)
+    rd = parse_roxygen_export(pdir)
+    if (NROW(rd)==0) {
+        warning('no @export in found in Rd, or no Rd documents, hence no meaningful color in the plot')
+    }
+    nt = parseRfolder(file.path(packagedir, 'R'))
+    n1 = createNetwork(nt)
+    v = colnames(n1[,])
+    col = rep(2, length(v)) + ( v %in% rd$name[ re$type=='function' ])
+    if (relabel) {
+        m = n1[,]
+        colnames(m)=NULL
+        rownames(m)=NULL
+        plot(network(m), vertex.col=col, displaylabels=TRUE, ...)
+        legend('topleft', legend=sprintf('%3s %s',1:length(v),v), cex=0.5)
+    } else {
+        plotFunctionMap(n1, vertex.col=col, ...)
+    }
+    if (NROW(rd)>0) legend('topright', legend=c('Internal','External'),col=c(2,3),pch=20)
+}
 
