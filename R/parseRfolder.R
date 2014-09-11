@@ -7,7 +7,7 @@
 ##' @return A list of the functions structure. 
 ##' @author Mango Solutions
 ##' @examples \dontrun{
-##' rpath <- system.file("examples", "MSToolkit", "R", package = "functionMap")
+##' rpath <- system.file("examples", "R", package = "functionMap")
 ##' parseRfolder(rpath)
 ##' }
 ##' 
@@ -30,7 +30,8 @@ parseRfolder <- function(rpath, rfilepattern = "\\.[R|r]$", returnfilename = FAL
 	if (returnfilename) {
 		names(tmp.func) <- basename(rfiles)
 	} else {
-		tmp.func <- do.call("c", tmp.func)
+		tmp.func <- rev(do.call("c", tmp.func))
+		tmp.func <- rev(tmp.func[unique(names(tmp.func))])
 	}
 	
 	return(tmp.func)
