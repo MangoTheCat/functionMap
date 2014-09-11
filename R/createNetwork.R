@@ -12,7 +12,7 @@
 ##' @return A network object or matrix.
 ##' @author Mango Solutions
 ##' @examples \dontrun{
-##' lfun <- parseRfolder(system.file("examples", "MSToolkit", "R", package = "functionMap"))
+##' lfun <- parseRfolder(system.file("examples", "R", package = "functionMap"))
 ##' createNetwork(lfun)
 ##' }
 ##' 

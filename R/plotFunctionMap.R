@@ -15,7 +15,7 @@
 ##' @return NULL. 
 ##' @author Mango Solutions
 ##' @examples \dontrun{
-##' lfun <- parseRfolder(system.file("examples", "MSToolkit", "R", package = "functionMap"))
+##' lfun <- parseRfolder(system.file("examples", "R", package = "functionMap"))
 ##' n1 <- createNetwork(lfun)
 ##' plotFunctionMap(n1)
 ##' }
