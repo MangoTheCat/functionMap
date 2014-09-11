@@ -6,7 +6,7 @@
 ##' @return A list of all the functions included in this script. Each component contains the names of the functions were called by this function. 
 ##' @author Mango Solutions
 ##' @examples \dontrun{
-##' rfile <- system.file("examples", "MSToolkit", "R", "utils.R", package = "functionMap")
+##' rfile <- system.file("examples", "R", "func.R", package = "functionMap")
 ##' parseRscript(rfile)
 ##' }
 ##' 
@@ -14,7 +14,17 @@
 parseRscript <- function(rfile) {
 	
 	tmp.env <- new.env()
-	source(file = rfile, local = tmp.env, keep.source = TRUE)
+	res.source <- try(source(file = rfile, local = tmp.env, keep.source = TRUE), silent = TRUE)
+	
+	# deal with S4 methods
+	if (inherits(res.source, "try-error") && grepl("^Error in setGeneric", as.character(res.source))) {
+		rlines <- readLines(rfile)
+		rlines[grep("setGeneric", rlines)] <- paste0("#", rlines[grep("setGeneric", rlines)] )
+		rlines[grep("setMethod", rlines)] <- paste0("#", rlines[grep("setMethod", rlines)] )
+		rlines.con <- textConnection(rlines)
+		source(file = rlines.con, local = tmp.env, keep.source = TRUE)
+	}
+	
 	rfile.obj <- ls(tmp.env, all.names = TRUE)
 	rfile.fun <- rfile.obj[sapply(rfile.obj, FUN = function(X) class(tmp.env[[X]]) == "function")]
 	
