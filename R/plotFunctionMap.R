@@ -69,14 +69,21 @@ parse_roxygen_export = function(packagedir) {
 ##' @export
 plotFunctionMap.package = function(packagedir,relabel=TRUE,...) {
     pdir = normalizePath(packagedir)
-    rd = parse_roxygen_export(pdir)
+    rd = try(parse_roxygen_export(pdir), silent=TRUE)
+    if (is(rd,'try-error')) {
+        rd  = data.frame(name=character(), type=character(), S3.type=character(), stringsAsFactors=FALSE)
+    }
     if (NROW(rd)==0) {
         warning('no @export in found in Rd, or no Rd documents, hence no meaningful color in the plot')
     }
     nt = parseRfolder(file.path(packagedir, 'R'))
+    # assuming this package is installed
+    package.name = read.dcf(file.path(packagedir, 'DESCRIPTION'))[,'Package']
+    s4 = try(parseS4fromNs( package.name ), silent=TRUE)
+    if (!is(s4,'try-error')) nt = c(nt, s4)
     n1 = createNetwork(nt)
     v = colnames(n1[,])
-    col = rep(2, length(v)) + ( v %in% rd$name[ re$type=='function' ])
+    col = rep(2, length(v)) + ( v %in% rd$name[ rd$type=='function' ])
     if (relabel) {
         m = n1[,]
         colnames(m)=NULL
@@ -87,5 +94,6 @@ plotFunctionMap.package = function(packagedir,relabel=TRUE,...) {
         plotFunctionMap(n1, vertex.col=col, ...)
     }
     if (NROW(rd)>0) legend('topright', legend=c('Internal','External'),col=c(2,3),pch=20)
+    n1
 }
 
