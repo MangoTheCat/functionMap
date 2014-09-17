@@ -1,8 +1,6 @@
 
 #' Dump all S4 definition from namespace
 #'
-#' @title dump and reformat generic functions (S4) in a namespace
-#'
 #' The difficulty part of statically analysing for S4 methods dispatching is it's hard to determine from code
 #' which method will be called:
 #'
@@ -16,14 +14,17 @@
 #'      methodname.obj1.obj2.obj3 <- implementation
 #' 
 #' where obj1, obj2, obj3 are object types in the signatures
-#' 
+#'
+#' @title dump and reformat generic functions (S4) in a namespace
 #' @param ns character name for namespace, or an environment object
 #' @param style S4 style rename method as function[type1,type2,type3], S3 style is function.type1.type2.typ3
 #' @return reformated text (source) file
 #' @author Mango solutions
 #' @examples \dontrun {
+#'
 #'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
-#'      
+#'      # need to eval those functions to make the definition into .GlobalEnv
+#'      for(i in list.files(system.file("examples", "R", package = "functionMap"),full=TRUE, pattern='*.R')) source(i)
 #'      S4.funs <- dumpS4Generic()
 #'      cat(paste(S4.funs,collapse='\n'), file=(f1<-tempfile()))
 #'      all.funs <- c(ordinary.functions, parseRscript(f1))
@@ -85,6 +86,7 @@ dumpS4Generic <- function(ns, style=c('S4','S3')) {
 #'      ##
 #'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
 #'      ## if there are generics definition in .GlobalEnv, you can omit it
+#'      for(i in list.files(system.file("examples", "R", package = "functionMap"),full=TRUE, pattern='*.R')) source(i)
 #'      parseS4fromNs()
 #'      ##
 #'      all.funs <- c(ordinary.functions, parseS4fromNs())
@@ -111,6 +113,7 @@ parseS4fromNs <- function(...) {
 #'
 #'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
 #'      # because the setClass and setMethod are actually evaluated in .GlobalEnv in above
+#'      for(i in list.files(system.file("examples", "R", package = "functionMap"),full=TRUE, pattern='*.R')) source(i)
 #'      S4.funs <- parseS4fromNs()
 #'      
 #'      nets <- createDirectedNetwork(ordinary.functions, S4.funs)
