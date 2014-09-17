@@ -80,16 +80,18 @@ dumpS4Generic <- function(ns, style=c('S4','S3')) {
 #' @return a parsed object from parseRscript
 #' @export
 #' @examples \dontrun{
-#'      ##
-#'      parseS4fromNs(style='S4')
+#'      ## Matrix is a very complex S4 package
+#'      parseS4fromNs('Matrix')
 #'      ##
 #'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
-#'      
+#'      ## if there are generics definition in .GlobalEnv, you can omit it
+#'      parseS4fromNs()
+#'      ##
 #'      all.funs <- c(ordinary.functions, parseS4fromNs())
 #'      
 #'      nets <- createNetwork(all.funs)
 #'      plot(eForce(nets))
-#'
+#'      
 #' }
 parseS4fromNs <- function(...) {
     txts <- dumpS4Generic(...)
@@ -105,7 +107,19 @@ parseS4fromNs <- function(...) {
 #'
 #' @param plain.fun normal functions
 #' @param s4list S4list dumped by dumpS4Generic
-#' @return network
+#' @examples \dontrun{
+#'
+#'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
+#'      # because the setClass and setMethod are actually evaluated in .GlobalEnv in above
+#'      S4.funs <- parseS4fromNs()
+#'      
+#'      nets <- createDirectedNetwork(ordinary.functions, S4.funs)
+#'      plotFunctionMap(nets, TRUE)
+#'
+#'
+#' } 
+#' @return network object with directed arrows, if A used in its body B, then there should be an arrow pointing from B to A
+#' @export
 createDirectedNetwork <- function(plain.fun, s4list=list(), if.directed=TRUE) {
     plain.fun.nms <- unique(names(plain.fun))
     s4.entire.nms <- unique(names(s4list))
@@ -123,4 +137,61 @@ createDirectedNetwork <- function(plain.fun, s4list=list(), if.directed=TRUE) {
         m[i, ] <- colSums(outer(used, V, '=='))
     }
     network(m, directed=if.directed)
+}
+
+
+#' Extract S4 class and methods definition
+#'
+#' @param srclist source list
+#' @param path alternatively, we can specify a path and use all R source in it
+#' @param single if we should paste the multiple characters into a single one
+#' @return text include only S4 related definitions 
+#' @examples \dontrun{
+#'
+#'      cat(extract.S4.defn(path=system.file("examples", "R", package = "functionMap")))
+#' }
+#' @export
+extract.S4.defn <- function(srclist, path, single=TRUE) {
+    if (missing(srclist)) {
+        if (missing(path)) stop('Must specify at least scrlist or path as input.')
+        srclist <- list.files(path, full=TRUE, pattern='*.[R|r]')
+    }
+    L <- do.call('c', sapply(srclist, parse))
+    L <- L[ sapply(L, class)=='call' ]
+    # class of call, can be setClass, setMethod, setGeneric, or other ordinary call
+    set.function.types <- c(
+        'setOldClass',
+        'setClass',
+        'setClassUnion',
+        'setAs',
+        'setGeneric',
+        'setGenericImplicit',
+        'setGroupGeneric',
+        'setIs',
+        'setLoadAction',
+        'setLoadActions',
+        'setMethod',
+        'setPackageName',
+        'setRefClass',
+        'setReplaceMethod',
+        'setValidity')
+
+    cls <- as.character(sapply(L, el, 1))
+    L <- L[ cls %in% set.function.types ] 
+    cls <- cls[ cls %in% set.function.types ] 
+    ind <- split(seq_along(cls), cls)
+    
+    output.txt <- c()
+    # insert setClass first
+    if (!is.null(ind$setClass))
+        output.txt <- c(output.txt, paste(sapply(L[ind$setClass], deparse),collapse='\n'))
+    # then the generic
+    if (!is.null(ind$setGeneric))
+        output.txt <- c(output.txt, paste(sapply(L[ind$setGeneric], deparse),collapse='\n'))
+    # finally others
+    output.txt <- c(output.txt, paste(sapply(L[ unlist(ind[  ! (names(ind) %in% c('setClass','setGeneric'))]) ], deparse),collapse='\n'))
+    
+    if (single) output.txt <- paste(output.txt, collapse='\n')
+
+    output.txt
 }

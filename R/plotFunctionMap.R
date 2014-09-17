@@ -60,40 +60,58 @@ parse_roxygen_export = function(packagedir) {
 ##' wrapper for plotFunctionMap
 ##'
 ##' If the packagedir has Rd docs, it will create colorful plot for vertices
-##' @param packagedir path to root of package
+##' @param packagedir path to root of package, also should be the name of package
+##' @param relabel re-label to numbers, and add a legend
+##' @param do.plot only run this function as a wrapper to create network or actual draw the function map
 ##' @examples \dontrun{
 ##'   plotFunctionMap.package('/src/ggplot2', width=10, height=10, displayisolates=TRUE, displaylabels=FALSE)
 ##'   plotFunctionMap.package('/src/plyr', width=10, height=10, displayisolates=TRUE, label.cex=0.2)
 ##'   plotFunctionMap.package('/src/foreach', width=10, height=10, displayisolates=TRUE, label.cex=0.2)
+##'   # simply use this function to create network only
+##'   net. = plotFunctionMap.package('/local/maturity_temp_dir/src/Matrix', do.plot=FALSE)
 ##' } 
 ##' @export
-plotFunctionMap.package = function(packagedir,relabel=TRUE,...) {
+plotFunctionMap.package = function(packagedir,relabel=TRUE,do.plot=TRUE,...) {
     pdir = normalizePath(packagedir)
-    rd = try(parse_roxygen_export(pdir), silent=TRUE)
-    if (is(rd,'try-error')) {
+    if (do.plot) {
+        rd = try(parse_roxygen_export(pdir), silent=TRUE)
+        if (is(rd,'try-error')) {
+            rd  = data.frame(name=character(), type=character(), S3.type=character(), stringsAsFactors=FALSE)
+        }
+        if (NROW(rd)==0) {
+            warning('no @export in found in Rd, or no Rd documents, hence no meaningful color in the plot')
+        }
+    } else {
         rd  = data.frame(name=character(), type=character(), S3.type=character(), stringsAsFactors=FALSE)
-    }
-    if (NROW(rd)==0) {
-        warning('no @export in found in Rd, or no Rd documents, hence no meaningful color in the plot')
     }
     nt = parseRfolder(file.path(packagedir, 'R'))
     # assuming this package is installed
     package.name = read.dcf(file.path(packagedir, 'DESCRIPTION'))[,'Package']
     s4 = try(parseS4fromNs( package.name ), silent=TRUE)
-    if (!is(s4,'try-error')) nt = c(nt, s4)
-    n1 = createNetwork(nt)
-    v = colnames(n1[,])
-    col = rep(2, length(v)) + ( v %in% rd$name[ rd$type=='function' ])
-    if (relabel) {
-        m = n1[,]
-        colnames(m)=NULL
-        rownames(m)=NULL
-        plot(network(m), vertex.col=col, displaylabels=TRUE, ...)
-        legend('topleft', legend=sprintf('%3s %s',1:length(v),v), cex=0.5)
-    } else {
-        plotFunctionMap(n1, vertex.col=col, ...)
+    if (is(s4,'try-error')){
+        txts = extract.S4.defn(path=package)
+        try(eval(parse(text=txts)), silent=TRUE)
+        s4 = try(parseS4fromNs(), silent=TRUE)
     }
-    if (NROW(rd)>0) legend('topright', legend=c('Internal','External'),col=c(2,3),pch=20)
+    if (is(s4,'try-error')) {
+        n1 = createNetwork(nt)
+    } else {
+        n1 = createDirectedNetwork(nt, s4)
+    }
+    if (do.plot) {
+        v = colnames(n1[,])
+        col = rep(2, length(v)) + ( v %in% rd$name[ rd$type=='function' ])
+        if (relabel) {
+            m = n1[,]
+            colnames(m)=NULL
+            rownames(m)=NULL
+            plot(network(m), vertex.col=col, displaylabels=TRUE, ...)
+            legend('topleft', legend=sprintf('%3s %s',1:length(v),v), cex=0.5)
+        } else {
+            plotFunctionMap(n1, vertex.col=col, ...)
+        }
+        if (NROW(rd)>0) legend('topright', legend=c('Internal','External'),col=c(2,3),pch=20)
+    }
     n1
 }
 
