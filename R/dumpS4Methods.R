@@ -148,18 +148,31 @@ createDirectedNetwork <- function(plain.fun, s4list=list(), if.directed=TRUE) {
 #' @param srclist source list
 #' @param path alternatively, we can specify a path and use all R source in it
 #' @param single if we should paste the multiple characters into a single one
+#' @param export.other.defn export other function definitions
 #' @return text include only S4 related definitions 
 #' @examples \dontrun{
 #'
 #'      cat(extract.S4.defn(path=system.file("examples", "R", package = "functionMap")))
 #' }
 #' @export
-extract.S4.defn <- function(srclist, path, single=TRUE) {
+extract.S4.defn <- function(srclist, path, single=TRUE, export.other.defn=TRUE) {
     if (missing(srclist)) {
         if (missing(path)) stop('Must specify at least scrlist or path as input.')
         srclist <- list.files(path, full=TRUE, pattern='*.[R|r]')
     }
     L <- do.call('c', sapply(srclist, parse))
+
+    if (export.other.defn) {
+        # extract assignments of other ordinary functions to global env
+        # if those definitions are not available, the extracted S4 statement may fail 
+        # if you try to evaluate them on .GlobalEnv
+        L.ordinary <- L[ sapply(L, class) == '<-' ]
+        # we need to populate function definitions to environment, or setGeneric may fail
+        for(i in seq_along(L.ordinary)) {
+            try(eval(L.ordinary[[i]], envir=.GlobalEnv), silent=TRUE)
+        }
+        #
+    }
     L <- L[ sapply(L, class)=='call' ]
     # class of call, can be setClass, setMethod, setGeneric, or other ordinary call
     set.function.types <- c(

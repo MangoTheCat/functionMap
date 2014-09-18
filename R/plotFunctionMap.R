@@ -35,7 +35,7 @@ plotFunctionMap <- function(networkobj, displayisolates = FALSE, displaylabels =
 
 ##' Parse Rd docs get function export information
 ##' @param packagedir path to root of package
-##' @return a data.frame summary for exported (as you documented in Rd by \@export)
+##' @return a data.frame summary for exported (as you documented in Rd by export)
 ##' @export
 parse_roxygen_export = function(packagedir) {
     require(roxygen2)
