@@ -1,7 +1,7 @@
 
 #' Dump all S4 definition from namespace
 #'
-#' The difficulty part of statically analysing for S4 methods dispatching is it's hard to determine from code
+#' The difficulty part of static analysis for S4 methods dispatching is it's hard to determine from code
 #' which method will be called:
 #'
 #' For example : plot(x)
