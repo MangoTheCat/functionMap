@@ -10,6 +10,7 @@
 	
 	options(recharts.tags = recharts.tags)
 	options(recharts.jsLoaderFlag = FALSE)
+    options(analyse.advance.pattern = c('do.call.pattern', 'eval.call.pattern'))
 
 }
 

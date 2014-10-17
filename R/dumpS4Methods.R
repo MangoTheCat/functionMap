@@ -1,26 +1,28 @@
 
+#' dumpS4Generic
+#'
 #' Dump all S4 definition from namespace
 #'
 #' The difficulty part of static analysis for S4 methods dispatching is it's hard to determine from code
 #' which method will be called:
 #'
-#' For example : plot(x)
+#' For example : \code{plot(x)}
 #'
-#' unless we know what x is, we are not knowing what version of plot is actually invoked, hence we do not know
+#' unless we know what \code{x} is, we are not knowing what version of \code{plot} is actually invoked, hence we do not know
 #' the exactly depedency relation (function Map), 
 #' 
-#' This function will change setMethod(methodname, signature, implementation) to the following format:
+#' This function will change \code{setMethod(methodname, signature, implementation)} to the following format:
 #'
-#'      methodname.obj1.obj2.obj3 <- implementation
+#'      \code{methodname.obj1.obj2.obj3 <- implementation}
 #' 
-#' where obj1, obj2, obj3 are object types in the signatures
+#' where \code{obj1, obj2, obj3} are object types in the signatures
 #'
 #' @title dump and reformat generic functions (S4) in a namespace
 #' @param ns character name for namespace, or an environment object
-#' @param style S4 style rename method as function[type1,type2,type3], S3 style is function.type1.type2.typ3
+#' @param style S4 style rename method as \code{function[type1,type2,type3]}, S3 style is \code{function.type1.type2.typ3}
 #' @return reformated text (source) file
 #' @author Mango solutions
-#' @examples \dontrun {
+#' @examples \dontrun{
 #'
 #'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
 #'      # need to eval those functions to make the definition into .GlobalEnv
@@ -76,9 +78,11 @@ dumpS4Generic <- function(ns, style=c('S4','S3')) {
     txts
 }
 
-#' wrapper for dumpS4Generic and parseRscript
-#' @param ... parameters passed to dumpS4Generic
-#' @return a parsed object from parseRscript
+#' parseS4fromNs
+#'
+#' wrapper for \code{\link{dumpS4Generic}} and \code{\link{parseRscript}}
+#' @param ... parameters passed to \code{\link{dumpS4Generic}}
+#' @return a parsed object from \code{parseRscript}
 #' @export
 #' @examples \dontrun{
 #'      ## Matrix is a very complex S4 package
@@ -102,13 +106,13 @@ parseS4fromNs <- function(...) {
     parseRscript(f)
 }
 
-#' directed network
+#' createDirectedNetwork 
 #'
-#' allow combine plain functions and S4 function in a single network, then 
-#' can be plot by plotFunctionMap
+#' Combine plain functions and S4 function in a single network, which 
+#' can be plot by \code{\link{plotFunctionMap}}
 #'
 #' @param plain.fun normal functions
-#' @param s4list S4list dumped by dumpS4Generic
+#' @param s4list S4list dumped by \code{\link{dumpS4Generic}}
 #' @examples \dontrun{
 #'
 #'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
@@ -143,10 +147,12 @@ createDirectedNetwork <- function(plain.fun, s4list=list(), if.directed=TRUE) {
 }
 
 
+#' extract.S4.defn
+#'
 #' Extract S4 class and methods definition
 #'
 #' @param srclist source list
-#' @param path alternatively, we can specify a path and use all R source in it
+#' @param path alternatively, we can specify a path and use all R sources in it
 #' @param single if we should paste the multiple characters into a single one
 #' @param export.other.defn export other function definitions
 #' @return text include only S4 related definitions 

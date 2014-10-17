@@ -3,6 +3,7 @@
 ##'
 ##' @title Parse the R script and return the function structure.
 ##' @param rfile Path of the R script file.
+##' @param analyse.advance.pattern any extra pattern we should also analyse and include
 ##' @return A list of all the functions included in this script. Each component contains the names of the functions were called by this function. 
 ##' @author Mango Solutions
 ##' @examples \dontrun{
@@ -11,7 +12,7 @@
 ##' }
 ##' 
 
-parseRscript <- function(rfile) {
+parseRscript <- function(rfile, analyse.advance.pattern =getOption('analyse.advance.pattern')) {
 	
 	tmp.env <- new.env()
 	res.source <- try(source(file = rfile, local = tmp.env, keep.source = TRUE), silent = TRUE)
@@ -39,6 +40,14 @@ parseRscript <- function(rfile) {
 		close(tmp.con)
 		tmp.parsedata <- getParseData(parse(tmp.file, keep.source = TRUE))
 		tmp.funcall[[i]] <- tmp.parsedata$text[tmp.parsedata$token == "SYMBOL_FUNCTION_CALL"]
+        if ('do.call.pattern' %in% analyse.advance.pattern) {
+            tmp.funcall[[i]] <- c(tmp.funcall[[i]],
+            convertToCharacter( analyse.do.call.pattern(body(get(rfile.fun[i], envir=tmp.env))) ) )
+        }
+        if ('eval.call.pattern' %in% analyse.advance.pattern) {
+            tmp.funcall[[i]] <- c(tmp.funcall[[i]],
+                analyse.eval.call.pattern(body(get(rfile.fun[i], envir=tmp.env))) )
+        }
 		unlink(tmp.file, force = TRUE)
 	}
 	names(tmp.funcall) <- rfile.fun
@@ -47,13 +56,41 @@ parseRscript <- function(rfile) {
 	return(tmp.funcall)
 }
 
-#' allow user to decide if we should add additional edges in the final functionMap
-#' 
-#' For do.call(sin, argList), it's actually a static call, which can be converted to normal call
-#' However, we analysis and created additional edges
+#' convertToCharacter
 #'
-#' assuming e is one expression
-create.edges.from.do.call <- function(e){
+#' Helper function for \code{\link{analyse.do.call.pattern}},
+#' which convert return list of \code{analyse.do.call.pattern} to character vector
+#' @param L return list of \code{analyse.do.call.pattern}
+#' @return character list representing input \code{L}
+#' @export
+convertToCharacter <- function(L) {
+    # as.character(quote(a + b)) -> '+' 'a' 'b', we should use deparse
+    sapply(L, function(x) if (is.language(x)) paste(deparse(x), collapse='') else x, USE.NAMES=FALSE)
+}
+
+#' analyse.do.call.pattern
+#'
+#' This function helps user to add additional edges to the final functional Map
+#' 
+#' For \code{do.call} pattern is like 
+#'
+#'  \code{do.call(sin, argList)} 
+#' 
+#' it can be analyzed staticly, without knowning run-time information, hence it can be converted to a normal function call
+#' 
+#' @param e an expression or list of expressions
+#' @return list of expressions
+#' @examples \dontrun{
+#'       analyse.do.call.pattern( { 
+#'           quote(do.call('myfun', list('arg1','arg2','arg3')) )
+#'       })
+#'       re <- analyse.do.call.pattern( { 
+#'           quote(do.call(myfun, list(arg1,arg2,arg3)) )
+#'       })
+#'       convertToCharacter(re) }
+#' @export
+analyse.do.call.pattern <- function(e) {
+    if (is.function(e)) return(Recall(body(e)))
     if (is.atomic(e) || is.symbol(e)) return(NULL)
     L <- NULL
     if (is.list(e)) {
@@ -90,25 +127,16 @@ create.edges.from.do.call <- function(e){
     L
 }
 
-#' convert return list of create.edges.from.do.call to character
-#' because  as.character(quote(a + b)) -> '+' 'a' 'b', we should use deparse
-convertToCharacter <- function(L) {
-    sapply(L, function(x) if (is.language(x)) paste(deparse(x), collapse='') else x, USE.NAMES=FALSE)
-}
 
-# eval plus normal call can be handled by parseRscript
-# we need to consider call plus eval
-# However, the real difficulty is if the call is constructed dynamically, e.g. 
-# in lm function, a call to stats::model.frame is by construct a call called "mf"
-# and then eval it.
-# This dynamic behavior is almost impossible to analysis using static analysis
-
-# however, we can catch a particular pattern, i.e. 
-# eval(m)
-# where there is a line saying m[[1]] <- some function
-
-# recursive match
-eval.matcher <- function(e) {
+#' match.eval.pattern
+#' 
+#' Helper function for \code{\link{analyse.eval.call.pattern}} for recursively matching the eval pattern
+#' @param e expression
+#' @return \code{TRUE} or \code{FALSE} and matched eval calls
+#' @examples \dontrun{
+#'    match.eval.pattern( body(model.frame.default) )  }
+#' @export
+match.eval.pattern <- function(e) {
     if (is.symbol(e) || is.atomic(e)) return(FALSE)
     re <- FALSE
     if (is.call(e)) {
@@ -128,7 +156,43 @@ eval.matcher <- function(e) {
     re
 }
 
-analyse.eval.pattern <- function( f , Bindings = list()) {
+#' analyse.eval.call.pattern
+#'
+#' Analyse and extract out any \code{eval(m)} pattern where \code{m} is a call if possible
+#'
+#' @details
+#' One pattern of eval plus literal like \code{eval(fun(arg1,arg2))} can be handled by \code{\link{parseRscript}}.
+#'
+#' However, a call object (in a variable) plus eval can not be handled by \code{parseRscript}.
+#'
+#' The real difficulty is if the call is constructed dynamically, e.g. 
+#'
+#' in \code{lm} function, a call to \code{stats::model.frame} is by construct a call stored in variable \code{mf}
+#'
+#' and then eval it.
+#'
+#' This dynamic behavior is almost impossible to analysis using static analysis.
+#'
+#' However, we can catch a particular pattern, i.e.  \code{eval(m)}
+#'
+#' where there is a line saying \code{m[[1]] <- some function}
+#'
+#' There are situations \code{ m <- match.call() } , then change some argument and call it, however
+#' this time the function is the function itself, we don't count this as in the final plot, self-loop is not shown.
+#'
+#' @param f function or expression in a block in bracket \code{{}}
+#' @param Bindings known variable bindings, typically empty
+#' @return list of the function name called by eval. There may be additional attribute having information of discovered bindings and all eval expressions
+#' @examples \dontrun{
+#'    analyse.eval.call.pattern(lm)
+#'    analyse.eval.call.pattern(glm)
+#'    analyse.eval.call.pattern(anova.mlm)
+#'    # the clever things this function does is it'll try to look up symbol(variable) meaning from context, compare the following example
+#'    attr(match.eval.pattern( body(model.frame.default)), 'eval.calls')
+#'    # note those fcall, predvars, extras and subset are replaced by the value look up in the context
+#'    analyse.eval.call.pattern( model.frame.default )[1:4]  }
+#' @export
+analyse.eval.call.pattern <- function( f , Bindings = list()) {
     if (is.function(f)) f <- body(f)
     if (!is.call(f) || f[[1]] != '{') {
         if (f[[1]]=='UseMethod') {
@@ -139,6 +203,10 @@ analyse.eval.pattern <- function( f , Bindings = list()) {
     }
     Evals <- list()
     Eval.Call.Pattern <- character(0)
+    if (length(f)<2) {
+    # possible {}
+        return(Eval.Call.Pattern)
+    }
     for(i in 2:length(f)) {
         e <- f[[i]]
         if (is.call(e) && (e[[1]] == '=' || e[[1]] == '<-' || e[[1]] == '<<-' )) {
@@ -186,7 +254,7 @@ analyse.eval.pattern <- function( f , Bindings = list()) {
         # deal with situation:
         # one branch of if-else has eval(call), but not resolved in previous section, i.e. the Binding is not found
         # in the branch locally, we may need to store it and look up it in more global perspective
-        if (!if.has.eval.matched.already && (em<-eval.matcher(e))) {
+        if (!if.has.eval.matched.already && (em<-match.eval.pattern(e))) {
         # we need to exclude out the situation of nested function
             if ((e[[1]]=='=' || e[[1]]=='<-' || e[[1]] == '<<-') && 
                 (e[[c(3,1)]]=='function' && e[[c(3,3,1)]]=='{')) {
@@ -219,7 +287,7 @@ analyse.eval.pattern <- function( f , Bindings = list()) {
     simplify <- function(e) {
         if (is.atomic(e)) return(e)
         if (is.symbol(e)) return(as.character(e))
-        if (is.call(e) && e[[1]] == 'quote') {
+        if (is.call(e) && (e[[1]] == 'quote' || e[[1]] == 'call')) {
             return(Recall(e[[2]]))
         }
         if (is.call(e)) {
