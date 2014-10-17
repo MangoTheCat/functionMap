@@ -41,12 +41,16 @@ parseRscript <- function(rfile, analyse.advance.pattern =getOption('analyse.adva
 		tmp.parsedata <- getParseData(parse(tmp.file, keep.source = TRUE))
 		tmp.funcall[[i]] <- tmp.parsedata$text[tmp.parsedata$token == "SYMBOL_FUNCTION_CALL"]
         if ('do.call.pattern' %in% analyse.advance.pattern) {
-            tmp.funcall[[i]] <- c(tmp.funcall[[i]],
-            convertToCharacter( analyse.do.call.pattern(body(get(rfile.fun[i], envir=tmp.env))) ) )
+            re <- try(analyse.do.call.pattern(body(get(rfile.fun[i], envir=tmp.env))), silent=TRUE)
+            if ( (!is(re,'try-error')) && (!is.null(re)) && length(re)>0 ) {
+                tmp.funcall[[i]] <- c(tmp.funcall[[i]], convertToCharacter(re)) 
+            }
         }
         if ('eval.call.pattern' %in% analyse.advance.pattern) {
-            tmp.funcall[[i]] <- c(tmp.funcall[[i]],
-                analyse.eval.call.pattern(body(get(rfile.fun[i], envir=tmp.env))) )
+            re <- try( analyse.eval.call.pattern( get(rfile.fun[i], envir=tmp.env)) , silent=TRUE )
+            if ( (!is(re,'try-error')) && (!is.null(re)) && length(re)>0 ) {
+                tmp.funcall[[i]] <- c(tmp.funcall[[i]], re)
+            }
         }
 		unlink(tmp.file, force = TRUE)
 	}
@@ -65,6 +69,7 @@ parseRscript <- function(rfile, analyse.advance.pattern =getOption('analyse.adva
 #' @export
 convertToCharacter <- function(L) {
     # as.character(quote(a + b)) -> '+' 'a' 'b', we should use deparse
+    if (is.null(L) || length(L)==0) return(character(0))
     sapply(L, function(x) if (is.language(x)) paste(deparse(x), collapse='') else x, USE.NAMES=FALSE)
 }
 
@@ -182,6 +187,7 @@ match.eval.pattern <- function(e) {
 #'
 #' @param f function or expression in a block in bracket \code{{}}
 #' @param Bindings known variable bindings, typically empty
+#' @param baseline.lineno recording nested structure, typically not used by user, but needed by the recursive function itself
 #' @return list of the function name called by eval. There may be additional attribute having information of discovered bindings and all eval expressions
 #' @examples \dontrun{
 #'    analyse.eval.call.pattern(lm)
@@ -192,8 +198,14 @@ match.eval.pattern <- function(e) {
 #'    # note those fcall, predvars, extras and subset are replaced by the value look up in the context
 #'    analyse.eval.call.pattern( model.frame.default )[1:4]  }
 #' @export
-analyse.eval.call.pattern <- function( f , Bindings = list()) {
-    if (is.function(f)) f <- body(f)
+analyse.eval.call.pattern <- function( f , Bindings = list(), baseline.lineno=NULL) {
+    if (is.function(f)) {
+        f <- body(f)
+        # when we deal with function, always wrap it in a block if not
+        if (f[[1]] != '{') {
+            f <- call('{', f)
+        }
+    }
     if (!is.call(f) || f[[1]] != '{') {
         if (f[[1]]=='UseMethod') {
             warning('Input is a generic method, you might want input a S3 method for specified class')
@@ -207,22 +219,23 @@ analyse.eval.call.pattern <- function( f , Bindings = list()) {
     # possible {}
         return(Eval.Call.Pattern)
     }
+    # baseline.lineno can be c(1,1,2,3)  indicating a nested structure
     for(i in 2:length(f)) {
         e <- f[[i]]
         if (is.call(e) && (e[[1]] == '=' || e[[1]] == '<-' || e[[1]] == '<<-' )) {
-            Bindings[[ length(Bindings) + 1]] <- list(lhs =  e[[2]], rhs = e[[3]] , lineno = i , is.global= (e[[1]]=='<<-'))
+            Bindings[[ length(Bindings) + 1]] <- list(lhs =  e[[2]], rhs = e[[3]] , lineno = c(baseline.lineno, i) , export.to.parent = (e[[1]]=='<<-'))
         }
         if.has.eval.matched.already <- FALSE
         if (is.call(e) && (e[[1]] == 'if')) {
             if (e[[c(3,1)]] == '{') {
             # deal with if's positive branch
-                foo <- Recall(e[[3]], Bindings)
+                foo <- Recall(e[[3]], Bindings, baseline.lineno=c(baseline.lineno, i))
                 branch.p.bindings <- attr(foo,'Bindings')
                 if (!is.null(branch.p.bindings)) {
                     for(k in seq_along(branch.p.bindings)) {
+                        # exclude what we passed in
+                        if (k<=length(Bindings)) next
                         tmp <- branch.p.bindings[[k]]
-                        # nested lineno
-                        tmp$lineno <- c(i, tmp$lineno)
                         tmp$ifbranch <- 1
                         Bindings[[ length(Bindings) + 1]] <- tmp
                     }
@@ -234,13 +247,14 @@ analyse.eval.call.pattern <- function( f , Bindings = list()) {
             }
             if (length(e)>3 && e[[c(4,1)]] == '{') {
             # deal with if's negative branch, if there is any
-                foo <- Recall(e[[4]], Bindings)
+                foo <- Recall(e[[4]], Bindings, baseline.lineno=c(baseline.lineno, i))
                 branch.n.bindings <- attr(foo,'Bindings')
                 if (!is.null(branch.n.bindings)) {
                     for(k in seq_along(branch.n.bindings)) {
+                        # exclude what we passed in
+                        if (k<=length(Bindings)) next
                         tmp <- branch.n.bindings[[k]]
                         # nested lineno
-                        tmp$lineno <- c(i, tmp$lineno)
                         tmp$ifbranch <- -1
                         Bindings[[ length(Bindings) + 1]] <- tmp
                     }
@@ -254,19 +268,22 @@ analyse.eval.call.pattern <- function( f , Bindings = list()) {
         # deal with situation:
         # one branch of if-else has eval(call), but not resolved in previous section, i.e. the Binding is not found
         # in the branch locally, we may need to store it and look up it in more global perspective
+        #
+        # Here, we claim match.eval.pattern() which means the right hand side have to contain some "eval", or any binding in it will not be analysed
+        # If there is any nested function will export variable out, we may not catch them. But if such function have eval, we will catch them
         if (!if.has.eval.matched.already && (em<-match.eval.pattern(e))) {
         # we need to exclude out the situation of nested function
             if ((e[[1]]=='=' || e[[1]]=='<-' || e[[1]] == '<<-') && 
                 (e[[c(3,1)]]=='function' && e[[c(3,3,1)]]=='{')) {
                 # not a simple nested function
-                    foo <- Recall(e[[c(3,3)]], Bindings)
+                    foo <- Recall(e[[c(3,3)]], Bindings, baseline.lineno = c(baseline.lineno, i))
                     nested.global <- attr(foo,'Bindings')
                     if (!is.null(nested.global)) {
                         for(k in seq_along(nested.global)) {
+                            # need to exclude input
+                            if (k <= length(Bindings)) next
                             tmp <- nested.global[[k]]
-                            if (!tmp$is.global) next
-                            # nested lineno
-                            tmp$lineno <- c(i, tmp$lineno)
+                            if (!(tmp$export.to.parent)) next
                             Bindings[[ length(Bindings) + 1]] <- tmp
                         }
                     }
@@ -275,14 +292,19 @@ analyse.eval.call.pattern <- function( f , Bindings = list()) {
                     }
             } else {
                 for(j in 1:length(attr(em, 'eval.calls'))) {
-                    Evals[[ length(Evals) + 1 ]] <- list(expr = attr(em, 'eval.calls')[[j]]$expr , lineno = i)
+                    Evals[[ length(Evals) + 1 ]] <- list(expr = attr(em, 'eval.calls')[[j]]$expr , lineno = c(baseline.lineno, i))
                 }
             }
         }
     }
     # we dont deal with anonymous function here
-    if (length(Evals)<1) return(Eval.Call.Pattern)
-    binding.lineno <- sapply(Bindings, function(x) x$lineno[1])
+    if (length(Evals)<1) {
+    # even if no eval, but binding information is useful
+        attr(Eval.Call.Pattern, 'Bindings') <- invisible(Bindings)
+        return(Eval.Call.Pattern)
+    }
+
+    binding.lineno <- lapply(Bindings, function(x) x$lineno)
 
     simplify <- function(e) {
         if (is.atomic(e)) return(e)
@@ -310,6 +332,14 @@ analyse.eval.call.pattern <- function( f , Bindings = list()) {
         paste(deparse(e), collapse='')
     }
 
+    lexical.smaller <- function(n, m) {
+        for(i in 1: min(length(n),length(m))) {
+            if (n[i]>m[i]) return(FALSE)
+            if (n[i]<m[i]) return(TRUE)
+        }
+        length(n) < length(m)
+    }
+
     for(i in 1:length(Evals)) {
         expr <- Evals[[i]]$expr
         if (!is.symbol(expr)) {
@@ -324,7 +354,7 @@ analyse.eval.call.pattern <- function( f , Bindings = list()) {
         # expr is a symbol, we need to 
         # looking backup
         lineno <- Evals[[i]]$lineno
-        ind <- rev(which(binding.lineno < lineno))
+        ind <- rev(which(sapply(binding.lineno, function(x) lexical.smaller(x, lineno))))
         True.call.fun <- NULL
         for(j in ind) {
             lhs <- Bindings[[j]]$lhs
