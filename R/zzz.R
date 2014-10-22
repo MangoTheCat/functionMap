@@ -10,7 +10,8 @@
 	
 	options(recharts.tags = recharts.tags)
 	options(recharts.jsLoaderFlag = FALSE)
-    options(analyse.advance.pattern = c('do.call.pattern', 'eval.call.pattern'))
+    options(analyse.advance.pattern = c('do.call.pattern', 'eval.call.pattern', 'external.call.pattern'))
+    options(add.prefix.for.external.call=TRUE)
 
 }
 

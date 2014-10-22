@@ -29,6 +29,10 @@ parseRscript <- function(rfile, analyse.advance.pattern =getOption('analyse.adva
 	rfile.obj <- ls(tmp.env, all.names = TRUE)
 	rfile.fun <- rfile.obj[sapply(rfile.obj, FUN = function(X) class(tmp.env[[X]]) == "function")]
 	
+    # ensure to remove unclosed sink after exiting
+    old.sink.number <- sink.number()
+    on.exit(while( sink.number()>old.sink.number ) sink() )
+    #
 	tmp.funcall <- list()
 	tmp.dir = tempdir()
 	for (i in 1:length(rfile.fun)) {
@@ -44,6 +48,12 @@ parseRscript <- function(rfile, analyse.advance.pattern =getOption('analyse.adva
             re <- try(analyse.do.call.pattern(body(get(rfile.fun[i], envir=tmp.env))), silent=TRUE)
             if ( (!is(re,'try-error')) && (!is.null(re)) && length(re)>0 ) {
                 tmp.funcall[[i]] <- c(tmp.funcall[[i]], convertToCharacter(re)) 
+            }
+        }
+        if ('external.call.pattern' %in% analyse.advance.pattern) {
+            re <- try(analyse.external.call.pattern(get(rfile.fun[i], envir=tmp.env)), silent=TRUE)
+            if ( (!is(re,'try-error')) && (!is.null(re)) && length(re)>0 ) {
+                tmp.funcall[[i]] <- c(tmp.funcall[[i]], convertToCharacter(re))
             }
         }
         if ('eval.call.pattern' %in% analyse.advance.pattern) {
@@ -95,7 +105,12 @@ convertToCharacter <- function(L) {
 #'       convertToCharacter(re) }
 #' @export
 analyse.do.call.pattern <- function(e) {
-    if (is.function(e)) return(Recall(body(e)))
+    if (is.function(e)) {
+    # currently, it's still too trick to deal with promise, so, if there is a default value which
+    # is an unevaluated expression, which happened to have function call, we can not catch that.
+    # We only collect the function call in do.call form in the body
+        return(Recall(body(e)))
+    }
     if (is.atomic(e) || is.symbol(e)) return(NULL)
     L <- NULL
     if (is.list(e)) {
@@ -103,12 +118,6 @@ analyse.do.call.pattern <- function(e) {
             L <- c(L, Recall(e[[i]]))
         }
         return(L)
-    }
-    if (is.function(e)) {
-    # currently, it's still too trick to deal with promise, so, if there is a default value which
-    # is an unevaluated expression, which happened to have function call, we can not catch that.
-    # We only collect the function call in do.call form in the body
-        return(Recall(body(e)))
     }
     if (is.call(e)) {
          if (e[[1]]=='do.call') {
@@ -132,6 +141,52 @@ analyse.do.call.pattern <- function(e) {
     L
 }
 
+
+#' analyse.external.call.pattern
+#'
+#' match \code{.C}, \code{.Fortran} and \code{.Call}
+#'
+#' A global option \code{add.prefix.for.external.call} will add \code{C_}, \code{FORTRAN_} and \code{External_} prefix or not
+#'
+#' @param e expression
+#' @return list of experssions
+#' @examples \dontrun{
+#'     analyse.external.call.pattern( quote( .C('classRF') ) )
+#'     analyse.external.call.pattern( quote( .C(classRF) ) )
+#' }
+analyse.external.call.pattern <- function(e){
+    if (is.function(e)) return(Recall(body(e)))
+    if (is.atomic(e) || is.symbol(e)) return(NULL)
+    L <- NULL
+    if (is.list(e)) {
+        for(i in seq_along(e)) {
+            L <- c(L, Recall(e[[i]]))
+        }
+        return(L)
+    }
+    if (is.call(e)) {
+         if (e[[1]]=='.C' || e[[1]]=='.Fortran' || e[[1]]=='.Call' || e[[1]] == '.External' ) {
+         # we can't use match.call for primitive call
+         # assume position 1 is always the .NAME of the routine being called
+            if (isTRUE(getOption('add.prefix.for.external.call'))) {
+                prefix <- switch(as.character(e[[1]]),
+                    '.C' = 'C',
+                    '.Fortran' = 'FORTRAN',
+                    'EXTERNAL')
+                L <- c(L, paste(prefix, convertToCharacter(e[[2]]), sep='_'))
+            } else {
+                L <- c(L, e[[2]])
+            }
+         } else {
+             if (length(e)>1) {
+                 for(i in 2:length(e)) {
+                     L <- c(L, Recall(e[[i]]))
+                 }
+             }
+         }
+    }
+    L
+}
 
 #' match.eval.pattern
 #' 
