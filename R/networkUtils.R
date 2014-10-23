@@ -35,3 +35,48 @@ isolated.vertexes <- function(n, need.plot=FALSE) {
 }
 
 
+#' dfs
+#' 
+#' dfs travel graph in matrix representation
+#' @param n adj matrix
+#' @param v index from which we start, missing then searhing all connected component
+#' @param direction forward, backward or bidirection
+#' @param return traveled vertexes indices or list of connected components (missing v)
+#' @export
+dfs.matrix.travel <- function(n, v, direction='forward') {
+    if (prod(dim(n))==0) return(NULL)
+    traveled <- new.env(parent=emptyenv())
+    cc.index <- 1
+
+    dfs0 <- function(u) {
+        next.u <- switch(direction, 
+            forward  = which(n[u,] > 0),
+            backward = which(n[,u] > 0),
+            bidirection = which(n[u,]>0|n[,u]>0))
+
+        for(i in next.u) {
+            if (exists(as.character(i),env=traveled) && get(as.character(i),env=traveled)>0) next
+            assign(as.character(i), cc.index, env=traveled)
+            dfs0(i)
+        }
+    }
+
+    if (!missing(v)) {
+        assign(as.character(v),cc.index, env=traveled)
+        dfs0(v)
+        re <- as.integer(ls(traveled))
+        return(sort(re))
+    }
+    # connected components
+    L <- list()
+    for(v in 1:NROW(n)) {
+        if (exists(as.character(v), env=traveled) && get(as.character(v),env=traveled)) next
+        assign(as.character(v),cc.index, env=traveled)
+        dfs0(v)
+        re <- unlist(eapply(traveled, function(x) x==cc.index))
+        L[[cc.index]] <- as.integer(names(re)[re])
+        cc.index <- cc.index + 1
+    }
+    L
+}
+
