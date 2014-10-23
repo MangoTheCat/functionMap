@@ -26,6 +26,12 @@ plotFunctionMap <- function(networkobj, displayisolates = FALSE, displaylabels =
 		pdffile,  width = 5, height = 5) 
 {	
 	if (!missing(pdffile)) pdf(file = pdffile, width = width, height = height)
+    if (all.isolated(networkobj)) {
+        if (!displayisolates) {
+            warning('All vertexes are isolated, force displayisolates to TRUE')
+            displayisolates <- TRUE
+        }
+    }
 	plot(networkobj, displayisolates = displayisolates, displaylabels = displaylabels, 
 			boxed.labels = TRUE, arrowhead.cex = arrowhead.cex, edge.lwd = edge.lwd, 
 			label.cex = label.cex, vertex.col = vertex.col) 
