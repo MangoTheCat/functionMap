@@ -81,6 +81,10 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1024, 768),
 	
 	networkMatrix <- as.matrix(networkMatrix)
 	if (nrow(networkMatrix) != ncol(networkMatrix))  stop("networkMatrix would be a symmetric matrix")
+    if (any(t(networkMatrix) != networkMatrix)) {
+        warning('networkMatrix is not symmetric, we force it symmetric by t(M) + M')
+        networkMatrix = networkMatrix + t(networkMatrix)
+    }
 	
 	# matrix name check.
 	if (is.null(colnames(networkMatrix))){
@@ -269,5 +273,3 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1024, 768),
 	### output list format
 	return(output)
 }
-	
-	

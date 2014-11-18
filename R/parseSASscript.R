@@ -5,9 +5,15 @@
 #'
 #' @param sas.script script name
 #' @param user.macros.list the lookup table of user defined macros, if \code{sas.script} has used any of \code{user.macros.list}, it will be reported in the output
-#' @param output.format \code{list} is a single character including used proc name and user macro name
-#' @return a character of user proc and macro if \code{output.format} is \code{list}; a data.frame of script name, number of lines, times of proc and data step used and user call used
+#' @param output.format if it's \code{list} then return a single character including used proc name and user macro name; or return a data.frame
+#' @return a character of user proc and macro if \code{output.format} is \code{list}, or return  a data.frame of script name, number of lines, times of proc and data step used and user macro used
 #' @export
+#' @examples \dontrun{
+#'  setwd('SASScriptToplevel')
+#'  parseSASscript('06_Model build.sas', output.format='list')
+#'  parseSASscript('03_ CREATE CSV FOR CLASSING.sas', output.format='data.frame')
+#'  parseSASscript('Macros/ModelCode.sas')
+#' }
 
 parseSASscript <- function(sas.script, 
                            user.macros.list = sub('\\.sas$','',casefold(basename(list.files(pattern='.[Ss][Aa][Ss]',rec=TRUE)))), 
@@ -22,10 +28,10 @@ parseSASscript <- function(sas.script,
   procLines <- grep("^proc", theCode)
 
   procTab <- NULL
-  if (length(procLines)) { # there are procs!
+  if (length(procLines)>0) { # there are procs!
     procCode <- gsub(";", " ", substring(theCode [ procLines ], 6))
     procCode <- substring(procCode, 1, regexpr(" ", procCode)-1)
-    assign("allProcs", c(get("allProcs", pos = 1), procCode), pos = 1)
+#   assign("allProcs", c(get("allProcs", pos = 1), procCode), pos = 1)
     procTab <- table(procCode)
     procString <- paste(names(procTab), "(", procTab, ")", sep="", collapse=", ")
   } else {

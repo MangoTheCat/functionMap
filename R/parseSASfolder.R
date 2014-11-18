@@ -6,6 +6,11 @@
 #' @param sas.pattern the extension pattern for SAS scripts
 #' @return list of contained proc and macros
 #' @export
+#' @examples \dontrun{
+#'    nn <- createNetwork(parseSASfolder('.'))
+#'    plotFunctionMap(nn)
+#'    plot(eForce(nn))
+#' }
 parseSASfolder <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]') {
     sas.files <- list.files(sas.path, pattern=sas.pattern, rec=TRUE, full.name=TRUE)
     user.macro.list <- sub(sas.pattern,'',casefold(basename(sas.files)))
