@@ -16,7 +16,7 @@
 #' }
 
 parseSASscript <- function(sas.script, 
-                           user.macros.list = sub('\\.sas$','',casefold(basename(list.files(pattern='.[Ss][Aa][Ss]',rec=TRUE)))), 
+                           user.macros.list = sub('\\.sas$','',casefold(basename(list.files(pattern='\\.[Ss][Aa][Ss]$',rec=TRUE)))), 
                            output.format = 'list') {
   trim <- function(x) gsub("^\\s+|", "", x)
   theCode <- casefold(trim(scan(sas.script, what = character(), sep="\n", quiet = TRUE)))

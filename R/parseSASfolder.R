@@ -11,7 +11,7 @@
 #'    plotFunctionMap(nn)
 #'    plot(eForce(nn))
 #' }
-parseSASfolder <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]') {
+parseSASfolder <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]$') {
     sas.files <- list.files(sas.path, pattern=sas.pattern, rec=TRUE, full.name=TRUE)
     user.macro.list <- sub(sas.pattern,'',casefold(basename(sas.files)))
     L <- list()
@@ -19,6 +19,31 @@ parseSASfolder <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]') {
         L[[ casefold(sub(sas.pattern,'',basename(fn))) ]] <- parseSASscript(fn, user.macro.list)
     }
     L
+}
+
+#' network.from.sascode
+#'
+#' A Wrapper for the \code{\link{parseSASfolder}} and \code{\link{createNetwork}}
+#' Also set vertex attribute for the toplevel scripts.
+#'
+#' @param sas.path basedir to analysis
+#' @param sas.pattern the extention file name pattern
+#' @return network object
+#' @export
+#' @examples \dontrun{
+#'   net <- network.from.sascode('.')
+#'   # it will have the atrribute of being a toplevel script or not
+#'   net %v% 'toplevel'
+#' }
+network.from.sascode <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]$') {
+    l <- parseSASfolder(sas.path, sas.pattern)
+    net <- createNetwork(l)
+    toplevel.scripts <- 
+        casefold(sub(sas.pattern,'', basename(list.files(sas.path, pattern=sas.pattern))))
+    # by default set.vertex.attribute is igraph::set.vertex.attribute, which is not what we want
+    # here the function need to be fully qualified
+    network::set.vertex.attribute(net, 'toplevel', network.vertex.names(net) %in% toplevel.scripts)
+    net
 }
 
 #' show.connected.components
@@ -56,7 +81,7 @@ show.connected.components <- function(nn, make.plot=TRUE) {
 #' @param sas.pattern which pattern to including in analysis as SAS scripts
 #' @param output.file the output pdf file which displays the structures
 #' @return list of network of toplevel scripts
-toplevel.sas.structure <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]', output.file='network.map.pdf') {
+toplevel.sas.structure <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]$', output.file='network.map.pdf') {
     L <- parseSASfolder(sas.path, sas.pattern)
     nn <- createNetwork(L)
     toplevel.scripts <- 
