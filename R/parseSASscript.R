@@ -21,9 +21,10 @@ parseSASscript <- function(sas.script,
   trim <- function(x) gsub("^\\s+|", "", x)
   theCode <- casefold(trim(scan(sas.script, what = character(), sep="\n", quiet = TRUE)))
   theCode <- theCode [ theCode != "" ]
-  theCode <- theCode [ -grep("^/\\*", theCode) ]  # Remove comment lines
+  theCode <- theCode [ !grepl("^/\\*", theCode) ]  # Remove comment lines
   dataLines <- length(grep("^data ", theCode))
-  whichCall <- sapply(paste0("%", user.macros.list, "[;(]+"), function(txt, code) length(grep(txt, code)), code= theCode)
+  # there might be a space after user's macro
+  whichCall <- sapply(paste0("%", user.macros.list, "[;( ]+"), function(txt, code) length(grep(txt, code)), code= theCode)
   callFuns <- if (sum(whichCall)) paste0(user.macros.list[whichCall > 0], collapse=",") else ""
   procLines <- grep("^proc", theCode)
 
