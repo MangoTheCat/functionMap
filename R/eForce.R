@@ -5,14 +5,22 @@
 #' @param networkMatrix   required, a symmetric matrix, each cell value indicates 
 #' the weight of the two nodes and the 0 or NA cell would not be counted in. 
 #' The matrix should have colnames or rownames.
-#' @param propertyDf   optional, dataframe which contain the metadata for the nodes. 
+#' @param propertyDf   optional, data.frame which contain the metadata for the nodes. 
 #' It could contain category, value and color columns. The colnames and rownames are required.
 #' @param opt option of ECharts.
 #' @return The HTML code as a character string.
 #' @export
-#' @examples
-#' testData <- matrix(1:25, nrow=5)
-#' plot(eForce(testData))
+#' @examples \dontrun{
+#'      testData <- matrix(1:25, nrow=5)
+#'      plot(eForce(testData))
+#'
+#'  # using a propertyDf
+#'      net <- network.from.sascode(system.file('examples','SAScode',package='functionMap'))
+#'       propertyDf = data.frame(category = ifelse(net %v% 'toplevel', 'toplevel macros', 'inner macros'), 
+#'                       value=ifelse(net %v% 'toplevel', 50, 10), 
+#'                       color=ifelse(net %v% 'toplevel', 'yellow','green'))
+#'      plot(eForce(net[,], propertyDf))
+#' }
 
 eForce = function(networkMatrix, propertyDf=NULL, size = c(1024, 768),
 	title = NULL, subtitle = NULL, title.x = "center", title.y = "top", 
@@ -37,38 +45,46 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1024, 768),
 	)
 	
 	
-	if(legend){
-		opt$legend = list(
-			show =  "true",
+    opt$legend = list(
+			show = isTRUE(legend), 
 			x = .matchPos.x(legend.x),
 			y = .matchPos.y(legend.y),
 			orient =  match.arg(legend.orient)
-		)
-	}else{
-		opt$legend = list(
-			show = ifelse(legend, "true", "false")
-		)
-	}
+    )
 	
-	opt$calculable = ifelse(calculable, "true", "false") 
+	opt$calculable = isTRUE(calculable) # ifelse(calculable, "true", "false") 
 
 	# opt$tooltip format, not open to user now.
 	if(tooltip){
 		opt$tooltip = list(
 			trigger = "item",
-			formatter = "{a} <br/>{b} : {c} ({d}%)"
+			# formatter = "{a} <br/>{b} : {c} ({d}%)"
+            # according to Baidu API, this should be set to
+            formater = ' {b} : {c} '
+            # And Baidu's API is also misleading that, for edges, {c} is value rather than the weight
 		)
 	}
 	
 	# toolbox format
 	opt$toolbox=list(
-		show = ifelse(toolbox, "true", "false"),
+		show = isTRUE(toolbox),
 		x = .matchPos.x(toolbox.x), 
 		y = .matchPos.y(toolbox.y),
 		feature = list(
-			mark = ifelse(mark, "true", "false"),
-			restore = "true",
-			saveAsImage = "true"
+			mark = list(show = isTRUE(mark), 
+                        title = list(
+                            mark = 'draw line',
+                            markUndo = 'undraw one line',
+                            markClear = 'clear all draw')
+            ),
+			restore = list(show= TRUE,
+                        title = 'Restore'),
+            magicType = list(show= TRUE, 
+                             title=list(force='Force', chord='Chard'), 
+                             type=c('force','chord')),
+			saveAsImage = list(show= TRUE,
+                               title = 'Save Image',
+                               lang = 'Click to Save')
 		)
 	)
 
@@ -114,7 +130,8 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1024, 768),
 			list(
 				source = nodeIndex[1] - 1,
 				target = nodeIndex[2] - 1,
-				weight = networkMatrix[nodeIndex[1], nodeIndex[2]]
+				weight = networkMatrix[nodeIndex[1], nodeIndex[2]],
+                value  = networkMatrix[nodeIndex[1], nodeIndex[2]] # this is for show tooltip
 			)
 		)
 	})
@@ -149,9 +166,7 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1024, 768),
 				)
 			)
 		))
-		if(legend ){
-			opt$legend$data = list("Default")
-		}
+        opt$legend$data = list("Default")
 	}else{
 		if(is.null(propertyDf$value)){
 			# if the propertyDf has no column named value, the value will set to 0.
@@ -173,10 +188,9 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1024, 768),
 		}
 		
 		categoryList = unique(propertyDf$category)
-		if(legend){
-			opt$legend$data = categoryList
+
+        opt$legend$data = categoryList
 			
-		}
 		nodesOutput <- lapply(colnames(networkMatrix), FUN = function(nodeName){
 			indexOfDf = which(rownames(propertyDf) == nodeName)[1]
 			if(is.na (indexOfDf)){
