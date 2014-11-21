@@ -19,3 +19,20 @@ test.createNetwork <- function(){
     checkEquals( n5, structure(c(0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), .Dim = c(6L, 6L), .Dimnames = list(c("add", "fib", "play", "play.default", "play.Instrument", "play.Stringed"), c("add", "fib", "play", "play.default", "play.Instrument", "play.Stringed"))) )
 
 }
+
+
+test.createNetwork.duplicated.names <- function() {
+    L <- list( c('x','y','z'), c('x','z'),c('y','y'), c('z'))
+    # we deliberately set duplicated names 
+    names(L) <- c('z','x','x','y')
+    net <- createNetwork(L)
+
+    # should be equivalent to 
+    L1 <- list( z=c('x','y','z'), x=c('x','y','z'), y='z')
+    net1 <- createNetwork(L1)
+
+    # net and net1 should be equivalent
+    checkTrue(all ( net1[c('x','y','z'),c('x','y','z')] == net[c('x','y','z'),c('x','y','z')] ))
+}
+
+

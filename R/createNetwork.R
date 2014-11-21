@@ -18,6 +18,10 @@
 ##' 
 
 createNetwork <- function(funlist, omitpattern = "^\\.|%", rootfunc = NULL, transpose = FALSE, returnmatrix = FALSE) {
+    if (any(duplicated(names(funlist)))) {
+        warning('There are duplicated names in the input funlist. This is probably caused by multiple definition of a single function. We will merge the same name entry together in the following processing.')
+        funlist <- tapply(funlist, names(funlist), function(x) unlist(unname(x)))
+    }
 	fun.names <- names(funlist)
 	pfun.user <- lapply(funlist, function(x) intersect(x, fun.names))
 	netm <- matrix(0, length(fun.names), length(fun.names), dimnames=list(fun.names, fun.names))
