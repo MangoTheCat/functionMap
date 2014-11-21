@@ -12,7 +12,8 @@
 ##' @param pdffile The file name if output PDF file.
 ##' @param width Width of PDF.
 ##' @param height Height of PDF.
-##' @return NULL. 
+##' @param ... other arguments e.g. \code{main} which is title, passed to \code{plot.network.default}
+##' @return \code{NULL} . 
 ##' @author Mango Solutions
 ##' @examples \dontrun{
 ##' lfun <- parseRfolder(system.file("examples", "R", package = "functionMap"))
@@ -23,7 +24,7 @@
 
 plotFunctionMap <- function(networkobj, displayisolates = FALSE, displaylabels = TRUE, 
 		label.cex = 1, arrowhead.cex = 0.8, edge.lwd = 0.1,vertex.col = rep(2, networkobj$gal$n),
-		pdffile,  width = 5, height = 5) 
+		pdffile,  width = 5, height = 5, ...) 
 {	
 	if (!missing(pdffile)) pdf(file = pdffile, width = width, height = height)
     if (all.isolated(networkobj)) {
@@ -34,7 +35,7 @@ plotFunctionMap <- function(networkobj, displayisolates = FALSE, displaylabels =
     }
 	plot(networkobj, displayisolates = displayisolates, displaylabels = displaylabels, 
 			boxed.labels = TRUE, arrowhead.cex = arrowhead.cex, edge.lwd = edge.lwd, 
-			label.cex = label.cex, vertex.col = vertex.col) 
+			label.cex = label.cex, vertex.col = vertex.col, ...) 
 	if (!missing(pdffile)) dev.off()
 }
 
