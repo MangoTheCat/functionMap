@@ -49,9 +49,11 @@ plot.recharts <- function (x, tag = NULL, Local = FALSE, ...)
 		print(x, file = file)
 
 		if (Local){
-			file.copy(system.file("js", package = "functionMap"), root.dir, recursive = TRUE )
+#			file.copy(system.file("js", package = "functionMap"), root.dir, recursive = TRUE )
+			file.copy(system.file("echarts-2.1.8", package = "functionMap"), root.dir, recursive = TRUE )
 			localHTML <- readLines(file)
-			localHtml <- gsub("http://echarts.baidu.com/doc/example/www", ".", localHTML)
+#			localHtml <- gsub("http://echarts.baidu.com/doc/example/www", ".", localHTML)
+			localHtml <- gsub("http://echarts.baidu.com", "./echarts-2.1.8", localHTML)
 			write(localHtml, file = file)
 			#.url <- file.path(root.dir, basename(file))
 			.url <- file
