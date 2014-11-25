@@ -35,13 +35,14 @@ isolated.vertexes <- function(n, need.plot=FALSE) {
 }
 
 
-#' dfs
+#' dfs.matrix.travel
 #' 
-#' dfs travel graph in matrix representation
+#' Depth-First travel a graph in a matrix representation
+#'
 #' @param n adj matrix
 #' @param v index from which we start, missing then searhing all connected component
 #' @param direction forward, backward or bidirection
-#' @param return traveled vertexes indices or list of connected components (missing v)
+#' @return traveled vertexes indices from \code{v} or a list of connected components (missing \code{v})
 #' @export
 dfs.matrix.travel <- function(n, v, direction='forward') {
     if (prod(dim(n))==0) return(NULL)
@@ -57,7 +58,7 @@ dfs.matrix.travel <- function(n, v, direction='forward') {
         for(i in next.u) {
             if (exists(as.character(i),env=traveled) && get(as.character(i),env=traveled)>0) next
             assign(as.character(i), cc.index, env=traveled)
-            dfs0(i)
+            Recall(i)
         }
     }
 

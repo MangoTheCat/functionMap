@@ -1,20 +1,20 @@
-#' Force network graph
+#' Force directed network graph
 #'
 #' ECharts style Force network graph visulize the social network matrix data.
 #'
-#' @param networkMatrix   required, a square matrix, each cell value indicates 
-#' the weight of the two nodes and the 0 or NA cell would not be counted in. 
-#' The matrix should have colnames or rownames.
-#' @param propertyDf   optional, data.frame which contain the metadata for the nodes. 
-#' It could contain category, value and color columns. The colnames and rownames are required.
-#' @param size size of canvas
-#' @param title title of the plot, if NULL, use the object name
+#' By default the category is defined as the outer-degree of node (the calling how many functions) and the value of node is the in-degree (called by how many functions).
+#'
+#' @param networkMatrix  required adjacency matrix, \code{NA} is treated as 0.
+#' @param propertyDf   optional, data.frame defining the \code{category}, \code{value} and \code{color} for the vertices.
+#' @param display.isolated do not display the isolated vertices
+#' @param size size of the output canvas
+#' @param title title of the plot, if \code{NULL}, use the object name
 #' @param subtitle subtitle, default is empty
 #' @param title.x x position of title, by default we put the title to bottom right
 #' @param title.y y position of title
 #' @param minRadius the minimal radius of the node, if the node is too small to be seen, user can increase this value
 #' @param maxRadius the maximal radius of the node, restrict the node not to be too large. Those relative size of node are according to their value.
-#' @param legend if show the legend, useful if the there are category defintion of nodes in the \code{propertyDf}
+#' @param legend if show the legend, useful if the there are multiple category definition of nodes in the \code{propertyDf}
 #' @param legend.x x position of legend, default is top left; typically not shown if there is only one category
 #' @param legend.y y position of legend
 #' @param scaling the scaling layout coefficient, if the node to too close together, user can increate the scaling to make the graph more sparse
@@ -38,14 +38,15 @@
 #'      plot(eForce(net[,], propertyDf))
 #' }
 
-eForce = function(networkMatrix, propertyDf=NULL, size = c(1860, 930),
+eForce = function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.isolated = FALSE,
 	title = NULL, subtitle = NULL, title.x = "right", title.y = "bottom", minRadius = 15, maxRadius = 25, scaling = 1.1,
 	legend = TRUE, legend.x = "left", legend.y= "top", legend.orient=c("horizontal", "vertical"), 
 	toolbox = TRUE, toolbox.x = "right", toolbox.y = "top", 
 	tooltip = TRUE, show.drawing.tool=FALSE,
     opt = list(series=list(gravity=1e-7, roam='scale')) ) {
+    
 	## networkMatrix would be a symmetric matrix
-	## if the propertyDf is null, for the vertex, the category is 0 as default, the value is the outer degree of the node
+	## if the propertyDf is null, for the vertex, the category is outer degree(called how many functions), the value is the in degree of the node(called by)
 	
 	# option$title format.
 	if (is.null(title)){
@@ -66,6 +67,20 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1860, 930),
             fontWeight = 'lighter'
         )
 	)
+
+    if (!display.isolated) {
+        L.cp <- dfs.matrix.travel(networkMatrix, direction='bidirection')
+        non.isolated <- sort(unlist(L.cp[ which( !sapply(L.cp, length)<=1 ) ]))
+        if (length(non.isolated)==0) {
+            cat('WARNING! All vertices are isolated, graph is totally un-connected! Please run with display.isolated=TRUE\n')
+            return
+        }
+        networkMatrix <- networkMatrix[non.isolated,non.isolated]
+        if (!is.null(propertyDf)) {
+            propertyDf <- propertyDf[non.isolated,]
+        }
+    }
+
 	
 	
     opt$legend = list(
@@ -114,21 +129,9 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1860, 930),
 		warning("data matrix doesn't have the same length to propertyDf. The propertyDf will be ignored.")
 		propertyDf = NULL
 	}
-
-    if (is.null(propertyDf)) {
-        # is it better to hide the magicType tool if only one category, it's a aesthetics problem.
-        #   opt$toolbox$feature$magicType$show <- FALSE
-        # no propertyDf, hence only one category, should not show the legend, or it makes the plot confusing
-        opt$legend$show <- FALSE
-    }
 	
 	networkMatrix <- as.matrix(networkMatrix)
 	if (nrow(networkMatrix) != ncol(networkMatrix))  stop("networkMatrix have to be a square matrix")
-
-#    if (any(t(networkMatrix) != networkMatrix)) {
-#        warning('networkMatrix is not symmetric, we force it symmetric by t(M) + M')
-#        networkMatrix = networkMatrix + t(networkMatrix)
-#    }
 	
 	# matrix name check.
 	if (is.null(colnames(networkMatrix))){
@@ -150,9 +153,6 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1860, 930),
 	if(!is.null(rownames(propertyDf))) rownames(propertyDf) = rownames(networkMatrix)
 	
 	# transfer the network Matrix to links items.
-#	networkMatrix[!lower.tri(networkMatrix)] <- NA
-#	networkMatrix[networkMatrix==0] <- NA
-#	validNode <- as.data.frame(t(which(!is.na(networkMatrix), arr.ind=TRUE)))
     # remove possible na
     networkMatrix[is.na(networkMatrix)] <- 0
     links <- which(networkMatrix>0, arr.ind = TRUE)
@@ -164,16 +164,6 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1860, 930),
             weight = networkMatrix[ links[i,1], links[i,2] ],
             value = networkMatrix[ links[i,1], links[i,2] ] )
     }
-#	linksOutput <- lapply(validNode, FUN=function(nodeIndex){
-#		return(
-#			list(
-#				source = nodeIndex[1] - 1,
-#				target = nodeIndex[2] - 1,
-#				weight = networkMatrix[nodeIndex[1], nodeIndex[2]],
-#                value  = networkMatrix[nodeIndex[1], nodeIndex[2]] # this is for show tooltip
-#			)
-#		)
-#	})
 	names(linksOutput) <- NULL
 	
 	# set the nodes property item.
@@ -184,27 +174,29 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1860, 930),
 		hcl(h=hues, l=65, c=100)[1:n]
 	}
 
-	#If the propertyDf is null, will use category = 0, value=outer degree as default.
+	#If the propertyDf is null, will use category = out degree, value=in degree as default.
 	if (is.null(propertyDf)){
-		nodesOutput <- lapply(colnames(networkMatrix), FUN = function(nodeName){
-			return(
-				list(
-					category = 0,
-					name = nodeName,
-					value = sum(networkMatrix[ nodeName, ]>0)
-				)
-			)
-		})
-		
-		categoriesOutput <- list(list(
-			name = "Default",
-			itemStyle = list(
-				normal = list(
-					color = .gg.color.hue(1)
-				)
-			)
-		))
-        opt$legend$data = list("Default")
+        
+        v.names <- colnames(networkMatrix)
+        adjmat <- networkMatrix > 0
+
+        in.degrees <- unname(colSums(adjmat))
+
+        out.degrees <- unname(rowSums(adjmat))
+        out.degrees <- factor(out.degrees, labels=paste('out deg', sort(unique(out.degrees))))
+        out.degrees.code <- as.integer(out.degrees) - 1
+
+        nodesOutput <- vector(NROW(adjmat), mode='list')
+        for(i in 1:NROW(adjmat)) {
+            nodesOutput[[ i ]] <- list(
+                name = v.names[i],
+                category = out.degrees.code[i],
+                value = in.degrees[i])
+        }
+
+        opt$legend$data <- as.list(levels(out.degrees))
+        categoriesOutput <- sapply(levels(out.degrees), function(x) list(list('name'=x)), USE.NAMES=FALSE)
+
 	}else{
 		if(is.null(propertyDf$value)){
 			# if the propertyDf has no column named value, the value will set to 0.
