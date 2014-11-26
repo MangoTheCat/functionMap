@@ -7,6 +7,7 @@
 #' @param networkMatrix  required adjacency matrix, \code{NA} is treated as 0.
 #' @param propertyDf   optional, data.frame defining the \code{category}, \code{value} and \code{color} for the vertices.
 #' @param display.isolated do not display the isolated vertices
+#' @param use.network.attr if \code{networkMatrix} is a network object and have corresponding attributes 'category', 'value' and 'color', and no \code{propertyDf} is specified, then use them to create a \code{propertyDf} to make the plot
 #' @param size size of the output canvas
 #' @param title title of the plot, if \code{NULL}, use the object name
 #' @param subtitle subtitle, default is empty
@@ -38,7 +39,7 @@
 #'      plot(eForce(net[,], propertyDf))
 #' }
 
-eForce = function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.isolated = FALSE,
+eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.isolated = FALSE, use.network.attr = FALSE,
 	title = NULL, subtitle = NULL, title.x = "right", title.y = "bottom", minRadius = 15, maxRadius = 25, scaling = 1.1,
 	legend = TRUE, legend.x = "left", legend.y= "top", legend.orient=c("horizontal", "vertical"), 
 	toolbox = TRUE, toolbox.x = "right", toolbox.y = "top", 
@@ -67,6 +68,23 @@ eForce = function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.i
             fontWeight = 'lighter'
         )
 	)
+
+    if (use.network.attr && is.network(networkMatrix) && is.null(propertyDf)) {
+        attr <- network::list.vertex.attributes(networkMatrix)
+        if ('category' %in% attr) {
+            propertyDf <- data.frame(category=networkMatrix %v% 'category', stringsAsFactors=FALSE)
+            if ('value' %in% attr) {
+                propertyDf$value = networkMatrix %v% 'value'
+            } else {
+                propertyDf$value = rowSums(networkMatrix[,]) # call out number (out degree)
+            }
+            if ('color' %in% attr) {
+                propertyDf$color = networkMatrix %v% 'color'
+            }
+        } else {
+            cat('WARNING! not category attribute found for networkMatrix, use.network.attr=TRUE ignored!\n')
+        }
+    }
 
     if (!display.isolated) {
         L.cp <- dfs.matrix.travel(networkMatrix, direction='bidirection')
