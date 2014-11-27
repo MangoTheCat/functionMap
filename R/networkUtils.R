@@ -81,3 +81,39 @@ dfs.matrix.travel <- function(n, v, direction='forward') {
     L
 }
 
+#' page.rank
+#'
+#' @param net network object or just a matrix
+#' @param beta teleport coefficient
+#' @param tol tolerance
+#' @param topic.ind restric teleport position
+#' @return page rank vector
+#' @export
+#' @examples \dontrun{
+#'      (r <- page.rank(net))
+#'      page.rank(net, topic.ind = net %v% 'category' != 'outpackage')
+#'      net %v% 'value' <- as.vector(r) * 5000
+#'      plot(eForce(net, use.network.attr=TRUE))
+#' }
+page.rank <- function(net, beta=0.85, tol=1e-5, topic.ind) {
+    # typically we want to score the complex function higher
+    # So we set the transition matrix to net[,] i.e. from callee -> caller
+    M <- unname(as.matrix(net))
+    # M <- M / colSums(M) # should not normalize, as might be un-connected
+    v <- e <- rep(1, NCOL(M))
+    v <- v/sum(v)
+    if (!missing(topic.ind)) {
+        e <- rep(0, NCOL(M))
+        e[ topic.ind ] <- 1
+    } 
+    e <- e/sum(e)
+    lastv <- rep(0, NCOL(M))
+    while( max(abs(lastv - v)) > tol ) {
+        lastv <- v
+        v <- beta * M %*% v + (1-beta)*e
+        v <- v/sum(v)
+    }
+    v
+}
+
+
