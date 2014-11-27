@@ -49,9 +49,10 @@ parseRfolder <- function(rpath, rfilepattern = "\\.[R|r]$", returnfilename = FAL
 #' @return network object
 #' @examples \dontrun{
 #'   n1 <- network.from.rpackage('MASS')
-#'   n1 %e% 'isS3'
+#'   (n1 %e% 'weights')[1:10]
 #'   plot(eForce(n1))
 #'   plot(eForce(n1, use.network.attr=TRUE ))
+#'   plot(eForce(n1 %s% which( n1%v% 'category' !='outpackage'), use.network.attr=TRUE ))
 #' }
 
 network.from.rpackage <- function(base.path,  rfilepattern = "\\.[R|r]$") {
@@ -59,6 +60,7 @@ network.from.rpackage <- function(base.path,  rfilepattern = "\\.[R|r]$") {
     rs <- list.files(file.path(base.path,'R'), pattern=rfilepattern, rec=TRUE, full=TRUE)
     v.names <- c()
     L <- list()
+    # There might be possible duplicated definition of single function, we merge them all
     for(fn in rs) {
         x <- try(parseRscript(fn), silent=TRUE)
         if (is(x,'try-error')) next
@@ -67,31 +69,30 @@ network.from.rpackage <- function(base.path,  rfilepattern = "\\.[R|r]$") {
             if (is.na(ind)) {
                 v.names <- c(v.names, v)
                 ind <- length(v.names)
-                L[[ind]] <- unique(x[[v]])
+                L[[ind]] <- x[[v]]
             } else {
-                L[[ind]] <- unique(c(L[[ind]], x[[v]]))
+                L[[ind]] <- c(L[[ind]], x[[v]])
             }
         }
     }
     names(L) <- v.names
-    s3.nms <- paste(S3[,1],S3[,2],sep='.')
-    s3.ind <- match(v.names, s3.nms)
-    s3.names <- match(s3.nms, v.names)
-    ## now we can create network with considering the S3
+    ## v.out is the vertex not defined in this pacakge
     v.out <- setdiff(unlist(L), v.names)
-    ## we drop those non-S3-call out, but only keep S3 call out
+    ## v.s3.out is the S3 methods appearing in v.out, we can't determine if it's defined in or not in this pacakge, because we 
+    ## don't know the runtime information of the object of the call
     v.s3.out <- v.out[which(v.out %in% S3[,1])]
+    ##
     elist <- do.call('rbind', lapply(v.names, function(x) {
-        z <- L[[x]]
-        z <- z[ z %in% v.names | z %in% v.s3.out ]
-        if (length(z)) {
-            data.frame(tails=x, heads=z, isS3= z %in% v.s3.out, stringsAsFactors=FALSE)
-        } else {
-            NULL
-        }
+        if (length(L[[x]])==0) return(NULL)
+        z <- table(L[[x]])
+        z.name <- names(z)
+        data.frame(tails=x, heads=z.name, weights=as.vector(z), stringsAsFactors=FALSE)
     }) )
     net <- network(elist, matrix.type='edgelist', ignore.eval=FALSE)
-    net %v% 'category' <- ifelse(network.vertex.names(net) %in% v.names, 'inpackage', 'S3generic')
+    v.all <- network.vertex.names(net)
+    net %v% 'category' <- ifelse(v.all %in% v.names, 'inpackage', 
+                                       ifelse(v.all %in% v.s3.out, 'S3generic', 'outpackage'))
+    ## v.out
     net
 }
 

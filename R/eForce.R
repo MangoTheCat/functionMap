@@ -15,15 +15,17 @@
 #' @param title.y y position of title
 #' @param minRadius the minimal radius of the node, if the node is too small to be seen, user can increase this value
 #' @param maxRadius the maximal radius of the node, restrict the node not to be too large. Those relative size of node are according to their value.
+#' @param scaling the scaling layout coefficient, if the node to too close together, user can increate the scaling to make the graph more sparse
 #' @param legend if show the legend, useful if the there are multiple category definition of nodes in the \code{propertyDf}
 #' @param legend.x x position of legend, default is top left; typically not shown if there is only one category
 #' @param legend.y y position of legend
-#' @param scaling the scaling layout coefficient, if the node to too close together, user can increate the scaling to make the graph more sparse
+#' @param legend.orient orientation of legend, can be horizontal or vertical
 #' @param toolbox show the toolbox panel
 #' @param toolbox.x x position of toolbox, default is 'top right'
 #' @param toolbox.y y position of toolbox
 #' @param tooltip show the float tip for the node when mouse hovering on the node 
 #' @param show.drawing.tool if show a drawing tool on the toolbox
+#' @param auto.opt.large automatically tweak parameter for plotting large graph(>500 nodes)
 #' @param opt other options which can be passed to ECharts.
 #' @return The HTML code as a character string.
 #' @export
@@ -43,7 +45,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 	title = NULL, subtitle = NULL, title.x = "right", title.y = "bottom", minRadius = 15, maxRadius = 25, scaling = 1.1,
 	legend = TRUE, legend.x = "left", legend.y= "top", legend.orient=c("horizontal", "vertical"), 
 	toolbox = TRUE, toolbox.x = "right", toolbox.y = "top", 
-	tooltip = TRUE, show.drawing.tool=FALSE,
+	tooltip = TRUE, show.drawing.tool=FALSE, auto.opt.large=TRUE,
     opt = list(series=list(gravity=1e-7, roam='scale')) ) {
     
 	## networkMatrix would be a symmetric matrix
@@ -51,7 +53,8 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 	
 	# option$title format.
 	if (is.null(title)){
-		title = paste(deparse(substitute(networkMatrix)), collapse='')
+		title = gsub('"','\\\\\"',paste(deparse(substitute(networkMatrix)), collapse=''))
+        if (nchar(title)>100) title = paste(substring(title, 1, 97), '...')
 	}
 	if (is.null(subtitle)){
 		subtitle = ""
@@ -76,7 +79,11 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
             if ('value' %in% attr) {
                 propertyDf$value = networkMatrix %v% 'value'
             } else {
-                propertyDf$value = rowSums(networkMatrix[,]) # call out number (out degree)
+                if (setequal(propertyDf$category, c('inpackage','outpackage','S3generic'))) {
+                    propertyDf$value = c('inpackage'=30,'S3generic'=10,'outpackage'=1)[ propertyDf$category ]
+                } else {
+                    propertyDf$value = rowSums(networkMatrix[,]) 
+                }
             }
             if ('color' %in% attr) {
                 propertyDf$color = networkMatrix %v% 'color'
@@ -84,7 +91,16 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
         } else {
             cat('WARNING! not category attribute found for networkMatrix, use.network.attr=TRUE ignored!\n')
         }
+        eattr <- network::list.edge.attributes(networkMatrix)
+        if ('weights' %in% eattr) {
+            elist <- as.matrix.network.edgelist(networkMatrix, attrname='weights')
+            networkMatrix <- networkMatrix[,]
+            for(i in 1:NROW(elist)) {
+                networkMatrix[elist[i,1],elist[i,2]] <- elist[i,3]
+            }
+        }
     }
+
 
     if (!display.isolated) {
         L.cp <- dfs.matrix.travel(networkMatrix, direction='bidirection')
@@ -196,6 +212,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 	if (is.null(propertyDf)){
         
         v.names <- colnames(networkMatrix)
+        v.names <- gsub('"','\\\\\"',v.names) # protect any " in the string
         adjmat <- networkMatrix > 0
 
         in.degrees <- unname(colSums(adjmat))
@@ -245,7 +262,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 				return(
 					list(
 						category = 0,
-						name = nodeName,
+						name = gsub('"','\\\\\"',nodeName),
 						value = 0
 					)
 				)
@@ -253,7 +270,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 				return(
 					list(
 						category = which(categoryList == propertyDf[indexOfDf, "category"]) - 1,
-						name = nodeName,
+						name = gsub('"','\\\\\"',nodeName),
 						value = propertyDf[indexOfDf, "value"]
 					)
 				)
@@ -321,6 +338,28 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 		)
 	}
 	
+    ## better style of magicType toolbox
+    ## can alway restore to original style by click restore
+    if (!is.null(opt$toolbox$feature$magicType)) {
+        if (is.null(opt$toolbox$feature$magicType$option)) opt$toolbox$feature$magicType$option <- list()
+        opt$toolbox$feature$magicType$option$chord <- list(minRadius=2, maxRadius=10, ribbonType=FALSE,
+                                                           itemStyle = list(normal=list(label=list(show=TRUE,rotate=TRUE)),
+                                                                            chordStyle=list(opacity=0.2)))
+        opt$toolbox$feature$magicType$option$force <- list(minRadius=5, maxRadius=8, gravity= 1.1,
+                                                           itemStyle = list(normal=list(label=list(show=FALSE)),
+                                                                            linkStyle=list(opacity=0.5)))
+    }
+
+    if (auto.opt.large && NROW(networkMatrix)>=500) {
+    # change style when graph is very large
+        opt$series$steps <- 20
+        opt$series$large <- TRUE
+        opt$series$useWorker <- TRUE
+        opt$legend$orient <- 'vertical'
+    }
+    # directed chord graph
+    opt$series$ribbonType <- FALSE
+
 	
 	opt$series$itemStyle = itemStyleOutput
 	opt$series$categories = categoriesOutput
