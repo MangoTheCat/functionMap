@@ -164,7 +164,7 @@ createDirectedNetwork <- function(plain.fun, s4list=list(), if.directed=TRUE) {
 extract.S4.defn <- function(srclist, path, single=TRUE, export.other.defn=TRUE) {
     if (missing(srclist)) {
         if (missing(path)) stop('Must specify at least scrlist or path as input.')
-        srclist <- list.files(path, full=TRUE, pattern='*.[R|r]')
+        srclist <- list.files(path, full=TRUE, pattern='\\.[Rr]$')
     }
     L <- do.call('c', sapply(srclist, parse))
 

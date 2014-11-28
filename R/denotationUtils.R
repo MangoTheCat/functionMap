@@ -66,3 +66,29 @@ guess.s3.from.dir <- function(base.path) {
     re
 }
 
+#' guess.s4.from.dir
+#' 
+#' scan a package folder (NAMESPACE file) to get exported S4 class and methods
+#'
+#' @param base.path path pointing to the base of a R package
+#' @return data.frame of S4 classes and methods
+#' @export
+guess.s4.from.dir <- function(base.path) {
+    re <- NULL
+    if (file.exists(file.path(base.path,'NAMESPACE'))) {
+        L <- as.list(parse(file.path(base.path,'NAMESPACE')))
+        classes <- Filter(function(x) x[[1]]=='exportClasses', L)
+        S4.class <- NULL
+        if (length(classes)){
+            S4.class <- as.vector(unlist(sapply(classes, function(x) unlist(sapply(as.list(x[-1]),as.character)))))
+        }
+        S4methods <- Filter(function(x) x[[1]]=='exportMethods', L) 
+        S4.methods <- NULL
+        if (length(S4methods)) {
+            S4.methods <- as.vector(unlist(sapply(S4methods, function(x) unlist(sapply(as.list(x[-1]),as.character)))))
+        }
+        if (is.null(S4.class) && is.null(S4.methods)) return(NULL)
+        return( list(S4.class=S4.class, S4.methods=S4.methods ) )
+    }
+    NULL 
+}
