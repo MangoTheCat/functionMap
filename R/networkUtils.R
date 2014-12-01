@@ -84,9 +84,9 @@ dfs.matrix.travel <- function(n, v, direction='forward') {
 #' page.rank
 #'
 #' @param net network object or just a matrix
-#' @param beta teleport coefficient
+#' @param beta taxation parameter
 #' @param tol tolerance
-#' @param topic.ind restric teleport position
+#' @param topic.ind restric target teleport position
 #' @return page rank vector
 #' @export
 #' @examples \dontrun{
@@ -99,21 +99,57 @@ page.rank <- function(net, beta=0.85, tol=1e-5, topic.ind) {
     # typically we want to score the complex function higher
     # So we set the transition matrix to net[,] i.e. from callee -> caller
     M <- unname(as.matrix(net))
-    # M <- M / colSums(M) # should not normalize, as might be un-connected
-    v <- e <- rep(1, NCOL(M))
-    v <- v/sum(v)
-    if (!missing(topic.ind)) {
-        e <- rep(0, NCOL(M))
-        e[ topic.ind ] <- 1
-    } 
-    e <- e/sum(e)
-    lastv <- rep(0, NCOL(M))
+    m.col.sum <- colSums(M)
+    ind <- which(m.col.sum!=0)
+    if (!length(ind)) {
+        stop('All column sums to Zero!')
+    }
+    for(i in ind) {
+        M[,i] <- M[,i]/m.col.sum[i]
+    }
+    N <- NCOL(M)
+    v <- rep(1,N)/N
+    if (missing(topic.ind)) {
+        topic.ind <- 1:N
+    }
+    # e <- e/sum(e), should not normalize, have to keep t(1) %*% v == const
+    lastv <- rep(0, N)
     while( max(abs(lastv - v)) > tol ) {
         lastv <- v
-        v <- beta * M %*% v + (1-beta)*e
-        v <- v/sum(v)
+        v <- beta * M %*% v
+        # avoid deadend or trap, assuming sum(v) == const == 1
+        leaked <- 1-sum(v)
+        v[topic.ind] <- v[topic.ind] +  leaked / length(topic.ind)
     }
     v
 }
 
+
+#' hubness and authority
+#'
+#' hub \code{h} means how important the caller is.
+#'
+#' authority \code{a} means how important the callee is.
+#'
+#' @param net network object or matrix
+#' @param tol tolerance for iteration
+#' @return h and a vector
+#' @export
+hits.rank <- function(net, tol=1e-5) {
+    L <- unname(as.matrix(net))
+    N <- NROW(L)
+    h <- rep(1, N)
+    lasth <- h
+    while(TRUE) {
+        a <- t(L) %*% h
+        a <- a/max(a)
+        h <- L %*% a
+        h <- h/max(h)
+        if (sum((h-lasth)^2)<tol) break
+        lasth <- h
+    }
+    re <- cbind(h=h, a=a)
+    colnames(re) <- c('h','a')
+    re
+}
 
