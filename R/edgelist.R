@@ -4,11 +4,24 @@
 #' Difference between this function and \code{\link{parseRscript}} is this one will give more information
 #' of the edge and the node.
 #'
-#' How one function is invoked, through \code{eval}, \code{do.call} or a native call like \code{.C} , \code{.Fortran}? Is it a S3 or S4 method.
-#' 
 #' @param rfile R script name
-#' @return data.frame
-#'
+#' @return The return value is a data.frame containing 5 columns.
+#' \describe{
+#'  \item{tails}{the caller}
+#'  \item{heads}{the callee, and in the graph we will draw an arrow from tail pointing to head}
+#'  \item{category}{currently can be\describe{ 
+#'      \item{normal}{an ordinary function call}
+#'      \item{do.call}{invoked using do.call mechanism}
+#'      \item{native.call}{a native C or FORTRAN function, invoked by .C, .Fortran, .Call or .External}
+#'      \item{eval.call}{invoked by \code{eval}, typically might be a variable or expression, rather than a existing function}}
+#'  \item{weights}{how many times the callee appearing in the caller}
+#'  \item{rfile}{where this relation is parsed from}
+#' }
+#' @export
+#' @examples \dontrun{
+#'  rfile <- system.file("examples", "R", "func.R", package = "functionMap")
+#'  edgelist.from.rscript(rfile)
+#' }
 edgelist.from.rscript <- function(rfile) {
 	
 	tmp.env <- new.env()
@@ -93,19 +106,23 @@ edgelist.from.rscript <- function(rfile) {
 #' 
 #' Note: \code{dumpS4Generic} will pollute the .GlobalEnv, you should run the function from a clean environment
 #'
-#' @param base.path path to the R source, assume it to be a package base path
+#' The working horse is still \code{edgelist.from.rscript}, and the return value have the same structure of \code{\link{edgelist.from.rscript}}
+#'
+#' @param base.path path to the R source, it has to be a package base path, or the result might be empty
 #' @param rfilepattern some author may use extension ".[qQ][sS]" other than [Rr], this option can select from those
-#' @return a data.frame representing the edges
+#' @param force.scan.s4 when the base.path is not a package, this function generally don't get any hint from NAMESPACE and if you insist, it will try hard to scan S4 information
+#' @return a data.frame representing the edges of the whole pacakge
 #' @export
 #' @examples \dontrun{
+#'           edgelist.from.rpackage(system.file("examples", package = "functionMap"))
 #' }
 
-edgelist.from.rpackage <- function(base.path,  rfilepattern = "\\.[Rr]$") {
+edgelist.from.rpackage <- function(base.path,  rfilepattern = "\\.[Rr]$", force.scan.s4 = TRUE) {
     S3 <- guess.s3.from.dir(base.path)
     rs <- list.files(file.path(base.path,'R'), pattern=rfilepattern, rec=TRUE, full=TRUE)
     exported.s4 <- guess.s4.from.dir(base.path)
     el.s4 <- NULL
-    if (!is.null(exported.s4) && !is.null(exported.s4$S4.methods)) {
+    if (force.scan.s4 || (!is.null(exported.s4) && !is.null(exported.s4$S4.methods))) {
         s4.txt <- try(s4.source.from.rpackage(base.path, rfilepattern), silent=TRUE)
         if (!is(s4.txt, 'try-error')) {
             fn <- file.path(tempdir(),sprintf('S4definition.%s.R',basename(base.path)))
@@ -134,11 +151,13 @@ edgelist.from.rpackage <- function(base.path,  rfilepattern = "\\.[Rr]$") {
 
 #' inter connected edgelists
 #'
-#' change the edgelist to a smaller one with heads(called function) restricted to tails(defined function in the package)
+#' Subset the edgelist to a smaller one that the callees are defined in the same package.
 #'
-#' For each defined function(tails), add attributes of text to record the called but not defined in this package functions.
+#' For each defined function(tails), add attributes of text to record other callees which are not defined in this package.
+#' If a caller only calls functions outside this package, a name 'outpackage_functions' will be used to replace the actual name.
+#' Weights are summarized accordingly.
 #'
-#' Note: after interconnected, the inpackage detection by \code{\link{network.from.edgelist}} might be incorrect. 
+#' Note: after interconnected, the inpackage tagging by \code{\link{network.from.edgelist}} might be incorrect. 
 #'
 #' @param el edgelist
 #' @return data.frame
@@ -195,6 +214,7 @@ network.from.edgelist <- function(edgelist) {
         v.names.s4.base <- sub('\\[[^\\[\\]]+?\\]$','', v.names.s4, perl=TRUE)
         v.names.s4.signature <- substring(v.names.s4, nchar(v.names.s4.base)+1)
     } else {
+        v.names.s4 <- character(0)
         v.names.s4.base <- character(0)
     }
     vall <- network.vertex.names(n)
