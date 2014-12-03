@@ -45,6 +45,7 @@ isolated.vertexes <- function(n, need.plot=FALSE) {
 #' @return traveled vertexes indices from \code{v} or a list of connected components (missing \code{v})
 #' @export
 dfs.matrix.travel <- function(n, v, direction='forward') {
+    if (is(n,'network')) n <- as.matrix(n)
     if (prod(dim(n))==0) return(NULL)
     traveled <- new.env(parent=emptyenv())
     cc.index <- 1

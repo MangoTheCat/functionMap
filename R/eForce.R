@@ -4,6 +4,13 @@
 #'
 #' By default the category is defined as the outer-degree of node (the calling how many functions) and the value of node is the in-degree (called by how many functions).
 #'
+#' Sometimes the network contain more than one connected components, and if gravity is too small, they will spread quite far away.
+#' And isolated points (by default is not displayed) will also fly away.
+#' You may increase the gravity to make them close.
+#'
+#' If the graph have too many nodes, the nodes may be too close to each other, then you can choose a smaller gravity to stretch them up.
+#'
+#'
 #' @param networkMatrix  required adjacency matrix, \code{NA} is treated as 0.
 #' @param propertyDf   optional, data.frame defining the \code{category}, \code{value} and \code{color} for the vertices.
 #' @param display.isolated do not display the isolated vertices
@@ -40,7 +47,7 @@
 #'       propertyDf = data.frame(category = ifelse(net %v% 'toplevel', 'toplevel macros', 'inner macros'), 
 #'                       value=ifelse(net %v% 'toplevel', 50, 10), 
 #'                       color=ifelse(net %v% 'toplevel', 'yellow','green'))
-#'      plot(eForce(net[,], propertyDf))
+#'      plot(eForce(net[,], propertyDf, gravity=2))
 #' }
 
 eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.isolated = FALSE, use.network.attr = FALSE,
@@ -112,7 +119,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 
 
     if (!display.isolated) {
-        L.cp <- dfs.matrix.travel(networkMatrix, direction='bidirection')
+        L.cp <- dfs.matrix.travel(networkMatrix[,], direction='bidirection')
         non.isolated <- sort(unlist(L.cp[ which( !sapply(L.cp, length)<=1 ) ]))
         if (length(non.isolated)==0) {
             cat('WARNING! All vertices are isolated, graph is totally un-connected! Please run with display.isolated=TRUE\n')

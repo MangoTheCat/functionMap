@@ -14,7 +14,7 @@ plotFunctionMap(net)
 
 ## Using eForce
 
-plot(eForce(net) + option(title=sprintf('Relation for %s', sas.path)))
+plot(eForce(net, gravity=2) + option(title=sprintf('Relation for %s', sas.path)))
 
 ## more pretty
 
@@ -22,7 +22,7 @@ propertyDf = data.frame(category = ifelse(net %v% 'toplevel', 'toplevel macros',
               value=ifelse(net %v% 'toplevel', 50, 10),
               color=ifelse(net %v% 'toplevel', 'yellow','green'))
 
-plot(eForce(net[,], propertyDf, title=sprintf('Relation for %s', sas.path), title.x='right', title.y='bottom'))
+plot(eForce(net[,], propertyDf, title=sprintf('Relation for %s', sas.path), title.x='right', title.y='bottom', gravity=2))
 
 ## plot toplevel function in a pdf file
 
