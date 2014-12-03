@@ -26,6 +26,8 @@
 #' @param tooltip show the float tip for the node when mouse hovering on the node 
 #' @param show.drawing.tool if show a drawing tool on the toolbox
 #' @param auto.opt.large automatically tweak parameter for plotting large graph(>500 nodes)
+#' @param gravity control how close those vertices are
+#' @param roam Echart options, control how mouse can interactively change the plot
 #' @param opt other options which can be passed to ECharts.
 #' @return The HTML code as a character string.
 #' @export
@@ -46,7 +48,8 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 	legend = TRUE, legend.x = "left", legend.y= "top", legend.orient=c("horizontal", "vertical"), 
 	toolbox = TRUE, toolbox.x = "right", toolbox.y = "top", 
 	tooltip = TRUE, show.drawing.tool=FALSE, auto.opt.large=TRUE,
-    opt = list(series=list(gravity=1e-7, roam='scale')) ) {
+    gravity = 1e-7, roam='scale',
+    opt = list() ) {
     
 	## networkMatrix would be a symmetric matrix
 	## if the propertyDf is null, for the vertex, the category is outer degree(called how many functions), the value is the in degree of the node(called by)
@@ -59,6 +62,12 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 	if (is.null(subtitle)){
 		subtitle = ""
 	}
+    if (is.null(opt$series)) {
+        opt$series <- list(gravity = gravity , roam = roam)
+    } else {
+        opt$series$gravity <- gravity
+        opt$series$roam <- roam
+    }
 	opt$title = list(
 		text = title,
 		subtext = subtitle,
