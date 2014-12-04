@@ -2,41 +2,52 @@
 #'
 #' ECharts style Force network graph visulize the social network matrix data.
 #'
-#' By default the category is defined as the outer-degree of node (the calling how many functions) and the value of node is the in-degree (called by how many functions).
+#' When no \code{propertyDf} is provided, and no attributes can be used (either \code{use.network.attr} is \code{FALSE}
+#' or the object lacking such attributes), the category is defined as the outer-degree (number of called functions) of the 
+#' node. The value of node(what you see when your mouse is on the node) is the in-degree (called by how many functions).
 #'
-#' Sometimes the network contain more than one connected components, and if gravity is too small, they will spread quite far away.
-#' And isolated points (by default is not displayed) will also fly away.
-#' You may increase the gravity to make them close.
+#' When \code{propertyDf} is provided, the \code{category} slot goes to category of the plot and \code{value} goes to value of the plot.
 #'
-#' If the graph have too many nodes, the nodes may be too close to each other, then you can choose a smaller gravity to stretch them up.
+#' When the object is a network object rather than a simple adjacency matrix, and the vertex has attributes of \code{category} and \code{value},
+#' they will be used in the plot if \code{use.network.attr} is \code{TRUE}. If only \code{category} is available, but \code{value} is not set,
+#' this function will use the out-degree (number of called functions) as the value (note this is different behavior to the default behavior where
+#' out-degree is showed by category and in-degree is displayed as value).  Moreover, if the network object has edge attributes with name \code{weights}, 
+#' this weights will also be shown in the plot.
+#' 
+#'
+#' Another parameter which is useful and deserve explaination is \code{gravity}. When the network contain more than one connected components, 
+#' and if gravity is too small, they will spread quite far away, those isolated points (by default is not displayed) may even fly away.
+#' In this situation, user have to increase the gravity to make them close.
+#' To the contrary, if the graph have too many nodes, the nodes may be very close to each other, too crowded to be seen, 
+#' then a smaller gravity need to be set to stretch them up.
 #'
 #'
-#' @param networkMatrix  required adjacency matrix, \code{NA} is treated as 0.
+#' @param networkMatrix  either a network object or a adjacency matrix. If a matrix, any \code{NA} is treated as 0.
 #' @param propertyDf   optional, data.frame defining the \code{category}, \code{value} and \code{color} for the vertices.
-#' @param display.isolated do not display the isolated vertices
+#' @param display.isolated decide whether display the isolated vertices or not
 #' @param use.network.attr if \code{networkMatrix} is a network object and have corresponding attributes 'category', 'value' and 'color', and no \code{propertyDf} is specified, then use them to create a \code{propertyDf} to make the plot
-#' @param size size of the output canvas
-#' @param title title of the plot, if \code{NULL}, use the object name
+#' @param size size of the output canvas, user may need to adjust this to their screen size
+#' @param title title of the plot, if \code{NULL}, use the deparsed object name
 #' @param subtitle subtitle, default is empty
 #' @param title.x x position of title, by default we put the title to bottom right
 #' @param title.y y position of title
 #' @param minRadius the minimal radius of the node, if the node is too small to be seen, user can increase this value
 #' @param maxRadius the maximal radius of the node, restrict the node not to be too large. Those relative size of node are according to their value.
 #' @param scaling the scaling layout coefficient, if the node to too close together, user can increate the scaling to make the graph more sparse
-#' @param legend if show the legend, useful if the there are multiple category definition of nodes in the \code{propertyDf}
+#' @param legend whether to show legend for the category of vertex
 #' @param legend.x x position of legend, default is top left; typically not shown if there is only one category
 #' @param legend.y y position of legend
 #' @param legend.orient orientation of legend, can be horizontal or vertical
-#' @param toolbox show the toolbox panel
+#' @param toolbox show the magic toolbox panel, which allows user to switch between force and chord plot, and allow save the plot
 #' @param toolbox.x x position of toolbox, default is 'top right'
 #' @param toolbox.y y position of toolbox
-#' @param tooltip show the float tip for the node when mouse hovering on the node 
+#' @param tooltip whether show the floating tip for the node when mouse hovering on the node 
 #' @param show.drawing.tool if show a drawing tool on the toolbox
 #' @param auto.opt.large automatically tweak parameter for plotting large graph(>500 nodes)
 #' @param gravity control how close those vertices are
 #' @param roam Echart options, control how mouse can interactively change the plot
 #' @param opt other options which can be passed to ECharts.
-#' @return The HTML code as a character string.
+#' @return recharts object which can be shown as HTML by \code{\link{plot.recharts}}
 #' @export
 #' @examples \dontrun{
 #'      testData <- matrix(1:25, nrow=5)
@@ -119,8 +130,9 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 
 
     if (!display.isolated) {
-        L.cp <- dfs.matrix.travel(networkMatrix[,], direction='bidirection')
-        non.isolated <- sort(unlist(L.cp[ which( !sapply(L.cp, length)<=1 ) ]))
+        out.deg <- rowSums(networkMatrix[,]>0)
+        in.deg <- colSums(networkMatrix[,]>0)
+        non.isolated <- which( out.deg!=0 | in.deg!=0 )
         if (length(non.isolated)==0) {
             cat('WARNING! All vertices are isolated, graph is totally un-connected! Please run with display.isolated=TRUE\n')
             return
@@ -331,10 +343,10 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 #	}
 		
 	if(is.null(opt$series$itemStyle)) {
-		itemStyleOutput = list(
+		opt$series$itemStyle <- list(
 			normal = list(
 				label = list(
-					show = "true",
+					show = TRUE,
 					textStyle = list(color="#800080")
 				),
 				nodeStyle = list(
@@ -345,7 +357,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 			),
 			emphasis = list(
 				label = list(
-					show = "true"
+					show = TRUE
 				),
 				nodeStyle = list(
 					r = 30
@@ -372,16 +384,16 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
         opt$series$large <- TRUE
         opt$series$useWorker <- TRUE
         opt$legend$orient <- 'vertical'
+        # opt$series$itemStyle$normal$label$show <- FALSE
+        # opt$series$itemStyle$linkStyle$opacity <- 0.5
     }
     # directed chord graph
     opt$series$ribbonType <- FALSE
-
 	
-	opt$series$itemStyle = itemStyleOutput
 	opt$series$categories = categoriesOutput
 	opt$series$nodes = nodesOutput
 	opt$series$links = linksOutput
-	opt$series = list(opt$series)
+	opt$series = list(opt$series) # because json need a array rather than a map here
 
 	jsonStr <- toJSON(opt, pretty=TRUE)
 	outList <- .rechartsOutput(jsonStr, charttype="eForce", size=size)

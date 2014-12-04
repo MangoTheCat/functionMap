@@ -109,13 +109,23 @@ edgelist.from.rscript <- function(rfile) {
 #'
 #' The working horse is still \code{edgelist.from.rscript}, and the return value have the same structure of \code{\link{edgelist.from.rscript}}
 #'
+#' By default, '[' and hence \code{subet} will copy all the attributes, hence those attributes in the edgelist object: 
+#' \code{exported.s3} and \code{exported.s4} will be copied. These two are actually parsed from NAMESPACE file.
+#'
+#' But for code definition of S4 methods, they can be identified by checking the \code{rfile} slot of the object: all
+#' the S4 methods implemented in this package are collected to a temporary file started with "S4definition". If you use 
+#' '[' or \code{subset} to get part of the edges, those information for S4 definition edges will be lost, although the 
+#' information of exported S4 and S3 will still be available.
+#'
 #' @param base.path path to the R source, it has to be a package base path, or the result might be empty
 #' @param rfilepattern some author may use extension ".[qQ][sS]" other than [Rr], this option can select from those
 #' @param force.scan.s4 when the base.path is not a package, this function generally don't get any hint from NAMESPACE and if you insist, it will try hard to scan S4 information
 #' @return a data.frame representing the edges of the whole pacakge
 #' @export
 #' @examples \dontrun{
-#'           edgelist.from.rpackage(system.file("examples", package = "functionMap"))
+#'    el <- edgelist.from.rpackage(system.file("examples",'packages','KernSmooth', package = "functionMap"))
+#'    el2 <- edgelist.from.rpackage(system.file("examples",'packages','psych', package = "functionMap"))
+#'    el.sp <- edgelist.from.rpackage(system.file("examples",'packages','sp', package = "functionMap"))
 #' }
 
 edgelist.from.rpackage <- function(base.path,  rfilepattern = "\\.[Rr]$", force.scan.s4 = TRUE) {
@@ -147,6 +157,7 @@ edgelist.from.rpackage <- function(base.path,  rfilepattern = "\\.[Rr]$", force.
     attr(edgelist, 'exported.s3') <- S3
     attr(edgelist, 'exported.s4') <- exported.s4
     ## 
+    class(edgelist) <- append(class(edgelist), 'edgelist')
     edgelist
 }
 
