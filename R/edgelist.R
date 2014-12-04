@@ -250,3 +250,131 @@ network.from.edgelist <- function(edgelist) {
     n %v% 'category' <- category
     n
 }
+
+
+#' edgelist.from.SASscript
+#' 
+#' Similar to \code{\link{edgelist.from.rscript}}, create edgelist data.frame from a single SAS script
+#' 
+#' @param sasfile SAS filename
+#' @return data.frame with same structure as the output of \code{edgelist.from.rscript}
+#' @export
+#' @examples \dontrun{
+#'      plot(eForce(network.from.edgelist(edgelist.from.SASscript('Acorda.sas'))))
+#' }
+edgelist.from.SASscript <- function(sasfile) {
+    txt <- readLines(sasfile)
+    line.n <- 0
+    current.macro <- sprintf('Main(%s)',sasfile)
+    push <- function(x) {
+        current.macro <<- append(current.macro, x)
+    }
+    pop  <- function() {
+        re <- current.macro[length(current.macro)]
+        current.macro <<- current.macro[ - length(current.macro) ]
+        re
+    }
+    top <- function() {
+        current.macro[length(current.macro)]
+    }
+    belong.to.comment <- FALSE
+    COMMENT.OPEN <- '/\\*'
+    COMMENT.CLOSE <- '\\*/'
+    MACRO.OPEN <- '%MACRO'
+    MACRO.CLOSE <- '%MEND'
+    MACRO.FUN.PATTERN <- '(\\w+)(\\(.*?\\)){0,1}'
+    MACRO.FUN.CALL <- '%(\\w+)((\\(.*?\\))|;)'
+    PROC.PATTERN <- '^\\s*PROC\\s+(\\w+)'
+    DATA.PATTERN <- '^\\s*DATA\\s+(\\w+)'
+
+    KNOWN.KEYWORDS <- c('IF','THEN','ELSE','DO','END','LET','PUT')
+
+    d <- list()
+
+    while( (line.n<-line.n+1) < length(txt)) {
+        s <- txt[line.n]
+        if (belong.to.comment) {
+            if (regexpr(COMMENT.CLOSE, s)>0) {
+                belong.to.comment <- FALSE
+                # get things after close of comments
+                s <- sub(sprintf('^%s',COMMENT.CLOSE), '', s)
+            }
+        }
+        if (belong.to.comment) next
+        if (regexpr(COMMENT.OPEN, s)>0) {
+            # if the comments closed on same line, belong.to.comment is still FALSE
+            belong.to.comment <- !(regexpr(COMMENT.CLOSE, s)>0)
+            next
+        }
+        # SAS is case insensitive
+        s <- toupper(s)
+        if (regexpr(MACRO.OPEN, s)>0) {
+            s <- sub(MACRO.OPEN,'',s)
+            m <- regexpr(MACRO.FUN.PATTERN, s, perl=TRUE)
+            if (m>0) {
+                fun <- substring(s, attr(m,'capture.start')[1], 
+                                    attr(m,'capture.start')[1]-1+attr(m,'capture.length')[1])
+                push(fun)
+                s <- substring(s, m + attr(m,'match.length'))
+                # initial the object
+                d[[ fun ]] <- list()
+            }
+            # currently we do not deal with left part
+        }
+        if ((m<-regexpr(MACRO.CLOSE, s))>0) {
+            pop()
+            next
+            # s should always be consumed
+            # s <- substring(s, m + attr(m,'match.length'))
+        }
+        lasts <- ''
+        while( s!=lasts ) {
+            if ((m<-regexpr(MACRO.FUN.CALL, s, perl=TRUE))>0) {
+                fun <- substring(s, attr(m,'capture.start')[1], 
+                                    attr(m,'capture.start')[1]-1+attr(m,'capture.length')[1])
+                if (is.null( d[[ top() ]]$macros ) ) {
+                    d[[ top() ]]$macros <- c()
+                }
+                if (! fun %in% KNOWN.KEYWORDS) {
+                    d[[ top() ]]$macros <- append(d[[ top() ]]$macros, fun)
+                }
+                s <- substring(s, m + attr(m,'match.length'))
+            }
+            if ((m<-regexpr(PROC.PATTERN, s, perl=TRUE))>0) {
+                fun <- substring(s, attr(m,'capture.start')[1], 
+                                    attr(m,'capture.start')[1]-1+attr(m,'capture.length')[1])
+                if (is.null( d[[ top() ]]$proc ) ) {
+                    d[[ top() ]]$proc <- c()
+                }
+                d[[ top() ]]$proc <- append(d[[ top() ]]$proc, fun)
+            }
+            if ((m<-regexpr(DATA.PATTERN, s, perl=TRUE))>0) {
+                fun <- substring(s, attr(m,'capture.start')[1], 
+                                    attr(m,'capture.start')[1]-1+attr(m,'capture.length')[1])
+                if (is.null( d[[ top() ]]$data ) ) {
+                    d[[ top() ]]$data <- c()
+                }
+                d[[ top() ]]$data <- append(d[[ top() ]]$data, fun)
+            }
+            lasts <- s
+        }
+        # unknow pattern will simply ignored
+    }
+    d
+    dout <- NULL
+    for(i in names(d)) {
+        if (!is.null(d[[i]]$macros)) {
+            h <- table(d[[i]]$macros)
+            dout <- rbind(dout, data.frame(tails=i, heads=names(h), category='macro_call', weights=as.vector(h), stringsAsFactors=FALSE))
+        }
+        if (!is.null(d[[i]]$proc)) {
+            h <- table(d[[i]]$proc)
+            dout <- rbind(dout, data.frame(tails=i, heads=names(h), category='proc_call', weights=as.vector(h), stringsAsFactors=FALSE))
+        }
+        if (!is.null(d[[i]]$data)) {
+            h <- table(d[[i]]$data)
+            dout <- rbind(dout, data.frame(tails=i, heads=names(h), category='data_step', weights=as.vector(h), stringsAsFactors=FALSE))
+        }
+    }
+    dout
+}
