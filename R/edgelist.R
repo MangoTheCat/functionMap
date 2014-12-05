@@ -156,7 +156,29 @@ edgelist.from.rpackage <- function(base.path,  rfilepattern = "\\.[Rr]$", force.
     }
     attr(edgelist, 'exported.s3') <- S3
     attr(edgelist, 'exported.s4') <- exported.s4
-    ## 
+    ## adding attribute for exported names or patterns 
+    exported.nms <- get.exported.names(base.path)
+    if (!is.null(exported.nms)) {
+        attr(edgelist, 'is.exported.names') <- function(x) {
+            if (!is.null(exported.nms$exported.names)) {
+                x %in% exported.nms$exported.names
+            } else {
+                grepl(exported.nms$exported.pattern, x)
+            }
+        }
+        attr(edgelist, 'exported.nms') <- exported.nms
+    }
+    ## collect special heads(callee) which is not normal
+    if (length(ind<-which(edgelist$category=='native.call'))) {
+        attr(edgelist, 'native.fun') <- unique(edgelist$heads[ind])
+    }
+    ## for eval, sometimes it is not a function, but a variable or expression
+    if (length(ind<-which(edgelist$category=='eval.call'))) {
+        el.x <- unique(edgelist$heads[ind])
+        el.x <- Filter(function(x) { length(getAnywhere(x)$objs)==0 }, el.x)
+        attr(edgelist, 'eval.expression') <- el.x
+    }
+    ##
     class(edgelist) <- append(class(edgelist), 'edgelist')
     edgelist
 }
@@ -217,10 +239,11 @@ interconnected <- function(el) {
 #'   
 #' }
 network.from.edgelist <- function(edgelist) {
+    if (is.sas.edgelist(edgelist)) return(network.from.edgelist.sas(edgelist))
     n <- network(edgelist, matrix.type='edgelist', ignore.eval=FALSE)
     S3 <- attr(edgelist, 'exported.s3')
     S4 <- attr(edgelist, 'exported.S4')
-    v.names <- edgelist$tails # v.names are the callers
+    v.names <- edgelist$tails # v.names are the callers, defined in package
     if (length(ind<-grep('^S4definition\\.', edgelist$rfile))) {
         v.names.s4 <- edgelist$tails[ind]
         v.names.s4.base <- sub('\\[[^\\[\\]]+?\\]$','', v.names.s4, perl=TRUE)
@@ -233,12 +256,33 @@ network.from.edgelist <- function(edgelist) {
     # create category
     inpackage <- vall %in% v.names
     exportedS3 <- vall %in% paste(S3[,1],S3[,2],sep='.')
+    # because S3 is called by generic name, the following will have negative positive
     calledS3 <- vall %in% S3[,1]
     exportedS4 <- vall %in% v.names.s4 
+    # similar to S3, S4 is called by generic name, and the following 
+    # will also have negative positive
     calledS4 <- vall %in% v.names.s4.base
-    other <- !(inpackage | exportedS3 | calledS3 | exportedS4 | calledS4)
-    mat <- cbind( inpackage , exportedS3 , calledS3 , exportedS4 , calledS4, other)
-    tag <- c('inpackage','exportedS3','calledS3','exportedS4','calledS4','other')
+    ## 
+    if (!is.null(attr(edgelist,'is.exported.names'))) {
+        exported <- attr(edgelist,'is.exported.names')(vall)
+    } else {
+        exported <- rep(FALSE, length(vall))
+    }
+    if (!is.null(attr(edgelist,'native.fun'))) {
+        native.fun <- vall %in% attr(edgelist,'native.fun')
+    } else {
+        native.fun <- rep(FALSE, length(vall))
+    }
+    if (!is.null(attr(edgelist,'eval.expression'))) {
+        eval.expression <- vall %in% attr(edgelist,'eval.expression')
+    } else {
+        eval.expression <- rep(FALSE, length(vall))
+    }
+    ##
+    # might be not defined in this package
+    other <- !(inpackage | exportedS3 | calledS3 | exportedS4 | calledS4 | exported | native.fun | eval.expression )
+    mat <- cbind( inpackage , exportedS3 , calledS3 , exportedS4 , calledS4, exported, native.fun, eval.expression, other)
+    tag <- c('inpackage','exportedS3','calledS3','exportedS4','calledS4', 'exported', 'native', 'ExpressionByEval', 'other')
     category <- as.vector(apply(mat, 1, function(x) paste(tag[which(x)],collapse=',')))
     if (!is.null(attr(edgelist,'vertex.other.call'))) {
         tmp <- attr(edgelist,'vertex.other.call')[ vall ]
@@ -265,7 +309,7 @@ network.from.edgelist <- function(edgelist) {
 edgelist.from.SASscript <- function(sasfile) {
     txt <- readLines(sasfile)
     line.n <- 0
-    current.macro <- sprintf('Main(%s)',sasfile)
+    current.macro <- sprintf('Main(%s)',basename(sasfile))
     push <- function(x) {
         current.macro <<- append(current.macro, x)
     }
@@ -376,5 +420,56 @@ edgelist.from.SASscript <- function(sasfile) {
             dout <- rbind(dout, data.frame(tails=i, heads=names(h), category='data_step', weights=as.vector(h), stringsAsFactors=FALSE))
         }
     }
+    dout$sasfile <- basename(sasfile)
     dout
+}
+
+#' edgelist.from.SASfolder
+#' 
+#' Similar to \code{\link{edgelist.from.rpackage}}
+#' @param base.path root path
+#' @param pattern extension name pattern for the file to be parsed
+#' @return edgelist object(a data.fram)
+#' @export
+#' @examples \dontrun{
+#'      plot(eForce(network.from.edgelist(edgelist.from.SASfolder('.'))))
+#' }
+edgelist.from.SASfolder <- function(base.path, pattern='\\.[Ss][Aa][Ss]$') {
+    ss <- list.files(file.path(base.path, pattern=pattern, rec=TRUE, full=TRUE))
+    edgelist <- NULL
+    for(fn in ss) {
+        x <- try(edgelist.from.SASscript(fn), silent=TRUE)
+        if (is(x,'try-error')) next
+        edgelist <- rbind(edgelist, x)
+    }
+    attr(edgelist, 'PROC') <- unique(with(edgelist , heads[ category == 'proc_call' ]))
+    attr(edgelist, 'DATA') <- unique(with(edgelist , heads[ category == 'data_step' ]))
+    main <- sprintf('Main(%s)',unique(edgelist$sasfile))
+    attr(edgelist, 'MAIN') <- unique(with(edgelist , tails[ tails %in% main ]))
+
+    class(edgelist) <- append(class(edgelist), 'edgelist')
+    edgelist
+}
+
+
+#' network.from.edgelist.sas 
+#'
+#' Similar to \code{\link{network.from.edgelist}} but do category denotation base on SAS rather than R
+#' 
+#' @param edgelist
+#' @return network object 
+#' @export
+network.from.edgelist.sas <- function(edgelist) {
+    n <- network(edgelist, matrix.type='edgelist', ignore.eval=FALSE)
+    vall <- network.vertex.names(n)
+    Defined <- vall %in% edgelist$heads
+    PROC <- vall %in% attr(edgelist,'PROC')
+    DATA <- vall %in% attr(edgelist,'DATA')
+    MAIN <- vall %in% attr(edgelist,'MAIN')
+    other <- !(Defined | PROC | DATA | MAIN)
+    mat <- cbind(Defined, PROC, DATA, MAIN, other)
+    tag <- c('Defined', 'PROC', 'DATA', 'Main file', 'other')
+    category <- as.vector(apply(mat, 1, function(x) paste(tag[which(x)],collapse=',')))
+    n %v% 'category' <- category
+    n
 }

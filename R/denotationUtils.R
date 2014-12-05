@@ -74,7 +74,6 @@ guess.s3.from.dir <- function(base.path) {
 #' @return data.frame of S4 classes and methods
 #' @export
 guess.s4.from.dir <- function(base.path) {
-    re <- NULL
     if (file.exists(file.path(base.path,'NAMESPACE'))) {
         L <- as.list(parse(file.path(base.path,'NAMESPACE')))
         classes <- Filter(function(x) x[[1]]=='exportClasses', L)
@@ -91,4 +90,39 @@ guess.s4.from.dir <- function(base.path) {
         return( list(S4.class=S4.class, S4.methods=S4.methods ) )
     }
     NULL 
+}
+
+#' get.exported.names
+#' 
+#' get exported names and patterns from NAMESPACE
+#'
+#' @param base.path the path pointing to the source of the R package
+#' @return names of exported objects
+get.exported.names <- function(base.path) {
+    if (file.exists(file.path(base.path,'NAMESPACE'))) {
+        L <- as.list(parse(file.path(base.path,'NAMESPACE')))
+        n1 <- Filter(function(x) x[[1]]=='export', L)
+        exported.names <- NULL
+        if (length(n1)) {
+             exported.names <- as.vector(unlist(sapply(n1, function(x) unlist(sapply(as.list(x[-1]),as.character)))))
+        }
+        n2 <- Filter(function(x) x[[1]]=='exportPattern', L)
+        exported.pattern <- NULL
+        if (length(n2)) {
+             exported.pattern <- as.vector(unlist(sapply(n2, function(x) unlist(sapply(as.list(x[-1]),as.character)))))
+        }
+        if (is.null(exported.names) && is.null(exported.pattern)) return(NULL)
+        return( list(exported.names = exported.names, exported.pattern=exported.pattern))
+    }
+    NULL 
+}
+
+#' is.sas.edgelist
+#'
+#' edgelist can be either from rpackage or SAS scripts
+#' Only difference is the last column is 'rfile' or 'sasfile'
+#' @param x edgelist object
+#' @return TRUE or FALSE
+is.sas.edgelist <- function(x) {
+    'sasfile' %in% names(x)
 }
