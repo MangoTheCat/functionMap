@@ -35,7 +35,7 @@ network.vertex.names(net2) [ rank(ha[,1])>420 ]
 network.vertex.names(net2) [ rank(ha[,2])>420 ]
 
 plot(eForce(net2, use.network.attr=TRUE))
-plot(eForce(net3, use.network.attr=TRUE))
+plot(eForce(net3, use.network.attr=TRUE, gravity=2))
 
 (ind<-which('panel.ablineq' == network.vertex.names(net2)))
 (L<-dfs.matrix.travel(net2[,], ind, dir='forward'))

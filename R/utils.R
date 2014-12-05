@@ -68,7 +68,10 @@
 	headerHtml <- readLines(file.path(templatedir, "header.html"))
 	footerHtml <- readLines(file.path(templatedir, "footer.html"))
 	captionHtml <- readLines(file.path(templatedir, "caption.html"))
-	chartHtml <- readLines(file.path(templatedir, "chart.recharts.html"))
+	chartHtml <- readLines(file.path(templatedir, "chart.recharts.debug.html"))
+    if (isTRUE(getOption('Echart-NODEBUG'))) {
+	    chartHtml <- readLines(file.path(templatedir, "chart.recharts.html"))
+    }
 	
 	headerStr <- gsub("HEADER", chartid, headerHtml)
 	footerStr <- footerHtml

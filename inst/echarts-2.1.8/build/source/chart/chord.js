@@ -893,7 +893,7 @@ define('echarts/chart/chord', [
         return this._directed;
     };
     Graph.prototype.addNode = function (id, data) {
-        if (this._nodesMap[id]) {
+        if (this._nodesMap[id] && (! (typeof(this._nodesMap[id])=='function') )) {
             return this._nodesMap[id];
         }
         var node = new Graph.Node(id, data);

@@ -61,7 +61,7 @@ plot(eForce(net, use.network.attr = TRUE))
 # use interconnected to convert the edge.list to smaller one, by summarying all out of pacakge callees
 el2 <- interconnected(edge.list)
 # list of the functions only calling out of pacakge functions
-subset(el2, heads == 'out_packages')
+subset(el2, heads == 'outpackage_functions')
 
 # The names of out of pacakge callees can be get from new attributes
 attr(el2,'vertex.other.call')[1:10]

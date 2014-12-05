@@ -45,7 +45,7 @@
 #' @param show.drawing.tool if show a drawing tool on the toolbox
 #' @param auto.opt.large automatically tweak parameter for plotting large graph(>500 nodes)
 #' @param gravity control how close those vertices are
-#' @param roam Echart options, control how mouse can interactively change the plot
+#' @param roam Echart options, control how mouse can interactively change the plot, can be \code{TRUE}, 'move', 'scale'
 #' @param opt other options which can be passed to ECharts.
 #' @return recharts object which can be shown as HTML by \code{\link{plot.recharts}}
 #' @export
@@ -63,10 +63,10 @@
 
 eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.isolated = FALSE, use.network.attr = FALSE,
 	title = NULL, subtitle = NULL, title.x = "right", title.y = "bottom", minRadius = 15, maxRadius = 25, scaling = 1.1,
-	legend = TRUE, legend.x = "left", legend.y= "top", legend.orient=c("horizontal", "vertical"), 
+	legend = TRUE, legend.x = "left", legend.y= "top", legend.orient=c("vertical", "horizontal"), 
 	toolbox = TRUE, toolbox.x = "right", toolbox.y = "top", 
 	tooltip = TRUE, show.drawing.tool=FALSE, auto.opt.large=TRUE,
-    gravity = 1e-7, roam='scale',
+    gravity = 1e-7, roam=TRUE,
     opt = list() ) {
     
 	## networkMatrix would be a symmetric matrix
@@ -75,6 +75,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 	# option$title format.
 	if (is.null(title)){
 		title = gsub('"','\\\\\"',paste(deparse(substitute(networkMatrix)), collapse=''))
+        #title <- .HTML.escape(paste(deparse(substitute(networkMatrix)), collapse=''))
         if (nchar(title)>100) title = paste(substring(title, 1, 97), '...')
 	}
 	if (is.null(subtitle)){
@@ -119,6 +120,13 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
             cat('WARNING! not category attribute found for networkMatrix, use.network.attr=TRUE ignored!\n')
         }
         eattr <- network::list.edge.attributes(networkMatrix)
+        if ('category' %in% eattr) {
+            edge.category <- as.matrix.network.edgelist(networkMatrix, attrname='category')
+            edge.category <- edge.category[ edge.category[,3]!='normal', , drop=FALSE ]
+            if (NROW(edge.category)==0) {
+                edge.category <- NULL
+            }
+        }
         if ('weights' %in% eattr) {
             elist <- as.matrix.network.edgelist(networkMatrix, attrname='weights')
             networkMatrix <- networkMatrix[,]
@@ -223,8 +231,14 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
         linksOutput[[i]] <- list(
             source = links[i,1] - 1,
             target = links[i,2] - 1,
-            weight = networkMatrix[ links[i,1], links[i,2] ],
+            weight = networkMatrix[ links[i,1], links[i,2] ], 
             value = networkMatrix[ links[i,1], links[i,2] ] )
+    }
+    if (exists('edge.category') && !is.null(edge.category)) {
+        ind <- match(paste(edge.category[,1], edge.category[,2], sep=','), paste(links[,1],links[,2], sep=','))
+        for(i in seq_along(ind)) {
+            linksOutput[[ ind[i] ]]$name <- edge.category[i,3]
+        }
     }
 	names(linksOutput) <- NULL
 	
@@ -240,7 +254,9 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 	if (is.null(propertyDf)){
         
         v.names <- colnames(networkMatrix)
-        v.names <- gsub('"','\\\\\"',v.names) # protect any " in the string
+        v.names <- gsub('"','\\\\\"', v.names) # protect any " in the string
+        v.names <- .Fix.Echart.bug(v.names)
+        #v.names <- .HTML.escape(v.names)
         adjmat <- networkMatrix > 0
 
         in.degrees <- unname(colSums(adjmat))
@@ -290,7 +306,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 				return(
 					list(
 						category = 0,
-						name = gsub('"','\\\\\"',nodeName),
+						name = gsub('"','\\\\\"', .Fix.Echart.bug(nodeName)),
 						value = 0
 					)
 				)
@@ -298,7 +314,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 				return(
 					list(
 						category = which(categoryList == propertyDf[indexOfDf, "category"]) - 1,
-						name = gsub('"','\\\\\"',nodeName),
+						name =  gsub('"','\\\\\"', .Fix.Echart.bug(nodeName)),
 						value = propertyDf[indexOfDf, "value"]
 					)
 				)
@@ -347,12 +363,12 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 			normal = list(
 				label = list(
 					show = TRUE,
-					textStyle = list(color="#800080")
+					textStyle = list(color="#333")
 				),
 				nodeStyle = list(
 					brushType = "both",
-					strokeColor = "rgba(255,215,0,0.4)",
-					lineWidth = 8
+					borderColor = "rgba(255,215,0,0.4)",
+					borderWidth = 1 
 				)
 			),
 			emphasis = list(
@@ -360,7 +376,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 					show = TRUE
 				),
 				nodeStyle = list(
-					r = 30
+				    #	r = 30
 				)
 			)
 		)
@@ -373,7 +389,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
         opt$toolbox$feature$magicType$option$chord <- list(minRadius=2, maxRadius=10, ribbonType=FALSE,
                                                            itemStyle = list(normal=list(label=list(show=TRUE,rotate=TRUE)),
                                                                             chordStyle=list(opacity=0.2)))
-        opt$toolbox$feature$magicType$option$force <- list(minRadius=5, maxRadius=8, gravity= 1.1,
+        opt$toolbox$feature$magicType$option$force <- list(minRadius=2, maxRadius=10, gravity= 1.1,
                                                            itemStyle = list(normal=list(label=list(show=FALSE)),
                                                                             linkStyle=list(opacity=0.5)))
     }
@@ -403,4 +419,31 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 	
 	### output list format
 	return(output)
+}
+
+.HTML.escape <- function(x) {
+    # only & not used as HTML tag can be replaced
+    x <- gsub('&(?![a-z]+;)','&amp;', x , perl=TRUE)
+    x <- gsub(' +','&nbsp;',x)
+    x <- gsub('"','&quot;',x, fixed=TRUE)
+    x <- gsub('<','&lt;',x, fixed=TRUE)
+    x <- gsub('>','&gt;',x, fixed=TRUE)
+    x
+}
+
+.Trim.too.long <- function(x, width=60) {
+    # trim too long line
+    if(length(ind<-which(nchar(x)>width))){
+        x[ind] <- 'Very long expression'#paste(substring(x[ind], 1, width-3), '...')
+    }
+    x
+}
+
+# Echart has bug that, 'toString' will not be added to hashMap as 'toString' is always a function object for all javastrict object
+# We need to change the name a little, but appearance is still same
+.Fix.Echart.bug <- function(v.names){
+    if (length(ind<-which(v.names=='toString'))) {
+        v.names[ind] <- paste(' ', v.names[ind], sep='')
+    }
+    v.names
 }
