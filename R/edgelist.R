@@ -326,16 +326,16 @@ edgelist.from.SASscript <- function(sasfile) {
     COMMENT.CLOSE <- '\\*/'
     MACRO.OPEN <- '%MACRO'
     MACRO.CLOSE <- '%MEND'
-    MACRO.FUN.PATTERN <- '(\\w+)(\\(.*?\\)){0,1}'
-    MACRO.FUN.CALL <- '%(\\w+)((\\(.*?\\))|;)'
-    PROC.PATTERN <- '^\\s*PROC\\s+(\\w+)'
-    DATA.PATTERN <- '^\\s*DATA\\s+(\\w+)'
+    MACRO.FUN.PATTERN <- '(\\w+)\\s*(\\(.*?\\)){0,1}'
+    MACRO.FUN.CALL <- '%(\\w+)\\s*((\\(.*?\\))|;)'
+    PROC.PATTERN <- '^\\s*PROC\\s+(&?\\w+)'
+    DATA.PATTERN <- '^\\s*DATA\\s+(&?\\w+)'
 
-    KNOWN.KEYWORDS <- c('IF','THEN','ELSE','DO','END','LET','PUT')
+    KNOWN.KEYWORDS <- c('IF','THEN','ELSE','DO','END','LET','PUT','WHILE')
 
     d <- list()
 
-    while( (line.n<-line.n+1) < length(txt)) {
+    while( (line.n<-line.n+1) <= length(txt)) {
         s <- txt[line.n]
         if (belong.to.comment) {
             if (regexpr(COMMENT.CLOSE, s)>0) {
@@ -405,6 +405,7 @@ edgelist.from.SASscript <- function(sasfile) {
         # unknow pattern will simply ignored
     }
     d
+    if (!length(d)) return(NULL)
     dout <- NULL
     for(i in names(d)) {
         if (!is.null(d[[i]]$macros)) {
@@ -435,12 +436,19 @@ edgelist.from.SASscript <- function(sasfile) {
 #'      plot(eForce(network.from.edgelist(edgelist.from.SASfolder('.'))))
 #' }
 edgelist.from.SASfolder <- function(base.path, pattern='\\.[Ss][Aa][Ss]$') {
-    ss <- list.files(file.path(base.path, pattern=pattern, rec=TRUE, full=TRUE))
+    ss <- list.files(file.path(base.path), pattern=pattern, rec=TRUE, full=TRUE)
+    if (!length(ss)) {
+        stop('The provided base.path doesnot contain any SAS script.')
+    }
     edgelist <- NULL
     for(fn in ss) {
         x <- try(edgelist.from.SASscript(fn), silent=TRUE)
         if (is(x,'try-error')) next
+        # x might be NULL (not macro definition, not proc/data, and not macro call, but just some variable definition)
         edgelist <- rbind(edgelist, x)
+    }
+    if (is.null(edgelist)) {
+        stop('NONE of the scripts in the provided base.path is successfully parsed!')
     }
     attr(edgelist, 'PROC') <- unique(with(edgelist , heads[ category == 'proc_call' ]))
     attr(edgelist, 'DATA') <- unique(with(edgelist , heads[ category == 'data_step' ]))
@@ -462,7 +470,7 @@ edgelist.from.SASfolder <- function(base.path, pattern='\\.[Ss][Aa][Ss]$') {
 network.from.edgelist.sas <- function(edgelist) {
     n <- network(edgelist, matrix.type='edgelist', ignore.eval=FALSE)
     vall <- network.vertex.names(n)
-    Defined <- vall %in% edgelist$heads
+    Defined <- vall %in% edgelist$tails # tails are the caller, or say, defined in the given scripts
     PROC <- vall %in% attr(edgelist,'PROC')
     DATA <- vall %in% attr(edgelist,'DATA')
     MAIN <- vall %in% attr(edgelist,'MAIN')
