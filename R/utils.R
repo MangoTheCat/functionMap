@@ -96,3 +96,21 @@
 	
 }
 
+.HTML.escape <- function(x) {
+    # only & not used as HTML tag can be replaced
+    x <- gsub('&(?![a-z]+;)','&amp;', x , perl=TRUE)
+    x <- gsub(' +','&nbsp;',x)
+    x <- gsub('"','&quot;',x, fixed=TRUE)
+    x <- gsub('<','&lt;',x, fixed=TRUE)
+    x <- gsub('>','&gt;',x, fixed=TRUE)
+    x
+}
+
+.Trim.too.long <- function(x, width=60) {
+    # trim too long line
+    if(length(ind<-which(nchar(x)>width))){
+        x[ind] <- 'Very long expression'#paste(substring(x[ind], 1, width-3), '...')
+    }
+    x
+}
+

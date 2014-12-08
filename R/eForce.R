@@ -255,7 +255,8 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
         
         v.names <- colnames(networkMatrix)
         v.names <- gsub('"','\\\\\"', v.names) # protect any " in the string
-        v.names <- .Fix.Echart.bug(v.names)
+#        v.names <- .Fix.Echart.bug(v.names) 
+# More elegent way is not use name, but should use label
         #v.names <- .HTML.escape(v.names)
         adjmat <- networkMatrix > 0
 
@@ -268,7 +269,8 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
         nodesOutput <- vector(NROW(adjmat), mode='list')
         for(i in 1:NROW(adjmat)) {
             nodesOutput[[ i ]] <- list(
-                name = v.names[i],
+                name = paste(' ', v.names[i], sep=''), # make sure name is not collide with js keyword
+                label = v.names[i],          # label is what displayed
                 category = out.degrees.code[i],
                 value = in.degrees[i])
         }
@@ -302,11 +304,15 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 			
 		nodesOutput <- lapply(colnames(networkMatrix), FUN = function(nodeName){
 			indexOfDf = which(rownames(propertyDf) == nodeName)[1]
+            nm.raw <- gsub('"','\\\\\"', nodeName)
+            nm <- paste(' ',nm.raw,sep='')
+            nm.label <- nm.raw
 			if(is.na (indexOfDf)){
 				return(
 					list(
 						category = 0,
-						name = gsub('"','\\\\\"', .Fix.Echart.bug(nodeName)),
+						name = nm,
+                        label = nm.label,
 						value = 0
 					)
 				)
@@ -314,7 +320,8 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 				return(
 					list(
 						category = which(categoryList == propertyDf[indexOfDf, "category"]) - 1,
-						name =  gsub('"','\\\\\"', .Fix.Echart.bug(nodeName)),
+						name =  nm,
+                        label = nm.label,
 						value = propertyDf[indexOfDf, "value"]
 					)
 				)
@@ -421,25 +428,10 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 	return(output)
 }
 
-.HTML.escape <- function(x) {
-    # only & not used as HTML tag can be replaced
-    x <- gsub('&(?![a-z]+;)','&amp;', x , perl=TRUE)
-    x <- gsub(' +','&nbsp;',x)
-    x <- gsub('"','&quot;',x, fixed=TRUE)
-    x <- gsub('<','&lt;',x, fixed=TRUE)
-    x <- gsub('>','&gt;',x, fixed=TRUE)
-    x
-}
-
-.Trim.too.long <- function(x, width=60) {
-    # trim too long line
-    if(length(ind<-which(nchar(x)>width))){
-        x[ind] <- 'Very long expression'#paste(substring(x[ind], 1, width-3), '...')
-    }
-    x
-}
-
-# Echart has bug that, 'toString' will not be added to hashMap as 'toString' is always a function object for all javastrict object
+# Note: this is not a Echart bug. But which need caution!
+# Echart when using the "name", and it equal to 'toString', then problem happends.
+# This is not an legitimate name because it's a java script keyword. 
+# This name will not be added to hashMap as 'toString' is always a function object for all javastrict object.
 # We need to change the name a little, but appearance is still same
 .Fix.Echart.bug <- function(v.names){
     if (length(ind<-which(v.names=='toString'))) {
