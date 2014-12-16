@@ -82,6 +82,56 @@ dfs.matrix.travel <- function(n, v, direction='forward') {
     L
 }
 
+#' topo.sort
+#'
+#' compressed topological sort
+#' @param n network
+#' @param direction which direction
+#' @return order
+topo.sort <- function(n, direction='forward') {
+    nv <- if (is.network(n)) n$gal$n
+          else NROW(n)
+    explored <- new.env(parent=emptyenv())
+    current_label <- 1
+    f <- list()
+
+    dfs0 <- function(u) {
+        assign(as.character(u), TRUE, env=explored)
+        next.u <- switch(direction, 
+            forward  = which(n[u,] > 0),
+            backward = which(n[,u] > 0))
+        for(i in next.u) {
+            if (exists(as.character(i), env=explored) && get(as.character(i), env=explored)>0) next
+            assign(as.character(i), TRUE, env=explored)
+            Recall(i)
+        }
+        f[[ as.character(u) ]] <<- current_label
+        current_label <<- current_label + 1
+    }
+
+    for(from.v in 1:nv) {
+        if (exists(as.character(from.v), env=explored) && get(as.character(from.v), env=explored)>0) next
+        dfs0(from.v)
+    }
+    f <- unlist(f)
+    ind <- as.integer(rev(names(f)))
+    #
+    V <- integer(nv)
+    V[ind[1]] <- 1
+    ii <- 1
+    #
+    while( (ii<-ii+1) <= nv ) {
+        k <- which(n[ind[1:ii-1],ind[ii]] > 0)
+        if (length(k)) {
+            V[ind[ii]] <- max(V[ind[k]]) + 1
+        } else {
+            V[ind[ii]] <- 1
+        }
+    }
+    V
+}
+
+
 #' page.rank
 #'
 #' @param net network object or just a matrix

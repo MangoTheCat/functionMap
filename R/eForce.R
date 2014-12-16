@@ -34,6 +34,9 @@
 #' @param minRadius the minimal radius of the node, if the node is too small to be seen, user can increase this value
 #' @param maxRadius the maximal radius of the node, restrict the node not to be too large. Those relative size of node are according to their value.
 #' @param scaling the scaling layout coefficient, if the node to too close together, user can increate the scaling to make the graph more sparse
+#' @param do.depth.layout whether layout the graph using depth of nodes
+#' @param depth.layout when \code{do.depth.layout} is \code{TRUE}, layout horizontal or vertical
+#' @param do.jitter whether do jitter on the depth
 #' @param legend whether to show legend for the category of vertex
 #' @param legend.x x position of legend, default is top left; typically not shown if there is only one category
 #' @param legend.y y position of legend
@@ -63,12 +66,14 @@
 
 eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.isolated = FALSE, use.network.attr = FALSE,
 	title = NULL, subtitle = NULL, title.x = "right", title.y = "bottom", minRadius = 15, maxRadius = 25, scaling = 1.1,
+    do.depth.layout=FALSE, depth.layout = c('fixX', 'fixY'), do.jitter = FALSE,
 	legend = TRUE, legend.x = "left", legend.y= "top", legend.orient=c("vertical", "horizontal"), 
 	toolbox = TRUE, toolbox.x = "right", toolbox.y = "top", 
 	tooltip = TRUE, show.drawing.tool=FALSE, auto.opt.large=TRUE,
     gravity = 1e-7, roam=TRUE,
     opt = list() ) {
     
+    depth.layout <- match.arg(depth.layout)
 	## networkMatrix would be a symmetric matrix
 	## if the propertyDf is null, for the vertex, the category is outer degree(called how many functions), the value is the in degree of the node(called by)
 	
@@ -115,6 +120,13 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
             }
             if ('color' %in% attr) {
                 propertyDf$color = networkMatrix %v% 'color'
+            }
+            if (do.depth.layout) {
+                if ('depth' %in% attr) {
+                    propertyDf$depth <- networkMatrix %v% 'depth'
+                } else {
+                    propertyDf$depth <- topo.sort(networkMatrix)
+                }
             }
         } else {
             cat('WARNING! not category attribute found for networkMatrix, use.network.attr=TRUE ignored!\n')
@@ -299,35 +311,81 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 		}
 		
 		categoryList = unique(propertyDf$category)
+        if (NROW(propertyDf) < NROW(networkMatrix)) {
+            categoryList <- c(categoryList, '!undefined!')   
+        }
 
         opt$legend$data = categoryList
+        do.depth.layout <- do.depth.layout && !is.null(propertyDf$depth)
+        if (do.depth.layout) {
+            maxDepth <- max(propertyDf$depth)
+            initial.xy <- if (depth.layout=='fixY') {
+                depth.sep <- (size[2] - 20) / (maxDepth + 1)
+                depth.sep.10 <- depth.sep/4
+                function(depth) {
+                    x <- round(runif(1, 0, size[1]-20))
+                    y <-  depth.sep * depth + 20
+                    if (do.jitter) y <- jitter(y, amount=depth.sep.10)
+                    c(x,y) } 
+                } else {
+                depth.sep <- (size[1] - 20) / (maxDepth + 1)
+                depth.sep.10 <- depth.sep/4
+                function(depth) {
+                    x <-  depth.sep * depth + 20
+                    y <- round(runif(1, 0, size[2]-20))
+                    if (do.jitter) x <- jitter(x, amount=depth.sep.10)
+                    c(x,y) } 
+                }
+        }
 			
-		nodesOutput <- lapply(colnames(networkMatrix), FUN = function(nodeName){
-			indexOfDf = which(rownames(propertyDf) == nodeName)[1]
-            nm.raw <- gsub('"','\\\\\"', nodeName)
-            nm <- paste(' ',nm.raw,sep='')
-            nm.label <- nm.raw
-			if(is.na (indexOfDf)){
-				return(
-					list(
-						category = 0,
-						name = nm,
-                        label = nm.label,
-						value = 0
-					)
-				)
-			}else{
-				return(
-					list(
-						category = which(categoryList == propertyDf[indexOfDf, "category"]) - 1,
-						name =  nm,
-                        label = nm.label,
-						value = propertyDf[indexOfDf, "value"]
-					)
-				)
-			}
-		})
-		
+        nms <- colnames(networkMatrix)
+        ind <- match(nms, rownames(propertyDf))
+        nodesOutput <- list()
+        for(ii in seq_along(nms)) {
+            nm <- nms[ii]
+            node <- list(name = paste(' ', nm , sep = ''), label = nm , value = 0, category = length(categoryList) - 1)
+            if (do.depth.layout) {
+                node$depth <- 1
+                node$initial <- initial.xy(1)
+                node$fixX <- depth.layout=='fixX'
+                node$fixY <- depth.layout=='fixY'
+            }
+            if (!is.na(ind[ii])) {
+                node$category <- match(propertyDf[ind[ii], 'category'], categoryList) - 1
+                node$value <- propertyDf[ind[ii], 'value']
+                if (do.depth.layout) {
+                    node$depth <- propertyDf[ind[ii], 'depth']
+                    node$initial <- initial.xy(node$depth)
+                }
+            }
+            nodesOutput[[ii]] <- node
+        }
+#		nodesOutput <- lapply(colnames(networkMatrix), FUN = function(nodeName){
+#			indexOfDf = which(rownames(propertyDf) == nodeName)[1]
+#            nm.raw <- gsub('"','\\\\\"', nodeName)
+#            nm <- paste(' ',nm.raw,sep='')
+#            nm.label <- nm.raw
+#			if(is.na (indexOfDf)){
+#				return(
+##					list(
+#						category = length(categoryList) - 1,
+#						name = nm,
+#                        label = nm.label,
+#						value = 0
+##					)
+#				)
+#			}else{
+#				return(
+#					list(
+#						category = which(categoryList == propertyDf[indexOfDf, "category"]) - 1,
+#						name =  nm,
+#                        label = nm.label,
+#						value = propertyDf[indexOfDf, "value"]
+##					)
+#				)
+#			}
+#		})
+#		
 		categoriesOutput <- lapply(categoryList, function(category){
 			return(
 					list(
