@@ -264,7 +264,7 @@ network.from.edgelist <- function(edgelist) {
     calledS4 <- vall %in% v.names.s4.base
     ## 
     if (!is.null(attr(edgelist,'is.exported.names'))) {
-        exported <- attr(edgelist,'is.exported.names')(vall)
+        exported <- inpackage & attr(edgelist,'is.exported.names')(vall)
     } else {
         exported <- rep(FALSE, length(vall))
     }

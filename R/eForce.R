@@ -79,7 +79,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 	
 	# option$title format.
 	if (is.null(title)){
-		title = gsub('"','\\\\\"',paste(deparse(substitute(networkMatrix)), collapse=''))
+		title = gsub('(?<!\\\\)"','\\\\\"',paste(deparse(substitute(networkMatrix)), collapse=''), perl=TRUE)
         #title <- .HTML.escape(paste(deparse(substitute(networkMatrix)), collapse=''))
         if (nchar(title)>100) title = paste(substring(title, 1, 97), '...')
 	}
@@ -266,7 +266,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 	if (is.null(propertyDf)){
         
         v.names <- colnames(networkMatrix)
-        v.names <- gsub('"','\\\\\"', v.names) # protect any " in the string
+        v.names <- gsub('(?<!\\\\)"','\\\\\"', v.names, perl=TRUE) # protect any " in the string
 #        v.names <- .Fix.Echart.bug(v.names) 
 # More elegent way is not use name, but should use label
         #v.names <- .HTML.escape(v.names)
@@ -342,7 +342,7 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
         ind <- match(nms, rownames(propertyDf))
         nodesOutput <- list()
         for(ii in seq_along(nms)) {
-            nm <- nms[ii]
+            nm <- gsub('(?<!\\\\)"', '\\\\\"', nms[ii], perl=TRUE)
             node <- list(name = paste(' ', nm , sep = ''), label = nm , value = 0, category = length(categoryList) - 1)
             if (do.depth.layout) {
                 node$depth <- 1
@@ -360,31 +360,6 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
             }
             nodesOutput[[ii]] <- node
         }
-#		nodesOutput <- lapply(colnames(networkMatrix), FUN = function(nodeName){
-#			indexOfDf = which(rownames(propertyDf) == nodeName)[1]
-#            nm.raw <- gsub('"','\\\\\"', nodeName)
-#            nm <- paste(' ',nm.raw,sep='')
-#            nm.label <- nm.raw
-#			if(is.na (indexOfDf)){
-#				return(
-##					list(
-#						category = length(categoryList) - 1,
-#						name = nm,
-#                        label = nm.label,
-#						value = 0
-##					)
-#				)
-#			}else{
-#				return(
-#					list(
-#						category = which(categoryList == propertyDf[indexOfDf, "category"]) - 1,
-#						name =  nm,
-#                        label = nm.label,
-#						value = propertyDf[indexOfDf, "value"]
-##					)
-#				)
-#			}
-#		})
 #		
 		categoriesOutput <- lapply(categoryList, function(category){
 			return(
