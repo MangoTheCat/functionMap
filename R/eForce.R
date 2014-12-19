@@ -310,7 +310,11 @@ eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.
 			}
 		}
 		
-		categoryList = unique(propertyDf$category)
+        if (is.factor(propertyDf$category)) {
+            categoryList = levels(propertyDf$category)
+        } else {
+		    categoryList = sort(unique(propertyDf$category))
+        }
         if (NROW(propertyDf) < NROW(networkMatrix)) {
             categoryList <- c(categoryList, '!undefined!')   
         }

@@ -327,13 +327,21 @@ edgelist.from.SASscript <- function(sasfile) {
     MACRO.OPEN <- '%MACRO'
     MACRO.CLOSE <- '%MEND'
     MACRO.FUN.PATTERN <- '(\\w+)\\s*(\\(.*?\\)){0,1}'
-    MACRO.FUN.CALL <- '%(\\w+)\\s*((\\(.*?\\))|;)'
-    PROC.PATTERN <- '^\\s*PROC\\s+(&?\\w+)'
-    DATA.PATTERN <- '^\\s*DATA\\s+(&?\\w+)'
+    MACRO.FUN.CALL <- '(%\\w+)\\s*((\\(.*?\\))|;)'
+    PROC.PATTERN <- '^\\s*PROC\\s+([&\\w]+)'
+    DATA.PATTERN <- '^\\s*DATA\\s+([&\\w]+)'
 
-    KNOWN.KEYWORDS <- c('IF','THEN','ELSE','DO','END','LET','PUT','WHILE')
+    KNOWN.KEYWORDS <- paste0('%', c('IF','THEN','ELSE','DO','END','LET','PUT','WHILE'))
 
     d <- list()
+
+    denote.macro <- function(x) {
+        if (nchar(x)<1) return(x)
+        if (nchar(x)>=1) {
+            if (any(substring(x,1,1)==c('%','&'))) return(x)
+        }
+        paste0('%', x)
+    }
 
     while( (line.n<-line.n+1) <= length(txt)) {
         s <- txt[line.n]
@@ -358,6 +366,7 @@ edgelist.from.SASscript <- function(sasfile) {
             if (m>0) {
                 fun <- substring(s, attr(m,'capture.start')[1], 
                                     attr(m,'capture.start')[1]-1+attr(m,'capture.length')[1])
+                fun <- denote.macro(fun)
                 push(fun)
                 s <- substring(s, m + attr(m,'match.length'))
                 # initial the object
@@ -471,12 +480,13 @@ network.from.edgelist.sas <- function(edgelist) {
     n <- network(edgelist, matrix.type='edgelist', ignore.eval=FALSE)
     vall <- network.vertex.names(n)
     Defined <- vall %in% edgelist$tails # tails are the caller, or say, defined in the given scripts
+    MACRO <- grepl('^%', vall)
     PROC <- vall %in% attr(edgelist,'PROC')
     DATA <- vall %in% attr(edgelist,'DATA')
     MAIN <- vall %in% attr(edgelist,'MAIN')
-    other <- !(Defined | PROC | DATA | MAIN)
-    mat <- cbind(Defined, PROC, DATA, MAIN, other)
-    tag <- c('Defined', 'PROC', 'DATA', 'Main file', 'other')
+    other <- !(Defined | MACRO | PROC | DATA | MAIN)
+    mat <- cbind(Defined, MACRO, PROC, DATA, MAIN, other)
+    tag <- c('Defined', 'MACRO', 'PROC', 'DATA', 'Main file', 'other')
     category <- as.vector(apply(mat, 1, function(x) paste(tag[which(x)],collapse=',')))
     n %v% 'category' <- category
     n
