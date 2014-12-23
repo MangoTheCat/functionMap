@@ -326,20 +326,15 @@ define('echarts/chart/force', [
                     });
                 }
                 if (this.deepQuery(queryTarget, 'itemStyle.normal.label.show')) {
-                    shape.style.text = node.data.name;
-                    var labelStyle = this.deepQuery(queryTarget, 'itemStyle.normal.label') || {};
-                    var textStyle = labelStyle.textStyle || {};
-                    shape.style.textPosition = labelStyle.position;
-                    shape.style.textColor = textStyle.color || '#fff';
-                    shape.style.textFont = this.getFont(textStyle);
+                    shape.style.text = node.data.label == null ? node.id : node.data.label;
+                    shape.style.textPosition = this.deepQuery(queryTarget, 'itemStyle.normal.label.position');
+                    shape.style.textColor = this.deepQuery(queryTarget, 'itemStyle.normal.label.textStyle.color');
+                    shape.style.textFont = this.getFont(this.deepQuery(queryTarget, 'itemStyle.normal.label.textStyle') || {});
                 }
                 if (this.deepQuery(queryTarget, 'itemStyle.emphasis.label.show')) {
-                    shape.highlightStyle.text = node.data.name;
-                    var labelStyle = this.deepQuery(queryTarget, 'itemStyle.emphasis.label.textStyle') || {};
-                    var textStyle = labelStyle.textStyle || {};
-                    shape.highlightStyle.textPosition = labelStyle.position;
-                    shape.highlightStyle.textColor = textStyle.color || '#fff';
-                    shape.highlightStyle.textFont = this.getFont(textStyle);
+                    shape.highlightStyle.textPosition = this.deepQuery(queryTarget, 'itemStyle.emphasis.label.position');
+                    shape.highlightStyle.textColor = this.deepQuery(queryTarget, 'itemStyle.emphasis.label.textStyle.color');
+                    shape.highlightStyle.textFont = this.getFont(this.deepQuery(queryTarget, 'itemStyle.emphasis.label.textStyle') || {});
                 }
                 if (this.deepQuery(queryTarget, 'draggable')) {
                     this.setCalculable(shape);
@@ -477,6 +472,19 @@ define('echarts/chart/force', [
                 } else if (node.fixY) {
                     position[1] = shape.position[1];
                     shape.position[0] = position[0];
+                } else if (isNaN(node.fixX - 0) == false && isNaN(node.fixY - 0) == false) {
+                    shape.position[0] += (position[0] - shape.position[0]) * node.fixX;
+                    position[0] = shape.position[0];
+                    shape.position[1] += (position[1] - shape.position[1]) * node.fixY;
+                    position[1] = shape.position[1];
+                } else if (isNaN(node.fixX - 0) == false) {
+                    shape.position[0] += (position[0] - shape.position[0]) * node.fixX;
+                    position[0] = shape.position[0];
+                    shape.position[1] = position[1];
+                } else if (isNaN(node.fixY - 0) == false) {
+                    shape.position[1] += (position[1] - shape.position[1]) * node.fixY;
+                    position[1] = shape.position[1];
+                    shape.position[0] = position[0];
                 } else {
                     vec2.copy(shape.position, position);
                 }
@@ -604,7 +612,7 @@ define('echarts/chart/force', [
         return this._directed;
     };
     Graph.prototype.addNode = function (id, data) {
-        if (this._nodesMap[id] && (! (typeof(this._nodesMap[id])=='function') )) {
+        if (this._nodesMap[id]) {
             return this._nodesMap[id];
         }
         var node = new Graph.Node(id, data);

@@ -488,7 +488,7 @@ define('echarts/chart/chord', [
                     zlevel: this.getZlevelBase() + 1,
                     hoverable: false,
                     style: {
-                        text: node.id,
+                        text: node.data.label == null ? node.id : node.data.label,
                         textAlign: isRightSide ? 'left' : 'right',
                         color: labelColor || '#000000'
                     }
@@ -893,7 +893,7 @@ define('echarts/chart/chord', [
         return this._directed;
     };
     Graph.prototype.addNode = function (id, data) {
-        if (this._nodesMap[id] && (! (typeof(this._nodesMap[id])=='function') )) {
+        if (this._nodesMap[id]) {
             return this._nodesMap[id];
         }
         var node = new Graph.Node(id, data);
