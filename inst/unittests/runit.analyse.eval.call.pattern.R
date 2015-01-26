@@ -8,7 +8,7 @@ test.analyse.eval.call.pattern <- function(){
         c("if (is.function(method)) \"method\" else method", "stats::model.frame", 
         "if (is.function(method)) \"method\" else method") )
 
-    checkEquals( c(analyse.eval.call.pattern(anova.mlm)),
+    checkEquals( c(analyse.eval.call.pattern(stats:::anova.mlm)),
             "anova.mlmlist" )
 
     checkEquals( c(analyse.eval.call.pattern( quote({
