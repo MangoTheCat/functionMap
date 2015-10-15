@@ -43,9 +43,9 @@ plotFunctionMap <- function(networkobj, displayisolates = FALSE, displaylabels =
 ##' Parse Rd docs get function export information
 ##' @param packagedir path to root of package
 ##' @return a data.frame summary for exported (as you documented in Rd by export)
+##' @importFrom roxygen2 namespace_roclet
 ##' @export
 parse_roxygen_export = function(packagedir) {
-    require(roxygen2)
     rc = namespace_roclet()
     re = roxygen2:::parse_package(normalizePath(packagedir), roxygen2:::source_package)
     ns = roxygen2:::roc_process.namespace(rc, re)
@@ -96,7 +96,7 @@ plotFunctionMap.package = function(packagedir,relabel=TRUE,do.plot=TRUE,...) {
     package.name = read.dcf(file.path(packagedir, 'DESCRIPTION'))[,'Package']
     s4 = try(parseS4fromNs( package.name ), silent=TRUE)
     if (is(s4,'try-error')){
-        txts = extract.S4.defn(path=package)
+        txts = extract.S4.defn(path=packagedir)
         try(eval(parse(text=txts)), silent=TRUE)
         s4 = try(parseS4fromNs(), silent=TRUE)
     }

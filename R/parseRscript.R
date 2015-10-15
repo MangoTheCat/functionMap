@@ -371,7 +371,7 @@ analyse.eval.call.pattern <- function( f , Bindings = list(), baseline.lineno=NU
             t1 <- try(eval(e), silent=TRUE)
             if (!is(t1,'try-error')) {
                 if (is.character(t1)) {
-                    return(r1)
+                    return(t1)
                 } else if (is.symbol(t1) || (is.call(t1)&&(t1[[1]]=='::'||t1[[1]]==':::'))) {
                     return(paste(deparse(t1),collapse=''))
                 }

@@ -27,6 +27,8 @@
 	return(Y)
 }
 
+#' @importFrom tools file_ext
+
 .recharts.httpd.handler <- function (path, query, ...) 
 {
 	path <- gsub("^/custom/recharts/", "", path)
@@ -50,10 +52,6 @@
 }
 
 
-
-.isServerRunning <- function(){
-	get("httpdPort", envir = environment(startDynamicHelp)) > 0
-}
 
 .tempId <- function(){
 	id = paste('ID', format(Sys.time(), "%Y%m%d%H%M%S"), proc.time()[3]*100, sep="_")

@@ -47,6 +47,7 @@ parseRfolder <- function(rpath, rfilepattern = "\\.[R|r]$", returnfilename = FAL
 #' @param base.path path to the R source, assume it to be a package base path
 #' @param rfilepattern some author may use extension ".[qQ][sS]" other than [Rr], this option can select from those
 #' @return network object
+#' @importFrom network network.vertex.names %v%<-
 #' @export
 #' @examples \dontrun{
 #'   n1 <- network.from.rpackage('MASS')

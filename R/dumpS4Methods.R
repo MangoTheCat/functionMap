@@ -126,6 +126,7 @@ parseS4fromNs <- function(...) {
 #'
 #' } 
 #' @return network object with directed arrows, if A used in its body B, then there should be an arrow pointing from B to A
+#' @importFrom network network
 #' @export
 createDirectedNetwork <- function(plain.fun, s4list=list(), if.directed=TRUE) {
     plain.fun.nms <- unique(names(plain.fun))

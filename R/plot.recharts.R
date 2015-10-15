@@ -16,9 +16,7 @@ plot.recharts <- function (x, tag = NULL, Local = FALSE, ...)
 	if (missing(tag))
 		tag <- getOption("recharts.plot.tag")
 	if (is.null(tag) | !("recharts" %in% class(x))) {
-		if (!.isServerRunning()) {
-			tools:::startDynamicHelp()
-		}
+                tools::startDynamicHelp()
 		env <- get(".httpd.handlers.env", asNamespace("tools"))
 		env[["recharts"]] <- .recharts.httpd.handler
 		root.dir <- tempdir()

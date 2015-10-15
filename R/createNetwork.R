@@ -11,6 +11,7 @@
 ##' @param returnmatrix Whether to return a matrix rather than the default network object.
 ##' @return A network object or matrix.
 ##' @author Mango Solutions
+##' @importFrom network network
 ##' @examples \dontrun{
 ##' lfun <- parseRfolder(system.file("examples", "R", package = "functionMap"))
 ##' createNetwork(lfun)

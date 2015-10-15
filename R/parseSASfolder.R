@@ -29,6 +29,7 @@ parseSASfolder <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]$') {
 #' @param sas.path basedir to analysis
 #' @param sas.pattern the extention file name pattern
 #' @return network object
+#' @importFrom network network.vertex.names
 #' @export
 #' @examples \dontrun{
 #'   net <- network.from.sascode('.')
@@ -52,6 +53,7 @@ network.from.sascode <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]$') {
 #' @param nn network object
 #' @param make.plot make the plot for components
 #' @return the list components network
+#' @importFrom network as.network
 #' @export
 #' @examples \dontrun{
 #'   foo <- parseSASfolder('.')
@@ -81,6 +83,7 @@ show.connected.components <- function(nn, make.plot=TRUE) {
 #' @param sas.pattern which pattern to including in analysis as SAS scripts
 #' @param output.file the output pdf file which displays the structures
 #' @return list of network of toplevel scripts
+#' @importFrom network network.vertex.names as.network
 toplevel.sas.structure <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]$', output.file='network.map.pdf') {
     L <- parseSASfolder(sas.path, sas.pattern)
     nn <- createNetwork(L)

@@ -51,6 +51,8 @@
 #' @param roam Echart options, control how mouse can interactively change the plot, can be \code{TRUE}, 'move', 'scale'
 #' @param opt other options which can be passed to ECharts.
 #' @return recharts object which can be shown as HTML by \code{\link{plot.recharts}}
+#' @importFrom network is.network %v% as.matrix.network.edgelist
+#' @importFrom RJSONIO toJSON
 #' @export
 #' @examples \dontrun{
 #'      testData <- matrix(1:25, nrow=5)

@@ -197,8 +197,8 @@ edgelist.from.rpackage <- function(base.path,  rfilepattern = "\\.[Rr]$", force.
 #' @return data.frame
 #' @export
 interconnected <- function(el) {
-    r1 <- subset(el, heads %in% tails)
-    r2 <- subset(el, !heads %in% tails)
+    r1 <- el[  el$heads %in% el$tails, ]
+    r2 <- el[ !el$heads %in% el$tails, ]
     r2 <- sapply(split(r2, r2$tails), function(x) sprintf('[%s]', paste(x$heads,collapse=',')))
     defined.but.depend.on.outer <- setdiff(names(r2), r1$tails)
     for(i in defined.but.depend.on.outer) {
@@ -219,6 +219,7 @@ interconnected <- function(el) {
 #' 
 #'
 #' @param edgelist the edgelist returned by \code{\link{edgelist.from.rpackage}}
+#' @importFrom network network.vertex.names %v%<-
 #' @return network object with vertex attributes 
 #' @examples \dontrun{
 #'  el = edgelist.from.rpackage('/experiment/RNONMEM/importing/RNMImport')
@@ -474,7 +475,8 @@ edgelist.from.SASfolder <- function(base.path, pattern='\\.[Ss][Aa][Ss]$') {
 #' Similar to \code{\link{network.from.edgelist}} but do category denotation base on SAS rather than R
 #' 
 #' @param edgelist
-#' @return network object 
+#' @return network object
+#' @importFrom network network.vertex.names %v%<-
 #' @export
 network.from.edgelist.sas <- function(edgelist) {
     n <- network(edgelist, matrix.type='edgelist', ignore.eval=FALSE)

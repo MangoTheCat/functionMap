@@ -8,11 +8,13 @@ Maintainer: Gabor Csardi <gcsardi@mango-solutions.com>
 License: GPL-2
 LazyData: yes
 Author: Mango Solutions <developers@mango-solutions.com>
-Depends:
-    R (>= 3.0.0),
+Imports:
+    roxygen2,
     network,
     RJSONIO,
     tools
+Depends:
+    R (>= 3.0.0),
 Suggests:
     RUnit
 RoxygenNote: 4.1.1.9001
