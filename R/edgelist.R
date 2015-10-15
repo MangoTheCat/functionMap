@@ -217,8 +217,6 @@ interconnected <- function(el) {
 #'
 #' Convert edgelist to network, also denotate the attributes as S3, S4 for the vertices
 #'
-#' 
-#'
 #' @param edgelist the edgelist returned by \code{\link{edgelist.from.rpackage}}
 #' @importFrom network network.vertex.names %v%<-
 #' @return network object with vertex attributes 
