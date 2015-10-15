@@ -218,7 +218,6 @@ option <- function(...) {
 	}
 }
 
-#' @export
 "%+%" <- `+.recharts`
 
 
