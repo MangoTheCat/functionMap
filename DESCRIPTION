@@ -1,14 +1,18 @@
 Package: functionMap
-Maintainer: Mango Solutions <developers@mango-solutions.com>
-License: GPL-2
 Title: Draw the functions map for a R package
+Description: Extracts all function calls from an R package, or a set of R
+    or SAS scripts. Creates a network of functions that can be then
+    visualized.
+Version: 1.0.0
+Maintainer: Gabor Csardi <gcsardi@mango-solutions.com>
+License: GPL-2
 LazyData: yes
-Type: Package
-LazyLoad: yes
 Author: Mango Solutions <developers@mango-solutions.com>
-Description: Draw the functions map for a R package
-Version: 0.0-1
-Date: 2013-12-18
-Depends: R (>= 3.0.0), network, RJSONIO, tools
-Suggests: RUnit
-
+Depends:
+    R (>= 3.0.0),
+    network,
+    RJSONIO,
+    tools
+Suggests:
+    RUnit
+RoxygenNote: 4.1.1.9001
