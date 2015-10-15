@@ -11,7 +11,6 @@ edgelist.from.rscript(rfile)
 }
 \value{
 The return value is a data.frame containing 5 columns.
-\describe{
  \item{tails}{the caller}
  \item{heads}{the callee, and in the graph we will draw an arrow from tail pointing to head}
  \item{category}{currently can be\describe{ 
@@ -22,9 +21,12 @@ The return value is a data.frame containing 5 columns.
  }}
  \item{weights}{how many times the callee appearing in the caller}
  \item{rfile}{where this relation is parsed from}
-}
+
 }
 \description{
+Create an edge list from an R script
+}
+\details{
 Difference between this function and \code{\link{parseRscript}} is this one will give more information
 of the edge and the node.
 }

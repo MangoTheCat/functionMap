@@ -41,4 +41,14 @@ There are situations \code{ m <- match.call() } , then change some argument and 
 this time the function is the function itself, we don't count this as in the final plot, self-loop is not shown.
 
 }
+\examples{
+\dontrun{
+   analyse.eval.call.pattern(lm)
+   analyse.eval.call.pattern(glm)
+   analyse.eval.call.pattern(anova.mlm)
+   # the clever things this function does is it will try to look up symbol(variable) meaning from context, compare the following example
+   attr(match.eval.pattern( body(model.frame.default)), 'eval.calls')
+   # note those fcall, predvars, extras and subset are replaced by the value look up in the context
+   analyse.eval.call.pattern( model.frame.default )[1:4]  }
+}
 

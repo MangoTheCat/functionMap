@@ -188,7 +188,6 @@ is.option <- function(x) inherits(x, "option")
 #' Set recharts option
 #' 
 #' @export
-#'
 option <- function(...) {
 
   elements <- list(...)
@@ -203,7 +202,6 @@ option <- function(...) {
 #' @param e2 A component to add to \code{e1}
 #'
 #' @export
-#'
 #' @seealso \code{\link{set}}
 #' @method + recharts
 "+.recharts" <- function(e1, e2){

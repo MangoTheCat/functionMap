@@ -1,12 +1,13 @@
 
 #' edgelist.from.rscript
+#' 
+#' Create an edge list from an R script
 #'
 #' Difference between this function and \code{\link{parseRscript}} is this one will give more information
 #' of the edge and the node.
 #'
 #' @param rfile R script name
 #' @return The return value is a data.frame containing 5 columns.
-#' \describe{
 #'  \item{tails}{the caller}
 #'  \item{heads}{the callee, and in the graph we will draw an arrow from tail pointing to head}
 #'  \item{category}{currently can be\describe{ 
@@ -17,7 +18,7 @@
 #'  }}
 #'  \item{weights}{how many times the callee appearing in the caller}
 #'  \item{rfile}{where this relation is parsed from}
-#' }
+#'
 #' @export
 #' @examples \dontrun{
 #'  rfile <- system.file("examples", "R", "func.R", package = "functionMap")
@@ -474,7 +475,7 @@ edgelist.from.SASfolder <- function(base.path, pattern='\\.[Ss][Aa][Ss]$') {
 #'
 #' Similar to \code{\link{network.from.edgelist}} but do category denotation base on SAS rather than R
 #' 
-#' @param edgelist
+#' @param edgelist Edge list.
 #' @return network object
 #' @importFrom network network.vertex.names %v%<-
 #' @export

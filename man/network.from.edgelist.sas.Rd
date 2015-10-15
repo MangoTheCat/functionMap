@@ -6,6 +6,9 @@
 \usage{
 network.from.edgelist.sas(edgelist)
 }
+\arguments{
+\item{edgelist}{Edge list.}
+}
 \value{
 network object
 }
