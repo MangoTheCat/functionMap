@@ -57,14 +57,14 @@ dfs.matrix.travel <- function(n, v, direction='forward') {
             bidirection = which(n[u,]>0|n[,u]>0))
 
         for(i in next.u) {
-            if (exists(as.character(i),env=traveled) && get(as.character(i),env=traveled)>0) next
-            assign(as.character(i), cc.index, env=traveled)
+            if (exists(as.character(i),envir=traveled) && get(as.character(i),envir=traveled)>0) next
+            assign(as.character(i), cc.index, envir=traveled)
             Recall(i)
         }
     }
 
     if (!missing(v)) {
-        assign(as.character(v),cc.index, env=traveled)
+        assign(as.character(v),cc.index, envir=traveled)
         dfs0(v)
         re <- as.integer(ls(traveled))
         return(sort(re))
@@ -72,8 +72,8 @@ dfs.matrix.travel <- function(n, v, direction='forward') {
     # connected components
     L <- list()
     for(v in 1:NROW(n)) {
-        if (exists(as.character(v), env=traveled) && get(as.character(v),env=traveled)) next
-        assign(as.character(v),cc.index, env=traveled)
+        if (exists(as.character(v), envir=traveled) && get(as.character(v),envir=traveled)) next
+        assign(as.character(v),cc.index, envir=traveled)
         dfs0(v)
         re <- unlist(eapply(traveled, function(x) x==cc.index))
         L[[cc.index]] <- as.integer(names(re)[re])
@@ -99,11 +99,11 @@ topo.sort <- function(n, need.rev=TRUE, direction='forward') {
     f <- list()
 
     dfs0 <- function(u) {
-        assign(as.character(u), TRUE, env=explored)
+        assign(as.character(u), TRUE, envir=explored)
         next.u <- which(n[u,] > 0)
         for(i in next.u) {
-            if (exists(as.character(i), env=explored) && get(as.character(i), env=explored)>0) next
-            assign(as.character(i), TRUE, env=explored)
+            if (exists(as.character(i), envir=explored) && get(as.character(i), envir=explored)>0) next
+            assign(as.character(i), TRUE, envir=explored)
             Recall(i)
         }
         f[[ as.character(u) ]] <<- current_label
@@ -111,7 +111,7 @@ topo.sort <- function(n, need.rev=TRUE, direction='forward') {
     }
 
     for(from.v in 1:nv) {
-        if (exists(as.character(from.v), env=explored) && get(as.character(from.v), env=explored)>0) next
+        if (exists(as.character(from.v), envir=explored) && get(as.character(from.v), envir=explored)>0) next
         dfs0(from.v)
     }
     f <- unlist(f)

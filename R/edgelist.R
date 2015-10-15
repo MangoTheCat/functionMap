@@ -130,7 +130,7 @@ edgelist.from.rscript <- function(rfile) {
 
 edgelist.from.rpackage <- function(base.path,  rfilepattern = "\\.[Rr]$", force.scan.s4 = TRUE) {
     S3 <- guess.s3.from.dir(base.path)
-    rs <- list.files(file.path(base.path,'R'), pattern=rfilepattern, rec=TRUE, full=TRUE)
+    rs <- list.files(file.path(base.path,'R'), pattern=rfilepattern, recursive=TRUE, full.names=TRUE)
     exported.s4 <- guess.s4.from.dir(base.path)
     el.s4 <- NULL
     if (force.scan.s4 || (!is.null(exported.s4) && !is.null(exported.s4$S4.methods))) {
@@ -445,7 +445,7 @@ edgelist.from.SASscript <- function(sasfile) {
 #'      plot(eForce(network.from.edgelist(edgelist.from.SASfolder('.'))))
 #' }
 edgelist.from.SASfolder <- function(base.path, pattern='\\.[Ss][Aa][Ss]$') {
-    ss <- list.files(file.path(base.path), pattern=pattern, rec=TRUE, full=TRUE)
+    ss <- list.files(file.path(base.path), pattern=pattern, recursive=TRUE, full.names=TRUE)
     if (!length(ss)) {
         stop('The provided base.path doesnot contain any SAS script.')
     }

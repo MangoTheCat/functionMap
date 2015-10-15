@@ -12,7 +12,7 @@
 #'    plot(eForce(nn))
 #' }
 parseSASfolder <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]$') {
-    sas.files <- list.files(sas.path, pattern=sas.pattern, rec=TRUE, full.name=TRUE)
+    sas.files <- list.files(sas.path, pattern=sas.pattern, recursive=TRUE, full.names=TRUE)
     user.macro.list <- sub(sas.pattern,'',casefold(basename(sas.files)))
     L <- list()
     for(fn in sas.files) {
@@ -95,7 +95,7 @@ toplevel.sas.structure <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]$', out
         cp <- dfs.matrix.travel(mat, i)
         n1 <- as.network(mat[cp,cp, drop=FALSE])
         vn <- network.vertex.names(n1)
-        theCols <- ifelse(v.names[i] == vn,  rgb(242, 30, 19, max = 255), rgb(146, 146, 146, max = 255))
+        theCols <- ifelse(v.names[i] == vn,  rgb(242, 30, 19, maxColorValue = 255), rgb(146, 146, 146, maxColorValue = 255))
         labelCex <- ifelse(v.names[i] == vn, 1, .9)
         vertexCex <- ifelse(v.names[i] == vn, 1.5, 1)
         plot(n1, main = v.names[i], displaylabels = TRUE, label=vn, vertex.col = theCols, label.cex = rep(labelCex,each=2), vertex.cex=vertexCex)

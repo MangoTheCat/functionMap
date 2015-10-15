@@ -58,7 +58,7 @@ parseRfolder <- function(rpath, rfilepattern = "\\.[R|r]$", returnfilename = FAL
 
 network.from.rpackage <- function(base.path,  rfilepattern = "\\.[R|r]$") {
     S3 <- guess.s3.from.dir(base.path)
-    rs <- list.files(file.path(base.path,'R'), pattern=rfilepattern, rec=TRUE, full=TRUE)
+    rs <- list.files(file.path(base.path,'R'), pattern=rfilepattern, recursive=TRUE, full.names=TRUE)
     v.names <- c()
     L <- list()
     # There might be possible duplicated definition of single function, we merge them all
@@ -111,7 +111,7 @@ s4.source.from.rpackage <- function(base.path, rfilepattern = '\\.[Rr]$'){
     s4.defn <- try(dumpS4Generic(basename(base.path), style='S4'), silent=TRUE)
     # If not, we may have to extract.S4.defn from source code, install them in .GlobalEnv, and dump again
     if (is(s4.defn, 'try-error')) {
-        txt <- try(extract.S4.defn(srclist= list.files(file.path(base.path,'R'), pattern=rfilepattern, full=TRUE, rec=TRUE)),
+        txt <- try(extract.S4.defn(srclist= list.files(file.path(base.path,'R'), pattern=rfilepattern, full.names=TRUE, recursive=TRUE)),
                 silent=TRUE)
         if (is(txt, 'try-error')) {
             stop('Failed to extract S4 definition from this package!')

@@ -26,7 +26,7 @@
 #'
 #'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
 #'      # need to eval those functions to make the definition into .GlobalEnv
-#'      for(i in list.files(system.file("examples", "R", package = "functionMap"),full=TRUE, pattern='*.R')) source(i)
+#'      for(i in list.files(system.file("examples", "R", package = "functionMap"),full.names=TRUE, pattern='*.R')) source(i)
 #'      S4.funs <- dumpS4Generic()
 #'      cat(paste(S4.funs,collapse='\n'), file=(f1<-tempfile()))
 #'      all.funs <- c(ordinary.functions, parseRscript(f1))
@@ -90,7 +90,7 @@ dumpS4Generic <- function(ns, style=c('S4','S3')) {
 #'      ##
 #'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
 #'      ## if there are generics definition in .GlobalEnv, you can omit it
-#'      for(i in list.files(system.file("examples", "R", package = "functionMap"),full=TRUE, pattern='*.R')) source(i)
+#'      for(i in list.files(system.file("examples", "R", package = "functionMap"),full.names=TRUE, pattern='*.R')) source(i)
 #'      parseS4fromNs()
 #'      ##
 #'      all.funs <- c(ordinary.functions, parseS4fromNs())
@@ -117,7 +117,7 @@ parseS4fromNs <- function(...) {
 #'
 #'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
 #'      # because the setClass and setMethod are actually evaluated in .GlobalEnv in above
-#'      for(i in list.files(system.file("examples", "R", package = "functionMap"),full=TRUE, pattern='*.R')) source(i)
+#'      for(i in list.files(system.file("examples", "R", package = "functionMap"),full.names=TRUE, pattern='*.R')) source(i)
 #'      S4.funs <- parseS4fromNs()
 #'      
 #'      nets <- createDirectedNetwork(ordinary.functions, S4.funs)
@@ -164,7 +164,7 @@ createDirectedNetwork <- function(plain.fun, s4list=list(), if.directed=TRUE) {
 extract.S4.defn <- function(srclist, path, single=TRUE, export.other.defn=TRUE) {
     if (missing(srclist)) {
         if (missing(path)) stop('Must specify at least scrlist or path as input.')
-        srclist <- list.files(path, full=TRUE, pattern='\\.[Rr]$')
+        srclist <- list.files(path, full.names=TRUE, pattern='\\.[Rr]$')
     }
     L <- do.call('c', sapply(srclist, parse))
 

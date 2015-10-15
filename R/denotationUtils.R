@@ -50,7 +50,7 @@ guess.s3.from.dir <- function(base.path) {
     }
     # if NAMESPACE is not available, scan all .R files for defined S3 methods (check UseMethods Pattern)
     L <- list()
-    for (fn in list.files( base.path, pattern='\\.[R|r]$', rec=TRUE, full=TRUE)) {
+    for (fn in list.files( base.path, pattern='\\.[R|r]$', recursive=TRUE, full.names=TRUE)) {
         L <- c(L, Filter(function(x) 
                     (x[[1]]=='<-' || x[[1]]=='=') && 
                     (is.call(x[[3]]) && x[[c(3,1)]]=='function') &&
