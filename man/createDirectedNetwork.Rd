@@ -10,6 +10,8 @@ createDirectedNetwork(plain.fun, s4list = list(), if.directed = TRUE)
 \item{plain.fun}{normal functions}
 
 \item{s4list}{S4list dumped by \code{\link{dumpS4Generic}}}
+
+\item{if.directed}{Whether to create a directed network.}
 }
 \value{
 network object with directed arrows, if A used in its body B, then there should be an arrow pointing from B to A
@@ -20,16 +22,19 @@ can be plot by \code{\link{plotFunctionMap}}
 }
 \examples{
 \dontrun{
-
-     ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
-     # because the setClass and setMethod are actually evaluated in .GlobalEnv in above
-     for(i in list.files(system.file("examples", "R", package = "functionMap"),full.names=TRUE, pattern='*.R')) source(i)
-     S4.funs <- parseS4fromNs()
+ordinary.functions <- parseRfolder(
+  system.file("examples", "R", package = "functionMap")
+)
+# because the setClass and setMethod are actually evaluated in
+# .GlobalEnv in above
+fmap_dir <- system.file("examples", "R", package = "functionMap")
+for (i in list.files(fmap_dir, full.names=TRUE, pattern='*.R')) {
+  source(i)
+}
+S4.funs <- parseS4fromNs()
      
-     nets <- createDirectedNetwork(ordinary.functions, S4.funs)
-     plotFunctionMap(nets, TRUE)
-
-
+nets <- createDirectedNetwork(ordinary.functions, S4.funs)
+plotFunctionMap(nets, TRUE)
 } 
 }
 

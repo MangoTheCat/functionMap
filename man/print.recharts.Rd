@@ -11,6 +11,9 @@
 
 \item{tag}{whether print the recharts object to browser or string.}
 
+\item{file}{Where to print the output. By default it is printed on
+the screen.}
+
 \item{...}{default parameter.}
 }
 \value{

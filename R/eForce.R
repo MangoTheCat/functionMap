@@ -55,15 +55,19 @@
 #' @importFrom RJSONIO toJSON
 #' @export
 #' @examples \dontrun{
-#'      testData <- matrix(1:25, nrow=5)
-#'      plot(eForce(testData))
+#' testData <- matrix(1:25, nrow=5)
+#'  plot(eForce(testData))
 #'
-#'  # using a propertyDf
-#'      net <- network.from.sascode(system.file('examples','SAScode',package='functionMap'))
-#'       propertyDf = data.frame(category = ifelse(net %v% 'toplevel', 'toplevel macros', 'inner macros'), 
-#'                       value=ifelse(net %v% 'toplevel', 50, 10), 
-#'                       color=ifelse(net %v% 'toplevel', 'yellow','green'))
-#'      plot(eForce(net[,], propertyDf, gravity=2))
+#' # using a propertyDf
+#' net <- network.from.sascode(
+#'   system.file('examples','SAScode',package='functionMap')
+#' )
+#' propertyDf <- data.frame(
+#'   category = ifelse(net %v% 'toplevel', 'toplevel macros', 'inner macros'),
+#'   value=ifelse(net %v% 'toplevel', 50, 10),
+#'   color=ifelse(net %v% 'toplevel', 'yellow','green')
+#' )
+#' plot(eForce(net[,], propertyDf, gravity=2))
 #' }
 
 eForce <- function(networkMatrix, propertyDf=NULL, size = c(1860, 930), display.isolated = FALSE, use.network.attr = FALSE,

@@ -11,6 +11,8 @@
 
 \item{tag}{whether plot the recharts object to browser or string.}
 
+\item{Local}{Whether to create a local copy of the echarts files.}
+
 \item{...}{default parameter.}
 }
 \value{

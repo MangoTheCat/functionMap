@@ -17,19 +17,24 @@ wrapper for \code{\link{dumpS4Generic}} and \code{\link{parseRscript}}
 }
 \examples{
 \dontrun{
-     ## Matrix is a very complex S4 package
-     parseS4fromNs('Matrix')
-     ##
-     ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
-     ## if there are generics definition in .GlobalEnv, you can omit it
-     for(i in list.files(system.file("examples", "R", package = "functionMap"),full.names=TRUE, pattern='*.R')) source(i)
-     parseS4fromNs()
-     ##
-     all.funs <- c(ordinary.functions, parseS4fromNs())
-     
-     nets <- createNetwork(all.funs)
-     plot(eForce(nets))
-     
+## Matrix is a very complex S4 package
+parseS4fromNs('Matrix')
+
+ordinary.functions <- parseRfolder(
+  system.file("examples", "R", package = "functionMap")
+)
+
+## if there are generics definition in .GlobalEnv, you can omit it
+fmap_dir <- system.file("examples", "R", package = "functionMap")
+for (i in list.files(fmap_dir, full.names=TRUE, pattern='*.R')) {
+  source(i)
+}
+parseS4fromNs()
+
+all.funs <- c(ordinary.functions, parseS4fromNs())
+   
+nets <- createNetwork(all.funs)
+plot(eForce(nets))
 }
 }
 

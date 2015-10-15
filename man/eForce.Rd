@@ -101,15 +101,19 @@ then a smaller gravity need to be set to stretch them up.
 }
 \examples{
 \dontrun{
-     testData <- matrix(1:25, nrow=5)
-     plot(eForce(testData))
+testData <- matrix(1:25, nrow=5)
+ plot(eForce(testData))
 
- # using a propertyDf
-     net <- network.from.sascode(system.file('examples','SAScode',package='functionMap'))
-      propertyDf = data.frame(category = ifelse(net \%v\% 'toplevel', 'toplevel macros', 'inner macros'), 
-                      value=ifelse(net \%v\% 'toplevel', 50, 10), 
-                      color=ifelse(net \%v\% 'toplevel', 'yellow','green'))
-     plot(eForce(net[,], propertyDf, gravity=2))
+# using a propertyDf
+net <- network.from.sascode(
+  system.file('examples','SAScode',package='functionMap')
+)
+propertyDf <- data.frame(
+  category = ifelse(net \%v\% 'toplevel', 'toplevel macros', 'inner macros'),
+  value=ifelse(net \%v\% 'toplevel', 50, 10),
+  color=ifelse(net \%v\% 'toplevel', 'yellow','green')
+)
+plot(eForce(net[,], propertyDf, gravity=2))
 }
 }
 

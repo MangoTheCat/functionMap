@@ -7,7 +7,12 @@
 set(x, optionList = NULL, ...)
 }
 \arguments{
-\item{obj}{recharts object.}
+\item{x}{recharts object.}
+
+\item{optionList}{A named list of options.}
+
+\item{...}{Named options. These are only used if \code{optionList}
+is \code{NULL}.}
 }
 \value{
 The output list of recharts as a list.

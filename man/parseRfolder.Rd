@@ -10,6 +10,8 @@ parseRfolder(rpath, rfilepattern = "\\\\.[R|r]$", returnfilename = FALSE)
 \item{rpath}{The path of the R script folders or files.}
 
 \item{rfilepattern}{An optional regular expression. Only file names which match the regular expression will be parsed.}
+
+\item{returnfilename}{TODO}
 }
 \value{
 A list of the functions structure. 

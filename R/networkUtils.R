@@ -15,6 +15,7 @@ all.isolated <- function(n) {
 #' 
 #' return isolated.vertexes of a network object
 #' @param n network object
+#' @param need.plot Whether to plot the network.
 #' @return isolated vertexes names
 #' @export
 isolated.vertexes <- function(n, need.plot=FALSE) {

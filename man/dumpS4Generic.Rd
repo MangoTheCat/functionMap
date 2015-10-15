@@ -36,17 +36,20 @@ where \code{obj1, obj2, obj3} are object types in the signatures
 }
 \examples{
 \dontrun{
-
-     ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
-     # need to eval those functions to make the definition into .GlobalEnv
-     for(i in list.files(system.file("examples", "R", package = "functionMap"),full.names=TRUE, pattern='*.R')) source(i)
-     S4.funs <- dumpS4Generic()
-     cat(paste(S4.funs,collapse='\\n'), file=(f1<-tempfile()))
-     all.funs <- c(ordinary.functions, parseRscript(f1))
+ordinary.functions <- parseRfolder(
+  system.file("examples", "R", package = "functionMap")
+)
+# need to eval those functions to make the definition into .GlobalEnv
+fmap_dir <- system.file("examples", "R", package = "functionMap")
+for (i in list.files(fmap_dir, full.names=TRUE, pattern='*.R')) {
+  source(i)
+}
+S4.funs <- dumpS4Generic()
+cat(paste(S4.funs,collapse='\\n'), file=(f1<-tempfile()))
+all.funs <- c(ordinary.functions, parseRscript(f1))
      
-     nets <- createNetwork(all.funs)
-     plot(eForce(nets))
-
+nets <- createNetwork(all.funs)
+plot(eForce(nets))
 }
 }
 \author{

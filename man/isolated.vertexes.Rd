@@ -8,6 +8,8 @@ isolated.vertexes(n, need.plot = FALSE)
 }
 \arguments{
 \item{n}{network object}
+
+\item{need.plot}{Whether to plot the network.}
 }
 \value{
 isolated vertexes names

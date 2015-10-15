@@ -6,6 +6,9 @@
 \usage{
 option(...)
 }
+\arguments{
+\item{...}{Named options to set.}
+}
 \description{
 Set recharts option
 }

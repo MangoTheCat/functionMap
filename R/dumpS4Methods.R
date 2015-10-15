@@ -23,17 +23,20 @@
 #' @return reformated text (source) file
 #' @author Mango solutions
 #' @examples \dontrun{
-#'
-#'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
-#'      # need to eval those functions to make the definition into .GlobalEnv
-#'      for(i in list.files(system.file("examples", "R", package = "functionMap"),full.names=TRUE, pattern='*.R')) source(i)
-#'      S4.funs <- dumpS4Generic()
-#'      cat(paste(S4.funs,collapse='\n'), file=(f1<-tempfile()))
-#'      all.funs <- c(ordinary.functions, parseRscript(f1))
+#' ordinary.functions <- parseRfolder(
+#'   system.file("examples", "R", package = "functionMap")
+#' )
+#' # need to eval those functions to make the definition into .GlobalEnv
+#' fmap_dir <- system.file("examples", "R", package = "functionMap")
+#' for (i in list.files(fmap_dir, full.names=TRUE, pattern='*.R')) {
+#'   source(i)
+#' }
+#' S4.funs <- dumpS4Generic()
+#' cat(paste(S4.funs,collapse='\n'), file=(f1<-tempfile()))
+#' all.funs <- c(ordinary.functions, parseRscript(f1))
 #'      
-#'      nets <- createNetwork(all.funs)
-#'      plot(eForce(nets))
-#'
+#' nets <- createNetwork(all.funs)
+#' plot(eForce(nets))
 #' }
 #' @export
 dumpS4Generic <- function(ns, style=c('S4','S3')) {
@@ -85,19 +88,24 @@ dumpS4Generic <- function(ns, style=c('S4','S3')) {
 #' @return a parsed object from \code{parseRscript}
 #' @export
 #' @examples \dontrun{
-#'      ## Matrix is a very complex S4 package
-#'      parseS4fromNs('Matrix')
-#'      ##
-#'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
-#'      ## if there are generics definition in .GlobalEnv, you can omit it
-#'      for(i in list.files(system.file("examples", "R", package = "functionMap"),full.names=TRUE, pattern='*.R')) source(i)
-#'      parseS4fromNs()
-#'      ##
-#'      all.funs <- c(ordinary.functions, parseS4fromNs())
-#'      
-#'      nets <- createNetwork(all.funs)
-#'      plot(eForce(nets))
-#'      
+#' ## Matrix is a very complex S4 package
+#' parseS4fromNs('Matrix')
+#' 
+#' ordinary.functions <- parseRfolder(
+#'   system.file("examples", "R", package = "functionMap")
+#' )
+#'
+#' ## if there are generics definition in .GlobalEnv, you can omit it
+#' fmap_dir <- system.file("examples", "R", package = "functionMap")
+#' for (i in list.files(fmap_dir, full.names=TRUE, pattern='*.R')) {
+#'   source(i)
+#' }
+#' parseS4fromNs()
+#'
+#' all.funs <- c(ordinary.functions, parseS4fromNs())
+#'    
+#' nets <- createNetwork(all.funs)
+#' plot(eForce(nets))
 #' }
 parseS4fromNs <- function(...) {
     txts <- dumpS4Generic(...)
@@ -113,17 +121,21 @@ parseS4fromNs <- function(...) {
 #'
 #' @param plain.fun normal functions
 #' @param s4list S4list dumped by \code{\link{dumpS4Generic}}
+#' @param if.directed Whether to create a directed network.
 #' @examples \dontrun{
-#'
-#'      ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
-#'      # because the setClass and setMethod are actually evaluated in .GlobalEnv in above
-#'      for(i in list.files(system.file("examples", "R", package = "functionMap"),full.names=TRUE, pattern='*.R')) source(i)
-#'      S4.funs <- parseS4fromNs()
+#' ordinary.functions <- parseRfolder(
+#'   system.file("examples", "R", package = "functionMap")
+#' )
+#' # because the setClass and setMethod are actually evaluated in
+#' # .GlobalEnv in above
+#' fmap_dir <- system.file("examples", "R", package = "functionMap")
+#' for (i in list.files(fmap_dir, full.names=TRUE, pattern='*.R')) {
+#'   source(i)
+#' }
+#' S4.funs <- parseS4fromNs()
 #'      
-#'      nets <- createDirectedNetwork(ordinary.functions, S4.funs)
-#'      plotFunctionMap(nets, TRUE)
-#'
-#'
+#' nets <- createDirectedNetwork(ordinary.functions, S4.funs)
+#' plotFunctionMap(nets, TRUE)
 #' } 
 #' @return network object with directed arrows, if A used in its body B, then there should be an arrow pointing from B to A
 #' @importFrom network network

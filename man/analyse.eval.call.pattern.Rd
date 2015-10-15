@@ -20,12 +20,11 @@ list of the function name called by eval. There may be additional attribute havi
 Analyse and extract out any \code{eval(m)} pattern where \code{m} is a call if possible
 }
 \details{
-
 One pattern of eval plus literal like \code{eval(fun(arg1,arg2))} can be handled by \code{\link{parseRscript}}.
 
 However, a call object (in a variable) plus eval can not be handled by \code{parseRscript}.
 
-The real difficulty is if the call is constructed dynamically, e.g. 
+The real difficulty is if the call is constructed dynamically, e.g.
 
 in \code{lm} function, a call to \code{stats::model.frame} is by construct a call stored in variable \code{mf}
 
@@ -39,16 +38,18 @@ where there is a line saying \code{m[[1]] <- some function}
 
 There are situations \code{ m <- match.call() } , then change some argument and call it, however
 this time the function is the function itself, we don't count this as in the final plot, self-loop is not shown.
-
 }
 \examples{
 \dontrun{
    analyse.eval.call.pattern(lm)
    analyse.eval.call.pattern(glm)
    analyse.eval.call.pattern(anova.mlm)
-   # the clever things this function does is it will try to look up symbol(variable) meaning from context, compare the following example
+   # the clever things this function does is it will try to look up
+   # symbol(variable) meaning from context, compare the following
+   # example
    attr(match.eval.pattern( body(model.frame.default)), 'eval.calls')
-   # note those fcall, predvars, extras and subset are replaced by the value look up in the context
+   # note those fcall, predvars, extras and subset are replaced by
+   # the value look up in the context
    analyse.eval.call.pattern( model.frame.default )[1:4]  }
 }
 

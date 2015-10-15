@@ -220,7 +220,6 @@ match.eval.pattern <- function(e) {
 #'
 #' Analyse and extract out any \code{eval(m)} pattern where \code{m} is a call if possible
 #'
-#' @details
 #' One pattern of eval plus literal like \code{eval(fun(arg1,arg2))} can be handled by \code{\link{parseRscript}}.
 #'
 #' However, a call object (in a variable) plus eval can not be handled by \code{parseRscript}.
@@ -248,9 +247,12 @@ match.eval.pattern <- function(e) {
 #'    analyse.eval.call.pattern(lm)
 #'    analyse.eval.call.pattern(glm)
 #'    analyse.eval.call.pattern(anova.mlm)
-#'    # the clever things this function does is it will try to look up symbol(variable) meaning from context, compare the following example
+#'    # the clever things this function does is it will try to look up
+#'    # symbol(variable) meaning from context, compare the following
+#'    # example
 #'    attr(match.eval.pattern( body(model.frame.default)), 'eval.calls')
-#'    # note those fcall, predvars, extras and subset are replaced by the value look up in the context
+#'    # note those fcall, predvars, extras and subset are replaced by
+#'    # the value look up in the context
 #'    analyse.eval.call.pattern( model.frame.default )[1:4]  }
 #' @export
 analyse.eval.call.pattern <- function( f , Bindings = list(), baseline.lineno=NULL) {

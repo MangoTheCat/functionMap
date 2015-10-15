@@ -4,6 +4,7 @@
 #'
 #' @param x    recharts plot object.
 #' @param tag   whether plot the recharts object to browser or string.
+#' @param Local Whether to create a local copy of the echarts files.
 #' @param ...   default parameter.
 #' @return The HTML code as a character string or an html page.
 #' @export
@@ -83,6 +84,8 @@ plot.recharts <- function (x, tag = NULL, Local = FALSE, ...)
 #'
 #' @param x    recharts print object.
 #' @param tag   whether print the recharts object to browser or string.
+#' @param file Where to print the output. By default it is printed on
+#'   the screen.
 #' @param ...   default parameter.
 #' @return The HTML code as a character string.
 #' @export 
@@ -115,7 +118,10 @@ print.recharts <- function (x, tag = NULL, file = "", ...)
 #'
 #' An shell function for setting arguments of the recharts object.
 #'
-#' @param obj  recharts object.
+#' @param x  recharts object.
+#' @param optionList A named list of options.
+#' @param ... Named options. These are only used if \code{optionList}
+#'   is \code{NULL}.
 #' @return The output list of recharts as a list.
 #' @export 
 
@@ -186,7 +192,8 @@ set <- function(x, optionList=NULL, ...){
 is.option <- function(x) inherits(x, "option")
 
 #' Set recharts option
-#' 
+#'
+#' @param ... Named options to set.
 #' @export
 option <- function(...) {
 

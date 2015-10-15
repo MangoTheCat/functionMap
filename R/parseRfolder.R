@@ -4,6 +4,7 @@
 ##' @title Parse the R scripts in a folder and return the function structure
 ##' @param rpath The path of the R script folders or files.
 ##' @param rfilepattern An optional regular expression. Only file names which match the regular expression will be parsed.
+##' @param returnfilename TODO
 ##' @return A list of the functions structure. 
 ##' @author Mango Solutions
 ##' @examples \dontrun{

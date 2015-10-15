@@ -124,9 +124,15 @@ edgelist.from.rscript <- function(rfile) {
 #' @return a data.frame representing the edges of the whole pacakge
 #' @export
 #' @examples \dontrun{
-#'    el <- edgelist.from.rpackage(system.file("examples",'packages','KernSmooth', package = "functionMap"))
-#'    el2 <- edgelist.from.rpackage(system.file("examples",'packages','psych', package = "functionMap"))
-#'    el.sp <- edgelist.from.rpackage(system.file("examples",'packages','sp', package = "functionMap"))
+#' el <- edgelist.from.rpackage(
+#'   system.file("examples",'packages','KernSmooth', package = "functionMap")
+#' )
+#' el2 <- edgelist.from.rpackage(
+#'   system.file("examples",'packages','psych', package = "functionMap")
+#' )
+#' el.sp <- edgelist.from.rpackage(
+#'   system.file("examples",'packages','sp', package = "functionMap")
+#' )
 #' }
 
 edgelist.from.rpackage <- function(base.path,  rfilepattern = "\\.[Rr]$", force.scan.s4 = TRUE) {

@@ -36,9 +36,15 @@ information of exported S4 and S3 will still be available.
 }
 \examples{
 \dontrun{
-   el <- edgelist.from.rpackage(system.file("examples",'packages','KernSmooth', package = "functionMap"))
-   el2 <- edgelist.from.rpackage(system.file("examples",'packages','psych', package = "functionMap"))
-   el.sp <- edgelist.from.rpackage(system.file("examples",'packages','sp', package = "functionMap"))
+el <- edgelist.from.rpackage(
+  system.file("examples",'packages','KernSmooth', package = "functionMap")
+)
+el2 <- edgelist.from.rpackage(
+  system.file("examples",'packages','psych', package = "functionMap")
+)
+el.sp <- edgelist.from.rpackage(
+  system.file("examples",'packages','sp', package = "functionMap")
+)
 }
 }
 
