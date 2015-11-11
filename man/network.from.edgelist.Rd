@@ -10,7 +10,7 @@ network.from.edgelist(edgelist)
 \item{edgelist}{the edgelist returned by \code{\link{edgelist.from.rpackage}}}
 }
 \value{
-network object with vertex attributes 
+network object with vertex attributes
 }
 \description{
 Convert edgelist to network, also denotate the attributes as S3, S4 for the vertices

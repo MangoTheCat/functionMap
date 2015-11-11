@@ -12,9 +12,11 @@ Imports:
     roxygen2,
     network,
     RJSONIO,
-    tools
+    tools,
+    codetools
 Depends:
     R (>= 3.0.0),
 Suggests:
-    RUnit
-RoxygenNote: 4.1.1.9001
+    RUnit,
+    testthat
+RoxygenNote: 5.0.0.9000

@@ -66,7 +66,7 @@ edgelist.from.rscript <- function(rfile) {
             edgelist <- rbind(edgelist, el)
         }
     # do.call.pattern
-        re <- try(analyse.do.call.pattern(body(get(rfile.fun[i], envir=tmp.env))), silent=TRUE)
+        re <- try(do_call_globals(get(rfile.fun[i], envir=tmp.env)), silent=TRUE)
         if ( (!is(re,'try-error')) && (!is.null(re)) && length(re)>0 ) {
             re <- convertToCharacter(re)
             heads <- table(re)

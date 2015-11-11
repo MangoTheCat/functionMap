@@ -26,12 +26,12 @@ Note: \code{dumpS4Generic} will pollute the .GlobalEnv, you should run the funct
 
 The working horse is still \code{edgelist.from.rscript}, and the return value have the same structure of \code{\link{edgelist.from.rscript}}
 
-By default, '[' and hence \code{subet} will copy all the attributes, hence those attributes in the edgelist object: 
+By default, '[' and hence \code{subet} will copy all the attributes, hence those attributes in the edgelist object:
 \code{exported.s3} and \code{exported.s4} will be copied. These two are actually parsed from NAMESPACE file.
 
 But for code definition of S4 methods, they can be identified by checking the \code{rfile} slot of the object: all
-the S4 methods implemented in this package are collected to a temporary file started with "S4definition". If you use 
-'[' or \code{subset} to get part of the edges, those information for S4 definition edges will be lost, although the 
+the S4 methods implemented in this package are collected to a temporary file started with "S4definition". If you use
+'[' or \code{subset} to get part of the edges, those information for S4 definition edges will be lost, although the
 information of exported S4 and S3 will still be available.
 }
 \examples{

@@ -7,13 +7,12 @@
 convertToCharacter(L)
 }
 \arguments{
-\item{L}{return list of \code{analyse.do.call.pattern}}
+\item{L}{input list.}
 }
 \value{
 character list representing input \code{L}
 }
 \description{
-Helper function for \code{\link{analyse.do.call.pattern}},
-which convert return list of \code{analyse.do.call.pattern} to character vector
+Convert a list names and characters to a character vector.
 }
 

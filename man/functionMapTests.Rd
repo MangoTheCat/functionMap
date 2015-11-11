@@ -16,7 +16,7 @@ functionMapTests(unitTestPath = system.file(package = "functionMap",
 \item{printTestFile}{The name of the HTML reports.}
 }
 \value{
-The results of executing the test suites via the function \code{runTestSuite}. 
+The results of executing the test suites via the function \code{runTestSuite}.
 }
 \description{
 Run package regression tests

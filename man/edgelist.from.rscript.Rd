@@ -11,17 +11,16 @@ edgelist.from.rscript(rfile)
 }
 \value{
 The return value is a data.frame containing 5 columns.
- \item{tails}{the caller}
- \item{heads}{the callee, and in the graph we will draw an arrow from tail pointing to head}
- \item{category}{currently can be\describe{ 
-     \item{normal}{an ordinary function call}
-     \item{do.call}{invoked using do.call mechanism}
-     \item{native.call}{a native C or FORTRAN function, invoked by .C, .Fortran, .Call or .External}
-     \item{eval.call}{invoked by \code{eval}, typically might be a variable or expression, rather than a existing function}
- }}
- \item{weights}{how many times the callee appearing in the caller}
- \item{rfile}{where this relation is parsed from}
-
+\item{tails}{the caller}
+\item{heads}{the callee, and in the graph we will draw an arrow from tail pointing to head}
+\item{category}{currently can be\describe{
+\item{normal}{an ordinary function call}
+\item{do.call}{invoked using do.call mechanism}
+\item{native.call}{a native C or FORTRAN function, invoked by .C, .Fortran, .Call or .External}
+\item{eval.call}{invoked by \code{eval}, typically might be a variable or expression, rather than a existing function}
+}}
+\item{weights}{how many times the callee appearing in the caller}
+\item{rfile}{where this relation is parsed from}
 }
 \description{
 Create an edge list from an R script

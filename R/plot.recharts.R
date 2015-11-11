@@ -210,7 +210,7 @@ option <- function(...) {
 #'
 #' @export
 #' @seealso \code{\link{set}}
-#' @method + recharts
+#' @method "+" recharts
 "+.recharts" <- function(e1, e2){
 	if ("recharts" %in% class(e1) & is.option(e2)){
 		class(e2) <- "list"

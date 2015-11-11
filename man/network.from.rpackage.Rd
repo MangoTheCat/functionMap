@@ -16,8 +16,10 @@ network object
 }
 \description{
 Similar to \code{\link{parseRfolder}}, but differences.
-1. \code{parseRfolder} don't assume the path is a root path to a package, but \code{network.from.rpackage} does.
-2. \code{parseRfolder} returns a names list of called functions while this one return a network object which can have more attributes
+\enumerate{
+\item \code{parseRfolder} don't assume the path is a root path to a package, but \code{network.from.rpackage} does.
+\item \code{parseRfolder} returns a names list of called functions while this one return a network object which can have more attributes
+}
 }
 \examples{
 \dontrun{

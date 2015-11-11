@@ -18,7 +18,9 @@ scan a package folder to find if there is any S3 methods
 \details{
 It's basically difficult task to determine if a function is S3.
 There are two situations can be discovered by this function.
-1) When the given path is a package, hence the S3method definition are available in the NAMESPACE
-2) Some new registered S3 generic method which defined using \code{UseMethod}
+\enumerate{
+\item When the given path is a package, hence the S3method definition are available in the NAMESPACE
+\item Some new registered S3 generic method which defined using \code{UseMethod}
+}
 }
 

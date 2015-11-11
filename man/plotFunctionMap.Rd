@@ -33,7 +33,7 @@ plotFunctionMap(networkobj, displayisolates = FALSE, displaylabels = TRUE,
 \item{...}{other arguments e.g. \code{main} which is title, passed to \code{plot.network.default}}
 }
 \value{
-\code{NULL} . 
+\code{NULL} .
 }
 \description{
 Plot the network of functions

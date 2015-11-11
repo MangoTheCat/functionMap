@@ -80,7 +80,7 @@ ECharts style Force network graph visulize the social network matrix data.
 }
 \details{
 When no \code{propertyDf} is provided, and no attributes can be used (either \code{use.network.attr} is \code{FALSE}
-or the object lacking such attributes), the category is defined as the outer-degree (number of called functions) of the 
+or the object lacking such attributes), the category is defined as the outer-degree (number of called functions) of the
 node. The value of node(what you see when your mouse is on the node) is the in-degree (called by how many functions).
 
 When \code{propertyDf} is provided, the \code{category} slot goes to category of the plot and \code{value} goes to value of the plot.
@@ -88,16 +88,14 @@ When \code{propertyDf} is provided, the \code{category} slot goes to category of
 When the object is a network object rather than a simple adjacency matrix, and the vertex has attributes of \code{category} and \code{value},
 they will be used in the plot if \code{use.network.attr} is \code{TRUE}. If only \code{category} is available, but \code{value} is not set,
 this function will use the out-degree (number of called functions) as the value (note this is different behavior to the default behavior where
-out-degree is showed by category and in-degree is displayed as value).  Moreover, if the network object has edge attributes with name \code{weights}, 
+out-degree is showed by category and in-degree is displayed as value).  Moreover, if the network object has edge attributes with name \code{weights},
 this weights will also be shown in the plot.
 
-Another parameter which is useful and deserve explaination is \code{gravity}. When the network contain more than one connected components, 
+Another parameter which is useful and deserve explaination is \code{gravity}. When the network contain more than one connected components,
 and if gravity is too small, they will spread quite far away, those isolated points (by default is not displayed) may even fly away.
 In this situation, user have to increase the gravity to make them close.
-To the contrary, if the graph have too many nodes, the nodes may be very close to each other, too crowded to be seen, 
+To the contrary, if the graph have too many nodes, the nodes may be very close to each other, too crowded to be seen,
 then a smaller gravity need to be set to stretch them up.
-
-
 }
 \examples{
 \dontrun{

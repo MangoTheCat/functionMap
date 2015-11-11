@@ -14,7 +14,7 @@ parseRfolder(rpath, rfilepattern = "\\\\.[R|r]$", returnfilename = FALSE)
 \item{returnfilename}{TODO}
 }
 \value{
-A list of the functions structure. 
+A list of the functions structure.
 }
 \description{
 Parse the R scripts in a folder and return the function structure

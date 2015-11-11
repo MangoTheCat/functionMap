@@ -17,7 +17,7 @@ createDirectedNetwork(plain.fun, s4list = list(), if.directed = TRUE)
 network object with directed arrows, if A used in its body B, then there should be an arrow pointing from B to A
 }
 \description{
-Combine plain functions and S4 function in a single network, which 
+Combine plain functions and S4 function in a single network, which
 can be plot by \code{\link{plotFunctionMap}}
 }
 \examples{

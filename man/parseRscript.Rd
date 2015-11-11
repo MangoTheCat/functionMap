@@ -13,7 +13,7 @@ parseRscript(rfile,
 \item{analyse.advance.pattern}{any extra pattern we should also analyse and include}
 }
 \value{
-A list of all the functions included in this script. Each component contains the names of the functions were called by this function. 
+A list of all the functions included in this script. Each component contains the names of the functions were called by this function.
 }
 \description{
 Parse the R script and return the function structure

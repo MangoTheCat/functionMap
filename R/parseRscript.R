@@ -45,7 +45,7 @@ parseRscript <- function(rfile, analyse.advance.pattern =getOption('analyse.adva
 		tmp.parsedata <- getParseData(parse(tmp.file, keep.source = TRUE))
 		tmp.funcall[[i]] <- tmp.parsedata$text[tmp.parsedata$token == "SYMBOL_FUNCTION_CALL"]
         if ('do.call.pattern' %in% analyse.advance.pattern) {
-            re <- try(analyse.do.call.pattern(body(get(rfile.fun[i], envir=tmp.env))), silent=TRUE)
+            re <- try(do_call_globals(get(rfile.fun[i], envir=tmp.env)), silent=TRUE)
             if ( (!is(re,'try-error')) && (!is.null(re)) && length(re)>0 ) {
                 tmp.funcall[[i]] <- c(tmp.funcall[[i]], convertToCharacter(re)) 
             }
@@ -70,11 +70,12 @@ parseRscript <- function(rfile, analyse.advance.pattern =getOption('analyse.adva
 	return(tmp.funcall)
 }
 
+
 #' convertToCharacter
 #'
-#' Helper function for \code{\link{analyse.do.call.pattern}},
-#' which convert return list of \code{analyse.do.call.pattern} to character vector
-#' @param L return list of \code{analyse.do.call.pattern}
+#' Convert a list names and characters to a character vector.
+#'
+#' @param L input list.
 #' @return character list representing input \code{L}
 #' @export
 convertToCharacter <- function(L) {
@@ -82,66 +83,6 @@ convertToCharacter <- function(L) {
     if (is.null(L) || length(L)==0) return(character(0))
     sapply(L, function(x) if (is.language(x)) paste(deparse(x), collapse='') else x, USE.NAMES=FALSE)
 }
-
-#' analyse.do.call.pattern
-#'
-#' This function helps user to add additional edges to the final functional Map
-#' 
-#' For \code{do.call} pattern is like 
-#'
-#'  \code{do.call(sin, argList)} 
-#' 
-#' it can be analyzed staticly, without knowning run-time information, hence it can be converted to a normal function call
-#' 
-#' @param e an expression or list of expressions
-#' @return list of expressions
-#' @examples \dontrun{
-#'       analyse.do.call.pattern( { 
-#'           quote(do.call('myfun', list('arg1','arg2','arg3')) )
-#'       })
-#'       re <- analyse.do.call.pattern( { 
-#'           quote(do.call(myfun, list(arg1,arg2,arg3)) )
-#'       })
-#'       convertToCharacter(re) }
-#' @export
-analyse.do.call.pattern <- function(e) {
-    if (is.function(e)) {
-    # currently, it's still too trick to deal with promise, so, if there is a default value which
-    # is an unevaluated expression, which happened to have function call, we can not catch that.
-    # We only collect the function call in do.call form in the body
-        return(Recall(body(e)))
-    }
-    if (is.atomic(e) || is.symbol(e)) return(NULL)
-    L <- NULL
-    if (is.list(e)) {
-        for(i in seq_along(e)) {
-            L <- c(L, Recall(e[[i]]))
-        }
-        return(L)
-    }
-    if (is.call(e)) {
-         if (e[[1]]=='do.call') {
-             e.formal <- match.call(do.call, e)
-             # There are possibilities that the "what" of "do.call" is dynamic
-             # So we do not convert it to character
-             # it can be character, or remain a symbol, or even a complicated expression
-             L <- c(L, e.formal$what)
-             # as the parseRscript has collected all normal function calls
-             # we only need to scan over the args for do.call type
-
-             L <- c(L, Recall(e.formal$args))
-         } else {
-             if (length(e)>1) {
-                 for(i in 2:length(e)) {
-                     L <- c(L, Recall(e[[i]]))
-                 }
-             }
-         }
-    }
-    L
-}
-
-
 #' analyse.external.call.pattern
 #'
 #' match \code{.C}, \code{.Fortran} and \code{.Call}

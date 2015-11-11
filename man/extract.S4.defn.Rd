@@ -16,7 +16,7 @@ extract.S4.defn(srclist, path, single = TRUE, export.other.defn = TRUE)
 \item{export.other.defn}{export other function definitions}
 }
 \value{
-text include only S4 related definitions 
+text include only S4 related definitions
 }
 \description{
 Extract S4 class and methods definition

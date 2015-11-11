@@ -4,7 +4,7 @@
 \alias{+.recharts}
 \title{Modify a recharts by adding on new components.}
 \usage{
-\method{+}{recharts}(e1, e2)
+\method{"+"}{recharts}(e1, e2)
 }
 \arguments{
 \item{e1}{An object of class \code{recharts}}
