@@ -1,6 +1,6 @@
 #' parseSASfolder
 #'
-#' similar to parseRfolder, but deal with SAS code
+#' similar to parse_r_folder, but deal with SAS code
 #'
 #' @param sas.path the toplevel path containing SAS scripts
 #' @param sas.pattern the extension pattern for SAS scripts
@@ -19,60 +19,6 @@ parseSASfolder <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]$') {
         L[[ casefold(sub(sas.pattern,'',basename(fn))) ]] <- parseSASscript(fn, user.macro.list)
     }
     L
-}
-
-#' network.from.sascode
-#'
-#' A Wrapper for the \code{\link{parseSASfolder}} and \code{\link{createNetwork}}
-#' Also set vertex attribute for the toplevel scripts.
-#'
-#' @param sas.path basedir to analysis
-#' @param sas.pattern the extention file name pattern
-#' @return network object
-#' @importFrom network network.vertex.names
-#' @export
-#' @examples \dontrun{
-#'   net <- network.from.sascode('.')
-#'   # it will have the atrribute of being a toplevel script or not
-#'   net %v% 'toplevel'
-#' }
-network.from.sascode <- function(sas.path, sas.pattern='\\.[Ss][Aa][Ss]$') {
-    l <- parseSASfolder(sas.path, sas.pattern)
-    net <- createNetwork(l)
-    toplevel.scripts <- 
-        casefold(sub(sas.pattern,'', basename(list.files(sas.path, pattern=sas.pattern))))
-    # by default set.vertex.attribute is igraph::set.vertex.attribute, which is not what we want
-    # here the function need to be fully qualified
-    network::set.vertex.attribute(net, 'toplevel', network.vertex.names(net) %in% toplevel.scripts)
-    net
-}
-
-#' show.connected.components
-#'
-#' display connected components with more than one node from a graph
-#' @param nn network object
-#' @param make.plot make the plot for components
-#' @return the list components network
-#' @importFrom network as.network
-#' @export
-#' @examples \dontrun{
-#'   foo <- parseSASfolder('.')
-#'   nn  <- createNetwork(foo)
-#'   show.connected.components(nn)
-#' }
-show.connected.components <- function(nn, make.plot=TRUE) {
-    cps <- dfs.matrix.travel(nn[,])
-    # components with 
-    ind <- which(sapply(cps, length)>1)
-    L <- list() 
-    for(i in ind) {
-        L[[ length(L) + 1]] <- as.network(nn[cps[[i]], cps[[i]]])
-        if (make.plot) {
-            dev.new()
-            plotFunctionMap(L[[ length(L) ]])
-        }
-    }
-    invisible(L)
 }
 
 #' toplevel.sas.structure

@@ -34,66 +34,6 @@ parse_r_folder <- function(rpath, rfilepattern = "\\.[R|r]$",
   do.call(c, res)
 }
 
-#' network.from.rpackage
-#'
-#' Similar to \code{\link{parse_r_folder}}, but differences.
-#' 1. \code{parse_r_folder} don't assume the path is a root path to a package, but \code{network.from.rpackage} does.
-#' 2. \code{parse_r_folder} returns a names list of called functions while this one return a network object which can have more attributes
-#'
-#' @param base.path path to the R source, assume it to be a package base path
-#' @param rfilepattern some author may use extension ".[qQ][sS]" other than [Rr], this option can select from those
-#' @return network object
-#' @importFrom network network.vertex.names %v%<-
-#' @export
-#' @examples \dontrun{
-#'   n1 <- network.from.rpackage('MASS')
-#'   (n1 %e% 'weights')[1:10]
-#'   plot(eForce(n1))
-#'   plot(eForce(n1, use.network.attr=TRUE ))
-#'   plot(eForce(n1 %s% which( n1%v% 'category' !='outpackage'), use.network.attr=TRUE ))
-#' }
-
-network.from.rpackage <- function(base.path,  rfilepattern = "\\.[R|r]$") {
-    S3 <- guess.s3.from.dir(base.path)
-    rs <- list.files(file.path(base.path,'R'), pattern=rfilepattern, recursive=TRUE, full.names=TRUE)
-    v.names <- c()
-    L <- list()
-    # There might be possible duplicated definition of single function, we merge them all
-    for(fn in rs) {
-        x <- try(parse_r_script(fn), silent=TRUE)
-        if (is(x,'try-error')) next
-        for(v in names(x)) {
-            ind <- match(v, v.names)
-            if (is.na(ind)) {
-                v.names <- c(v.names, v)
-                ind <- length(v.names)
-                L[[ind]] <- x[[v]]
-            } else {
-                L[[ind]] <- c(L[[ind]], x[[v]])
-            }
-        }
-    }
-    names(L) <- v.names
-    ## v.out is the vertex not defined in this pacakge
-    v.out <- setdiff(unlist(L), v.names)
-    ## v.s3.out is the S3 methods appearing in v.out, we can't determine if it's defined in or not in this pacakge, because we
-    ## don't know the runtime information of the object of the call
-    v.s3.out <- v.out[which(v.out %in% S3[,1])]
-    ##
-    elist <- do.call('rbind', lapply(v.names, function(x) {
-        if (length(L[[x]])==0) return(NULL)
-        z <- table(L[[x]])
-        z.name <- names(z)
-        data.frame(tails=x, heads=z.name, weights=as.vector(z), stringsAsFactors=FALSE)
-    }) )
-    net <- network(elist, matrix.type='edgelist', ignore.eval=FALSE)
-    v.all <- network.vertex.names(net)
-    net %v% 'category' <- ifelse(v.all %in% v.names, 'inpackage',
-                                       ifelse(v.all %in% v.s3.out, 'S3generic', 'outpackage'))
-    ## v.out
-    net
-}
-
 #' s4.source.from.rpackage
 #'
 #' Extract source code from S4 definitions from a R package

@@ -114,51 +114,6 @@ parseS4fromNs <- function(...) {
     parseRscript(f)
 }
 
-#' createDirectedNetwork 
-#'
-#' Combine plain functions and S4 function in a single network, which 
-#' can be plot by \code{\link{plotFunctionMap}}
-#'
-#' @param plain.fun normal functions
-#' @param s4list S4list dumped by \code{\link{dumpS4Generic}}
-#' @param if.directed Whether to create a directed network.
-#' @examples \dontrun{
-#' ordinary.functions <- parseRfolder(
-#'   system.file("examples", "R", package = "functionMap")
-#' )
-#' # because the setClass and setMethod are actually evaluated in
-#' # .GlobalEnv in above
-#' fmap_dir <- system.file("examples", "R", package = "functionMap")
-#' for (i in list.files(fmap_dir, full.names=TRUE, pattern='*.R')) {
-#'   source(i)
-#' }
-#' S4.funs <- parseS4fromNs()
-#'      
-#' nets <- createDirectedNetwork(ordinary.functions, S4.funs)
-#' plotFunctionMap(nets, TRUE)
-#' } 
-#' @return network object with directed arrows, if A used in its body B, then there should be an arrow pointing from B to A
-#' @importFrom network network
-#' @export
-createDirectedNetwork <- function(plain.fun, s4list=list(), if.directed=TRUE) {
-    plain.fun.nms <- unique(names(plain.fun))
-    s4.entire.nms <- unique(names(s4list))
-    s4.main.nms   <- sub('\\[.*$','',s4.entire.nms)
-    V <- c(plain.fun.nms, s4.entire.nms)
-    
-    m <- matrix(0, length(V), length(V), dimnames=list(V,V))
-    for(i in 1:length(V)) {
-        v <- V[i]
-        used <- plain.fun[[v]]
-        if (is.null(used)) {
-            used <- s4list[[v]]
-        }
-        if (is.null(used)) next
-        m[i, ] <- colSums(outer(used, V, '=='))
-    }
-    network(m, directed=if.directed)
-}
-
 
 #' extract.S4.defn
 #'

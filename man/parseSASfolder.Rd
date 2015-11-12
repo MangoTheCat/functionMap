@@ -15,7 +15,7 @@ parseSASfolder(sas.path, sas.pattern = "\\\\.[Ss][Aa][Ss]$")
 list of contained proc and macros
 }
 \description{
-similar to parseRfolder, but deal with SAS code
+similar to parse_r_folder, but deal with SAS code
 }
 \examples{
 \dontrun{
