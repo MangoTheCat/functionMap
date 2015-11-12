@@ -18,7 +18,7 @@ parse_r_script <- function(rfile, include_base = FALSE) {
 
   ## Remove base functions, potentially
   if (!include_base) {
-    res <- lapply(res, setdiff, ls(asNamespace("base")))
+    res <- lapply(res, setdiff, ls(asNamespace("base"), all.names = TRUE))
   }
 
   res
@@ -58,7 +58,11 @@ get_funcs_from_r_script <- function(rfile) {
 #' @importFrom codetools findGlobals
 
 get_global_calls <- function(func) {
-  c(findGlobals(func, merge = FALSE)$functions, do_call_globals(func))
+  c(
+    findGlobals(func, merge = FALSE)$functions,
+    do_call_globals(func),
+    external_calls(func)
+  )
 }
 
 #' convertToCharacter
@@ -72,49 +76,4 @@ convertToCharacter <- function(L) {
     # as.character(quote(a + b)) -> '+' 'a' 'b', we should use deparse
     if (is.null(L) || length(L)==0) return(character(0))
     sapply(L, function(x) if (is.language(x)) paste(deparse(x), collapse='') else x, USE.NAMES=FALSE)
-}
-#' analyse.external.call.pattern
-#'
-#' match \code{.C}, \code{.Fortran} and \code{.Call}
-#'
-#' A global option \code{add.prefix.for.external.call} will add \code{C_}, \code{FORTRAN_} and \code{External_} prefix or not
-#'
-#' @param e expression
-#' @return list of experssions
-#' @examples \dontrun{
-#'     analyse.external.call.pattern( quote( .C('classRF') ) )
-#'     analyse.external.call.pattern( quote( .C(classRF) ) )
-#' }
-analyse.external.call.pattern <- function(e){
-    if (is.function(e)) return(Recall(body(e)))
-    if (is.atomic(e) || is.symbol(e)) return(NULL)
-    L <- NULL
-    if (is.list(e)) {
-        for(i in seq_along(e)) {
-            L <- c(L, Recall(e[[i]]))
-        }
-        return(L)
-    }
-    if (is.call(e)) {
-         if (e[[1]]=='.C' || e[[1]]=='.Fortran' || e[[1]]=='.Call' || e[[1]] == '.External' ) {
-         # we can't use match.call for primitive call
-         # assume position 1 is always the .NAME of the routine being called
-            if (isTRUE(getOption('add.prefix.for.external.call'))) {
-                prefix <- switch(as.character(e[[1]]),
-                    '.C' = 'C',
-                    '.Fortran' = 'FORTRAN',
-                    'EXTERNAL')
-                L <- c(L, paste(prefix, convertToCharacter(e[[2]]), sep='_'))
-            } else {
-                L <- c(L, e[[2]])
-            }
-         } else {
-             if (length(e)>1) {
-                 for(i in 2:length(e)) {
-                     L <- c(L, Recall(e[[i]]))
-                 }
-             }
-         }
-    }
-    L
 }

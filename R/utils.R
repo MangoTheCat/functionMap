@@ -1,4 +1,15 @@
 
+in_list <- function(elem, list) {
+  for (e in list) if (identical(elem, e)) return(TRUE)
+  FALSE
+}
+
+match_list <- function(elem, list) {
+  for (i in seq_along(list)) if (identical(elem, list[[i]])) return(i)
+  NA_integer_
+}
+
+
 .recurseIdx <- function(vidx, netm) {
 	tmp <- unique(c(vidx, unique(as.vector(unlist(sapply(vidx, function(x) which(netm[x, ] != 0)))))))
 	if (length(vidx) == length(tmp)) {

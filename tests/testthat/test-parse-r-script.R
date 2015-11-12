@@ -126,3 +126,18 @@ test_that("a file with a syntax error creates a warning", {
     "object 'this' not found"
   )
 })
+
+test_that("find functions in do.call and external calls", {
+
+  src <- "
+    f <- function() {
+      foo()
+      do.call('bar', list())
+      .Call('foobar')
+    }"
+
+  expect_equal(
+    sort(parse_r_script(textConnection(src))$f),
+    c("bar", "Call_foobar", "foo")
+  )
+})

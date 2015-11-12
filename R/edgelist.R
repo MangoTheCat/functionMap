@@ -75,7 +75,7 @@ edgelist.from.rscript <- function(rfile) {
             tmp.funcall[[i]] <- c(tmp.funcall[[i]], re) 
         }
     # external.call.pattern
-        re <- try(analyse.external.call.pattern(get(rfile.fun[i], envir=tmp.env)), silent=TRUE)
+        re <- try(external_calls(get(rfile.fun[i], envir=tmp.env)), silent=TRUE)
         if ( (!is(re,'try-error')) && (!is.null(re)) && length(re)>0 ) {
             re <- convertToCharacter(re)
             heads <- table(re)
