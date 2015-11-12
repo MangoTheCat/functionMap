@@ -23,7 +23,7 @@
 #' @return reformated text (source) file
 #' @author Mango solutions
 #' @examples \dontrun{
-#' ordinary.functions <- parseRfolder(
+#' ordinary.functions <- parse_r_folder(
 #'   system.file("examples", "R", package = "functionMap")
 #' )
 #' # need to eval those functions to make the definition into .GlobalEnv
@@ -91,7 +91,7 @@ dumpS4Generic <- function(ns, style=c('S4','S3')) {
 #' ## Matrix is a very complex S4 package
 #' parseS4fromNs('Matrix')
 #' 
-#' ordinary.functions <- parseRfolder(
+#' ordinary.functions <- parse_r_folder(
 #'   system.file("examples", "R", package = "functionMap")
 #' )
 #'

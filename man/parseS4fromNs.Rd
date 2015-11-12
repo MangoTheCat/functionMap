@@ -20,7 +20,7 @@ wrapper for \code{\link{dumpS4Generic}} and \code{\link{parseRscript}}
 ## Matrix is a very complex S4 package
 parseS4fromNs('Matrix')
 
-ordinary.functions <- parseRfolder(
+ordinary.functions <- parse_r_folder(
   system.file("examples", "R", package = "functionMap")
 )
 

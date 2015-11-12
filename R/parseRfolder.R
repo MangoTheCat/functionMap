@@ -1,49 +1,44 @@
 
-##' Parse the R scripts in a folder and return the function structure
-##'
-##' @title Parse the R scripts in a folder and return the function structure
-##' @param rpath The path of the R script folders or files.
-##' @param rfilepattern An optional regular expression. Only file names which match the regular expression will be parsed.
-##' @param returnfilename TODO
-##' @return A list of the functions structure. 
-##' @author Mango Solutions
-##' @examples \dontrun{
-##' rpath <- system.file("examples", "R", package = "functionMap")
-##' parseRfolder(rpath)
-##' }
-##' 
+#' Parse one or more folders of R scripts
+#'
+#' @param rpath Character vector of folders and files.
+#'   Files are taken as given, folders are listed for files
+#'   matching `rfilepattern`.
+#' @param rfilepattern Pattern of file names to analyse. By
+#'   default files with `.R` and `.r` extensions are used.
+#' @param include_base Whether to include functions from the
+#'   `base` package.
+#' @return A named list with one entry for each analyzed functions.
+#'   Each entry contains the names of the functions called.
 
-parseRfolder <- function(rpath, rfilepattern = "\\.[R|r]$", returnfilename = FALSE) {
-	rfiles <- character(0)
-	isdir <- file.info(rpath)$isdir
-	for (i in 1:length(isdir)) {
-		if (identical(isdir[i], TRUE)) rfiles <- c(rfiles, list.files(rpath[i], pattern = rfilepattern, full.names = TRUE))
-		if (identical(isdir[i], FALSE)) rfiles <- c(rfiles, rpath[i])
-	}
-	
-	if (length(rfiles) == 0) stop("There is no R script to be parsed!")
-	
-	tmp.func <- list()
-	for (i in 1:length(rfiles)) {
-		tmp.parse <- try(parse_r_script(rfiles[[i]]), silent = TRUE)
-		if (!inherits(tmp.parse, "try-error")) tmp.func[[i]] <- tmp.parse
-	}
-	if (returnfilename) {
-		names(tmp.func) <- basename(rfiles)
-	} else {
-		tmp.func <- rev(do.call("c", tmp.func))
-		tmp.func <- rev(tmp.func[unique(names(tmp.func))])
-	}
-	
-	return(tmp.func)
+parse_r_folder <- function(rpath, rfilepattern = "\\.[R|r]$",
+                           include_base = FALSE) {
+
+  rpath <- as.character(rpath)
+
+  files <- lapply(
+    rpath,
+    function(rp) {
+      if (file.info(rp)$isdir) {
+        list.files(rp, full.names = TRUE, pattern = rfilepattern)
+      } else {
+        rp
+      }
+    }
+  )
+
+  files <- unique(unlist(files))
+
+  res <- lapply(files, parse_r_script, include_base = include_base)
+
+  do.call(c, res)
 }
-
 
 #' network.from.rpackage
 #'
-#' Similar to \code{\link{parseRfolder}}, but differences.
-#' 1. \code{parseRfolder} don't assume the path is a root path to a package, but \code{network.from.rpackage} does.
-#' 2. \code{parseRfolder} returns a names list of called functions while this one return a network object which can have more attributes
+#' Similar to \code{\link{parse_r_folder}}, but differences.
+#' 1. \code{parse_r_folder} don't assume the path is a root path to a package, but \code{network.from.rpackage} does.
+#' 2. \code{parse_r_folder} returns a names list of called functions while this one return a network object which can have more attributes
 #'
 #' @param base.path path to the R source, assume it to be a package base path
 #' @param rfilepattern some author may use extension ".[qQ][sS]" other than [Rr], this option can select from those
@@ -81,7 +76,7 @@ network.from.rpackage <- function(base.path,  rfilepattern = "\\.[R|r]$") {
     names(L) <- v.names
     ## v.out is the vertex not defined in this pacakge
     v.out <- setdiff(unlist(L), v.names)
-    ## v.s3.out is the S3 methods appearing in v.out, we can't determine if it's defined in or not in this pacakge, because we 
+    ## v.s3.out is the S3 methods appearing in v.out, we can't determine if it's defined in or not in this pacakge, because we
     ## don't know the runtime information of the object of the call
     v.s3.out <- v.out[which(v.out %in% S3[,1])]
     ##
@@ -93,7 +88,7 @@ network.from.rpackage <- function(base.path,  rfilepattern = "\\.[R|r]$") {
     }) )
     net <- network(elist, matrix.type='edgelist', ignore.eval=FALSE)
     v.all <- network.vertex.names(net)
-    net %v% 'category' <- ifelse(v.all %in% v.names, 'inpackage', 
+    net %v% 'category' <- ifelse(v.all %in% v.names, 'inpackage',
                                        ifelse(v.all %in% v.s3.out, 'S3generic', 'outpackage'))
     ## v.out
     net
@@ -102,7 +97,7 @@ network.from.rpackage <- function(base.path,  rfilepattern = "\\.[R|r]$") {
 #' s4.source.from.rpackage
 #'
 #' Extract source code from S4 definitions from a R package
-#' 
+#'
 #' @param base.path path to the R source, assume it to be a package base path
 #' @param rfilepattern some author may use extension ".[qQ][sS]" other than [Rr], this option can select from those
 #' @return network object
@@ -127,7 +122,3 @@ s4.source.from.rpackage <- function(base.path, rfilepattern = '\\.[Rr]$'){
     }
     s4.defn
 }
-
-
-
-

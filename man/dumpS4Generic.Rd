@@ -36,7 +36,7 @@ where \code{obj1, obj2, obj3} are object types in the signatures
 }
 \examples{
 \dontrun{
-ordinary.functions <- parseRfolder(
+ordinary.functions <- parse_r_folder(
   system.file("examples", "R", package = "functionMap")
 )
 # need to eval those functions to make the definition into .GlobalEnv
