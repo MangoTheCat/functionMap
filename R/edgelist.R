@@ -83,15 +83,6 @@ edgelist.from.rscript <- function(rfile) {
             edgelist <- rbind(edgelist, el)
             tmp.funcall[[i]] <- c(tmp.funcall[[i]], re) 
         }
-    # eval.call.pattern
-        re <- try( analyse.eval.call.pattern( get(rfile.fun[i], envir=tmp.env)) , silent=TRUE )
-        if ( (!is(re,'try-error')) && (!is.null(re)) && length(re)>0 ) {
-            re <- convertToCharacter(re)
-            heads <- table(re)
-            el <- data.frame(tails=rfile.fun[i], heads=names(heads), category='eval.call', weights=as.vector(heads), stringsAsFactors=FALSE)
-            edgelist <- rbind(edgelist, el)
-            tmp.funcall[[i]] <- c(tmp.funcall[[i]], re) 
-        }
 		unlink(tmp.file, force = TRUE)
 	}
 	names(tmp.funcall) <- rfile.fun
