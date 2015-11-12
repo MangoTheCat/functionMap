@@ -68,7 +68,6 @@ edgelist.from.rscript <- function(rfile) {
     # do.call.pattern
         re <- try(do_call_globals(get(rfile.fun[i], envir=tmp.env)), silent=TRUE)
         if ( (!is(re,'try-error')) && (!is.null(re)) && length(re)>0 ) {
-            re <- convertToCharacter(re)
             heads <- table(re)
             el <- data.frame(tails=rfile.fun[i], heads=names(heads), category='do.call', weights=as.vector(heads), stringsAsFactors=FALSE)
             edgelist <- rbind(edgelist, el)
@@ -77,7 +76,6 @@ edgelist.from.rscript <- function(rfile) {
     # external.call.pattern
         re <- try(external_calls(get(rfile.fun[i], envir=tmp.env)), silent=TRUE)
         if ( (!is(re,'try-error')) && (!is.null(re)) && length(re)>0 ) {
-            re <- convertToCharacter(re)
             heads <- table(re)
             el <- data.frame(tails=rfile.fun[i], heads=names(heads), category='native.call', weights=as.vector(heads), stringsAsFactors=FALSE)
             edgelist <- rbind(edgelist, el)

@@ -64,16 +64,3 @@ get_global_calls <- function(func) {
     external_calls(func)
   )
 }
-
-#' convertToCharacter
-#'
-#' Convert a list names and characters to a character vector.
-#'
-#' @param L input list.
-#' @return character list representing input \code{L}
-#' @export
-convertToCharacter <- function(L) {
-    # as.character(quote(a + b)) -> '+' 'a' 'b', we should use deparse
-    if (is.null(L) || length(L)==0) return(character(0))
-    sapply(L, function(x) if (is.language(x)) paste(deparse(x), collapse='') else x, USE.NAMES=FALSE)
-}
