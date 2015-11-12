@@ -12,9 +12,6 @@ do_call_globals(fun)
 \value{
 Character vector of globals from \code{do.call} calls.
 Note that this only includes globals that are speficied
-in the \code{do.call} call as a character. Globals that are passed
-to \code{do.call} as function objects, are found by the standard
-\code{findGlobals} already.
 }
 \description{
 Find the global functions in \code{do.call} patterns

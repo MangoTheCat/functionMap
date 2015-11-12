@@ -19,7 +19,7 @@ test_that("we can find globals in do.call calls", {
     do.call("foo", list())
   }
 
-  expect_equal(sort(do_call_globals(f)), c("foo"))
+  expect_equal(sort(do_call_globals(f)), c("foo", "y"))
 
   ## The original test cases
   expect_equal(
@@ -29,11 +29,11 @@ test_that("we can find globals in do.call calls", {
 
   expect_equal(
     do_call_globals(function() do.call(myfunction, list(1:10))),
-    character()
+    "myfunction"
   )
 
   expect_equal(
     do_call_globals(function() do.call(fun2, list(1:10))),
-    character()
+    "fun2"
   )
 })
