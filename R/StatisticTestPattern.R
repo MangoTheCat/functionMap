@@ -146,7 +146,7 @@ assess.code <- function(v, db = .db.stats) {
 #' @param db reference database , see \code{\link{assess.code}}
 #' @return list of functions with non-zero scores on statistical functions in \code{db}
 assessRfolder <- function(filepath, pattern = '\\.[R|r|S|s|Q|q]', db = .db.stats) {
-    fun.attr <- parseRfolder(filepath, pattern)
+    fun.attr <- parse_r_folder(filepath, pattern)
     l <- sapply(fun.attr, assess.code, db = db)
     l <- l[ sapply(l, function(x) !is.na(x[1])) ]
     nms <- unlist(sapply(l, names), use.names=FALSE)
