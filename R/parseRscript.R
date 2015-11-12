@@ -1,69 +1,65 @@
 
-##' Parse the R script and return the function structure
-##'
-##' @title Parse the R script and return the function structure.
-##' @param rfile Path of the R script file.
-##' @param analyse.advance.pattern any extra pattern we should also analyse and include
-##' @return A list of all the functions included in this script. Each component contains the names of the functions were called by this function. 
-##' @author Mango Solutions
-##' @examples \dontrun{
-##' rfile <- system.file("examples", "R", "func.R", package = "functionMap")
-##' parseRscript(rfile)
-##' }
-##' 
 
-parseRscript <- function(rfile, analyse.advance.pattern =getOption('analyse.advance.pattern')) {
-	
-	tmp.env <- new.env()
-	res.source <- try(source(file = rfile, local = tmp.env, keep.source = TRUE), silent = TRUE)
-	
-	# deal with S4 methods
-	if (inherits(res.source, "try-error") && grepl("^Error in setGeneric", as.character(res.source))) {
-		rlines <- readLines(rfile)
-		rlines[grep("setGeneric", rlines)] <- paste0("#", rlines[grep("setGeneric", rlines)] )
-		rlines[grep("setMethod", rlines)] <- paste0("#", rlines[grep("setMethod", rlines)] )
-		rlines.con <- textConnection(rlines)
-		source(file = rlines.con, local = tmp.env, keep.source = TRUE)
-	}
-	
-	rfile.obj <- ls(tmp.env, all.names = TRUE)
-	rfile.fun <- rfile.obj[sapply(rfile.obj, FUN = function(X) class(tmp.env[[X]]) == "function")]
-	
-    # ensure to remove unclosed sink after exiting
-    old.sink.number <- sink.number()
-    on.exit(while( sink.number()>old.sink.number ) sink() )
-    #
-	tmp.funcall <- list()
-	tmp.dir = tempdir()
-	for (i in 1:length(rfile.fun)) {
-		tmp.file <- tempfile(tmpdir = tmp.dir)
-		tmp.con <- file(tmp.file, open = "w")
-		sink(file = tmp.con, type = "output")
-		print(body(get(rfile.fun[i], envir = tmp.env)))
-		sink(type = "output")
-		close(tmp.con)
-		tmp.parsedata <- getParseData(parse(tmp.file, keep.source = TRUE))
-		tmp.funcall[[i]] <- tmp.parsedata$text[tmp.parsedata$token == "SYMBOL_FUNCTION_CALL"]
-        if ('do.call.pattern' %in% analyse.advance.pattern) {
-            re <- try(do_call_globals(get(rfile.fun[i], envir=tmp.env)), silent=TRUE)
-            if ( (!is(re,'try-error')) && (!is.null(re)) && length(re)>0 ) {
-                tmp.funcall[[i]] <- c(tmp.funcall[[i]], convertToCharacter(re)) 
-            }
-        }
-        if ('external.call.pattern' %in% analyse.advance.pattern) {
-            re <- try(analyse.external.call.pattern(get(rfile.fun[i], envir=tmp.env)), silent=TRUE)
-            if ( (!is(re,'try-error')) && (!is.null(re)) && length(re)>0 ) {
-                tmp.funcall[[i]] <- c(tmp.funcall[[i]], convertToCharacter(re))
-            }
-        }
-		unlink(tmp.file, force = TRUE)
-	}
-	names(tmp.funcall) <- rfile.fun
-	rm(tmp.env)
+#' Find all function calls in an R script
+#'
+#' @param rfile The .R input file, or a connection to read from.
+#' @param include_base Whether to include calls to base functions
+#'   in the output.
+#' @return Named list of character vectors.
+#'   Name is the caller, contents is the callees.
 
-	return(tmp.funcall)
+parse_r_script <- function(rfile, include_base = FALSE) {
+
+  ## Get all functions from the script
+  funcs <- get_funcs_from_r_script(rfile)
+
+  ## Get their non-local calls
+  res <- lapply(funcs, get_global_calls)
+
+  ## Remove base functions, potentially
+  if (!include_base) {
+    res <- lapply(res, setdiff, ls(asNamespace("base")))
+  }
+
+  res
 }
 
+
+#' Extract all functions from an R script
+#'
+#' Reads the file into a temporary environment, and checks whether
+#' the objects in this environment are functions.
+#'
+#' @param rfile The .R input file.
+#' @return Named list of function objects, they also include
+#'   the source code, i.e. they have `srcref` attributes.
+
+get_funcs_from_r_script <- function(rfile) {
+
+  ## Load everything into a temporary environment
+  tmp_env <- new.env()
+  tryCatch(
+    source(rfile, local = tmp_env),
+    error = function(e) {
+      fname <- if (is.character(rfile)) rfile else class(rfile)[1]
+      warning(fname, ": ", e$message, call. = FALSE)
+    }
+  )
+
+  ## Keep the functions
+  keep <- Filter(
+    function(x) is.function(get(x, envir = tmp_env)),
+    ls(tmp_env, all.names = TRUE)
+  )
+
+  mget(keep, envir = tmp_env)
+}
+
+#' @importFrom codetools findGlobals
+
+get_global_calls <- function(func) {
+  c(findGlobals(func, merge = FALSE)$functions, do_call_globals(func))
+}
 
 #' convertToCharacter
 #'

@@ -25,7 +25,7 @@ parseRfolder <- function(rpath, rfilepattern = "\\.[R|r]$", returnfilename = FAL
 	
 	tmp.func <- list()
 	for (i in 1:length(rfiles)) {
-		tmp.parse <- try(parseRscript(rfiles[[i]]), silent = TRUE)
+		tmp.parse <- try(parse_r_script(rfiles[[i]]), silent = TRUE)
 		if (!inherits(tmp.parse, "try-error")) tmp.func[[i]] <- tmp.parse
 	}
 	if (returnfilename) {
@@ -65,7 +65,7 @@ network.from.rpackage <- function(base.path,  rfilepattern = "\\.[R|r]$") {
     L <- list()
     # There might be possible duplicated definition of single function, we merge them all
     for(fn in rs) {
-        x <- try(parseRscript(fn), silent=TRUE)
+        x <- try(parse_r_script(fn), silent=TRUE)
         if (is(x,'try-error')) next
         for(v in names(x)) {
             ind <- match(v, v.names)
