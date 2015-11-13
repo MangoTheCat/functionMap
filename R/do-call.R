@@ -2,12 +2,14 @@
 #' Find the global functions in `do.call` patterns
 #'
 #' @param fun A function object.
+#' @param multiples Whether to include functions as many
+#'   times as they are called.
 #' @return Character vector of globals from `do.call` calls.
 #'   Note that this only includes globals that are speficied
 #'
 #' @importFrom codetools findFuncLocals findGlobals
 
-do_call_globals <- function(fun) {
+do_call_globals <- function(fun, multiples = FALSE) {
 
   dc <- find_do_call_funcs(body(fun))
 
@@ -21,7 +23,11 @@ do_call_globals <- function(fun) {
   dc_str <- unlist(Filter(is.character, dc))
   dc_sym <- vapply(Filter(is.symbol, dc), as.character, "")
 
-  c(setdiff(dc_str, locals), intersect(dc_sym, globals))
+  if (multiples) {
+    c(dc_str[ ! dc_str %in% locals ], dc_sym[ dc_sym %in% globals ])
+  } else {
+    unique(c(setdiff(dc_str, locals), intersect(dc_sym, globals)))
+  }
 }
 
 find_do_call_funcs <- function(expr) {

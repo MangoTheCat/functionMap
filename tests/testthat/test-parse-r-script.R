@@ -141,3 +141,25 @@ test_that("find functions in do.call and external calls", {
     c("bar", "Call_foobar", "foo")
   )
 })
+
+test_that("call counts are OK", {
+
+  src <- "
+    f <- function() {
+      foo()
+      foo()
+      bar()
+      foobar()
+      foobar()
+    }"
+
+  expect_equal(
+    parse_r_script(textConnection(src)),
+    list(f = c("bar", "foo", "foobar"))
+  )
+
+  expect_equal(
+    parse_r_script(textConnection(src), multiples = TRUE),
+    list(f = c("foo", "foo", "bar", "foobar", "foobar"))
+  )
+})

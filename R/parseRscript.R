@@ -5,20 +5,27 @@
 #' @param rfile The .R input file, or a connection to read from.
 #' @param include_base Whether to include calls to base functions
 #'   in the output.
+#' @param multiples Whether to include functions as many times as
+#'   they are called.
 #' @return Named list of character vectors.
 #'   Name is the caller, contents is the callees.
 
-parse_r_script <- function(rfile, include_base = FALSE) {
+parse_r_script <- function(rfile, include_base = FALSE,
+                           multiples = FALSE) {
 
   ## Get all functions from the script
   funcs <- get_funcs_from_r_script(rfile)
 
   ## Get their non-local calls
-  res <- lapply(funcs, get_global_calls)
+  res <- lapply(funcs, get_global_calls, multiples = multiples)
 
   ## Remove base functions, potentially
   if (!include_base) {
-    res <- lapply(res, setdiff, ls(asNamespace("base"), all.names = TRUE))
+    base_funcs <- ls(asNamespace("base"), all.names = TRUE)
+    res <- lapply(
+      res,
+      function(x) { x[ ! x %in% base_funcs ] }
+    )
   }
 
   res
@@ -57,10 +64,49 @@ get_funcs_from_r_script <- function(rfile) {
 
 #' @importFrom codetools findGlobals
 
-get_global_calls <- function(func) {
-  c(
-    findGlobals(func, merge = FALSE)$functions,
-    do_call_globals(func),
-    external_calls(func)
+find_globals <- function(func, multiples = FALSE) {
+  if (multiples) {
+    find_globals_multiple(func)
+
+  } else {
+    findGlobals(func, merge = FALSE)$functions
+  }
+}
+
+#' @importFrom codetools findGlobals
+
+find_globals_multiple <- function(func) {
+
+  find_globals_multiple_x <- function(expr) {
+
+    L <- character()
+
+    if (is.list(expr)) {
+      for (e in expr) L <- c(L, find_globals_multiple_x(e))
+
+    } else if (is.call(expr) && as.character(expr[[1]]) %in% globals) {
+      L <- c(L, as.character(expr[[1]]))
+      L <- c(L, find_globals_multiple_x(expr[-1]))
+
+    } else if (is.call(expr) && length(expr) > 1) {
+      for (i in 2:length(expr)) L <- c(L, find_globals_multiple_x(expr[[i]]))
+    }
+
+    L
+  }
+
+  globals <- findGlobals(func, merge = FALSE)$functions
+  find_globals_multiple_x(body(func))
+}
+
+get_global_calls <- function(func, multiples = FALSE) {
+  res <- c(
+    find_globals(func, multiples = multiples),
+    do_call_globals(func, multiples = multiples),
+    external_calls(func, multiples = multiples)
   )
+
+  if (!multiples) res <- unique(res)
+
+  res
 }

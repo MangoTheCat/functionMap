@@ -7,7 +7,7 @@ test_that("we can find globals in do.call calls", {
   f <- function(x) {
     y <- function() TRUE
     do.call(y, list())
-    do.call("foo", list())    
+    do.call("foo", list())
   }
 
   expect_equal(do_call_globals(f), "foo")
@@ -36,4 +36,42 @@ test_that("we can find globals in do.call calls", {
     do_call_globals(function() do.call(fun2, list(1:10))),
     "fun2"
   )
+})
+
+
+test_that("multiple calls are found multiple times", {
+
+  f <- function() {
+    do.call(y, list())
+    do.call(y, list())
+    do.call(y, list())
+  }
+
+  expect_equal(do_call_globals(f), "y")
+  expect_equal(do_call_globals(f, multiples = TRUE), c("y", "y", "y"))
+
+  f <- function() {
+    do.call("y", list())
+    do.call("y", list())
+    do.call("y", list())
+  }
+
+  expect_equal(do_call_globals(f), "y")
+  expect_equal(do_call_globals(f, multiples = TRUE), c("y", "y", "y"))
+})
+
+
+test_that("mixed symbols and strings work", {
+
+  f <- function() {
+    z <- 10
+    do.call(y, list())
+    do.call(y, list())
+    do.call("y", list())
+    do.call("y", list())
+  }
+
+  expect_equal(do_call_globals(f), "y")
+  expect_equal(do_call_globals(f, multiples = TRUE), c("y", "y", "y", "y"))
+
 })
