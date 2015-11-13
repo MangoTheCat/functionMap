@@ -14,7 +14,7 @@ test.parseS4fromNs <- function(){
 
 test.createDirectedNetwork <- function(){
 
-    ordinary.functions <- parseRfolder(system.file("examples", "R", package = "functionMap"))
+    ordinary.functions <- parse_r_folder(system.file("examples", "R", package = "functionMap"))
     txt <- extract.S4.defn( path = system.file("examples", "R", package = "functionMap"))
     eval(parse(text=txt))
     S4.funs <- parseS4fromNs()

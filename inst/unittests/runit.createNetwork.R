@@ -1,6 +1,6 @@
 
 test.createNetwork <- function(){
-    n0 <- parseRfolder(system.file('examples/R', package='functionMap'))
+    n0 <- parse_r_folder(system.file('examples/R', package='functionMap'))
     # normal call
     n1 <- createNetwork(n0)
     checkEquals(
