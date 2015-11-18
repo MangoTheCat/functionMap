@@ -73,26 +73,17 @@ find_globals <- function(func, multiples = FALSE) {
 
 find_globals_multiple <- function(func) {
 
-  find_globals_multiple_x <- function(expr) {
+  L <- character()
+  globals <- findGlobals(func, merge = FALSE)$functions
 
-    L <- character()
-
-    if (is.list(expr)) {
-      for (e in expr) L <- c(L, find_globals_multiple_x(e))
-
-    } else if (is.call(expr) && as.character(expr[[1]]) %in% globals) {
-      L <- c(L, as.character(expr[[1]]))
-      L <- c(L, find_globals_multiple_x(expr[-1]))
-
-    } else if (is.call(expr) && length(expr) > 1) {
-      for (i in 2:length(expr)) L <- c(L, find_globals_multiple_x(expr[[i]]))
+  get_calls <- function(expr) {
+    if (is.call(expr) && (n <- as.character(expr[[1]])) %in% globals) {
+      L <<- c(L, n)
     }
-
-    L
   }
 
-  globals <- findGlobals(func, merge = FALSE)$functions
-  find_globals_multiple_x(body(func))
+  walk_lang(func, get_calls)
+  L
 }
 
 #' Get global function calls from a function

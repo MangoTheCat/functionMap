@@ -25,18 +25,15 @@ find_external_calls <- function(expr, multiples) {
 
   L <- character()
 
-  if (is.list(expr)) {
-    for (i in seq_along(expr)) L <- c(L, find_external_calls(expr[[i]]))
-
-  } else if (is.call(expr) && in_list(expr[[1]], external_calls)) {
-    L <- c(L, extract_external_func(expr))
-    L <- c(L, find_external_calls(expr[-1]))
-
-  } else if (is.call(expr) && length(expr) > 1) {
-    for (i in 2:length(expr)) L <- c(L, find_external_calls(expr[[i]]))
+  get_external <- function(expr) {
+    if (is.call(expr) && in_list(expr[[1]], external_calls)) {
+      L <<- c(L, extract_external_func(expr))
+    }
   }
 
+  walk_lang(expr, get_external)
   L
+
 }
 
 extract_external_func <- function(expr) {

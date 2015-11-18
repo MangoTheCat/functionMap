@@ -34,17 +34,13 @@ find_do_call_funcs <- function(expr) {
 
   L <- list()
 
-  if (is.list(expr)) {
-    for (i in seq_along(expr)) L <- c(L, find_do_call_funcs(expr[[i]]))
-
-  } else if (is.call(expr) && identical(expr[[1]], quote(do.call))) {
-    expr_formal <- match.call(do.call, expr)
-    L <- c(L, expr_formal$what)
-    L <- c(L, find_do_call_funcs(expr_formal$args))
-    
-  } else if (is.call(expr) && length(expr) > 1) {
-    for (i in 2:length(expr)) L <- c(L, find_do_call_funcs(expr[[i]]))
+  get_calls <- function(expr) {
+    if (is.call(expr) && identical(expr[[1]], quote(do.call))) {
+      expr_formal <- match.call(do.call, expr)
+      L <<- c(L, expr_formal$what)
+    }
   }
 
+  walk_lang(expr, get_calls)
   L
 }
