@@ -2,9 +2,5 @@
 
 export(annotate)
 export(get_global_calls)
-export(parseSASfolder)
-export(parseSASscript)
 importFrom(codetools,findFuncLocals)
 importFrom(codetools,findGlobals)
-importFrom(network,as.network)
-importFrom(network,network.vertex.names)
