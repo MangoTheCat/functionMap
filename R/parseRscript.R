@@ -21,11 +21,7 @@ parse_r_script <- function(rfile, include_base = FALSE,
 
   ## Remove base functions, potentially
   if (!include_base) {
-    base_funcs <- ls(asNamespace("base"), all.names = TRUE)
-    res <- lapply(
-      res,
-      function(x) { x[ ! x %in% base_funcs ] }
-    )
+    res <- remove_base_functions(res)
   }
 
   res
@@ -99,7 +95,36 @@ find_globals_multiple <- function(func) {
   find_globals_multiple_x(body(func))
 }
 
-get_global_calls <- function(func, multiples = FALSE) {
+#' Get global function calls from a function
+#'
+#' Note the results are approximate only. R's dynamic nature
+#' does not allow us to always find the global calls reliably.
+#'
+#' Calls can be: \itemize{
+#'   \item Direct function calls.
+#'   \item Function calls via \code{do.call}.
+#'   \item Calls to external functions via \code{.C}, \code{.Call}, etc.
+#' }
+#'
+#' Internally we use \code{\link[codetools]{findGlobals}} for finding
+#' the global calls and variables.
+#'
+#' Note that by default calls to base function are also included in the
+#' result, even of they are primitive functions (e.g. \code{<-},
+#' \code{==}, etc.).
+#'
+#' @param func Function object.
+#' @param include_base Whether to include calls to base functions
+#'   in the output.
+#' @param multiples Whether to keep multiplicity in the result. I.e.
+#'   if this argument is \code{TRUE} and \code{func} calls \code{foobar}
+#'   twice, then \code{foobar} is included in the result twice.
+#' @return A character vector with the names of all functions called.
+#'
+#' @export
+
+get_global_calls <- function(func, include_base = TRUE, multiples = FALSE) {
+
   res <- c(
     find_globals(func, multiples = multiples),
     do_call_globals(func, multiples = multiples),
@@ -108,5 +133,27 @@ get_global_calls <- function(func, multiples = FALSE) {
 
   if (!multiples) res <- unique(res)
 
+  if (!include_base) {
+    res <- remove_base_functions(res)
+  }
+
   res
+}
+
+get_base_funcs <- function() {
+  ls(asNamespace("base"), all.names = TRUE)
+}
+
+remove_base_functions <- function(funcs) {
+
+  base_funcs <- get_base_funcs()
+
+  if (is.list(funcs)) {
+    lapply(
+      funcs,
+      function(x) { x[ ! x %in% base_funcs ] }
+    )
+  } else {
+    funcs[ ! funcs %in% base_funcs ]
+  }
 }
