@@ -4,10 +4,13 @@
 \alias{do_call_globals}
 \title{Find the global functions in \code{do.call} patterns}
 \usage{
-do_call_globals(fun)
+do_call_globals(fun, multiples = FALSE)
 }
 \arguments{
 \item{fun}{A function object.}
+
+\item{multiples}{Whether to include functions as many
+times as they are called.}
 }
 \value{
 Character vector of globals from \code{do.call} calls.

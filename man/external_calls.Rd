@@ -4,10 +4,13 @@
 \alias{external_calls}
 \title{Find calls to external functions}
 \usage{
-external_calls(fun)
+external_calls(fun, multiples = FALSE)
 }
 \arguments{
 \item{fun}{Function object.}
+
+\item{multiples}{Whether to include functions as many
+times as they are called.}
 }
 \value{
 Character vector of external function names,

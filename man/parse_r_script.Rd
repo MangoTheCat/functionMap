@@ -4,13 +4,16 @@
 \alias{parse_r_script}
 \title{Find all function calls in an R script}
 \usage{
-parse_r_script(rfile, include_base = FALSE)
+parse_r_script(rfile, include_base = FALSE, multiples = FALSE)
 }
 \arguments{
 \item{rfile}{The .R input file, or a connection to read from.}
 
 \item{include_base}{Whether to include calls to base functions
 in the output.}
+
+\item{multiples}{Whether to include functions as many times as
+they are called.}
 }
 \value{
 Named list of character vectors.
