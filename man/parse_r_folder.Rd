@@ -4,7 +4,8 @@
 \alias{parse_r_folder}
 \title{Parse one or more folders of R scripts}
 \usage{
-parse_r_folder(rpath, rfilepattern = "\\\\.[R|r]$", include_base = FALSE)
+parse_r_folder(rpath, rfilepattern = "\\\\.[R|r]$", include_base = FALSE,
+  multiples = FALSE)
 }
 \arguments{
 \item{rpath}{Character vector of folders and files.
@@ -16,6 +17,9 @@ default files with \code{.R} and \code{.r} extensions are used.}
 
 \item{include_base}{Whether to include functions from the
 \code{base} package.}
+
+\item{multiples}{Whether to include functions as many times as
+they are called.}
 }
 \value{
 A named list with one entry for each analyzed functions.

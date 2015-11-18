@@ -8,13 +8,15 @@
 #'   default files with `.R` and `.r` extensions are used.
 #' @param include_base Whether to include functions from the
 #'   `base` package.
+#' @param multiples Whether to include functions as many times as
+#'   they are called.
 #' @return A named list with one entry for each analyzed functions.
 #'   Each entry contains the names of the functions called.
 #'
 #' @export
 
 parse_r_folder <- function(rpath, rfilepattern = "\\.[R|r]$",
-                           include_base = FALSE) {
+                           include_base = FALSE, multiples = FALSE) {
 
   rpath <- as.character(rpath)
 
@@ -31,7 +33,12 @@ parse_r_folder <- function(rpath, rfilepattern = "\\.[R|r]$",
 
   files <- unique(unlist(files))
 
-  res <- lapply(files, parse_r_script, include_base = include_base)
+  res <- lapply(
+    files,
+    parse_r_script,
+    include_base = include_base,
+    multiples = multiples
+  )
 
   do.call(c, res)
 }
