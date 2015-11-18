@@ -9,6 +9,8 @@
 #'   they are called.
 #' @return Named list of character vectors.
 #'   Name is the caller, contents is the callees.
+#'
+#' @export
 
 parse_r_script <- function(rfile, include_base = FALSE,
                            multiples = FALSE) {

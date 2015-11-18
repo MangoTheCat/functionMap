@@ -2,5 +2,7 @@
 
 export(annotate)
 export(get_global_calls)
+export(parse_r_folder)
+export(parse_r_script)
 importFrom(codetools,findFuncLocals)
 importFrom(codetools,findGlobals)

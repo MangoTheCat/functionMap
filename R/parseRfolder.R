@@ -10,6 +10,8 @@
 #'   `base` package.
 #' @return A named list with one entry for each analyzed functions.
 #'   Each entry contains the names of the functions called.
+#'
+#' @export
 
 parse_r_folder <- function(rpath, rfilepattern = "\\.[R|r]$",
                            include_base = FALSE) {
