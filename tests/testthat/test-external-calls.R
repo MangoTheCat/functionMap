@@ -48,3 +48,12 @@ test_that("external calls are counted properly", {
   )
 
 })
+
+test_that("external call in default argument is picked up", {
+
+  f <- function() {
+    g <- function(x = .Call("yy")) { }
+  }
+
+  expect_equal(external_calls(f), "Call_yy")
+})

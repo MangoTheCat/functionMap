@@ -75,3 +75,15 @@ test_that("mixed symbols and strings work", {
   expect_equal(do_call_globals(f, multiples = TRUE), c("y", "y", "y", "y"))
 
 })
+
+
+test_that("do.call in default argument is picked up", {
+
+  f <- function() {
+    g <- function(x = do.call("xx", list())) { }
+    do.call("yy", list())
+  }
+
+  expect_equal(do_call_globals(f), c("xx", "yy"))
+
+})
