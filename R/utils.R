@@ -9,6 +9,11 @@ match_list <- function(elem, list) {
   NA_integer_
 }
 
+#' Drop NULL elements from a list
+
+drop_null <- function(x) {
+  Filter(function(xx) !is.null(xx), x)
+}
 
 .recurseIdx <- function(vidx, netm) {
 	tmp <- unique(c(vidx, unique(as.vector(unlist(sapply(vidx, function(x) which(netm[x, ] != 0)))))))
@@ -50,4 +55,3 @@ match_list <- function(elem, list) {
     }
     x
 }
-
