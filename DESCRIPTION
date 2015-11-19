@@ -9,14 +9,10 @@ License: GPL-2
 LazyData: yes
 Author: Mango Solutions <developers@mango-solutions.com>
 Imports:
-    roxygen2,
-    network,
-    RJSONIO,
-    tools,
     codetools
 Depends:
     R (>= 3.0.0),
 Suggests:
-    RUnit,
-    testthat
+    testthat,
+    roxygen2
 RoxygenNote: 5.0.0.9000
