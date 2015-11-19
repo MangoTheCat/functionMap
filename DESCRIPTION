@@ -11,7 +11,7 @@ Author: Mango Solutions <developers@mango-solutions.com>
 Imports:
     codetools
 Depends:
-    R (>= 3.0.0),
+    R (>= 3.0.0)
 Suggests:
     testthat,
     roxygen2
