@@ -33,7 +33,7 @@ extract_if_needed <- function(path) {
   tmp
 }
 
-check_pkg_dir <- function(path) {
+check_pkg_dir <- function(path = ".") {
 
   if (!file.exists(file.path(path, "DESCRIPTION"))) {
     stop("No DESCRIPTION file, is this an R package?")
@@ -62,6 +62,6 @@ check_pkg_dir <- function(path) {
   }
 }
 
-package_name <- function(path) {
+package_name <- function(path = ".") {
   unname(read.dcf(file.path(path, "DESCRIPTION"))[, "Package"])
 }
