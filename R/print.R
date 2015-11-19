@@ -51,7 +51,7 @@ arrow <- function(x) {
 
 print.function_map <- function(x, ...) {
 
-  cat(head_style("Function map\n"))
+  cat(head_style("Function map"), "\n", sep = "")
 
   print_graph(x, ...)
 

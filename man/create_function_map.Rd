@@ -4,13 +4,25 @@
 \alias{create_function_map}
 \title{Create a function_map object from a parsed result}
 \usage{
-create_function_map(data, rfile = NULL, rpath = NULL, rfilepattern = NULL,
-  include_base = NULL, class = NULL)
+create_function_map(data, package = NULL, rfile = NULL, rpath = NULL,
+  rfilepattern = NULL, include_base = NULL, class = NULL)
 }
 \arguments{
 \item{data}{A named list. Names are function names,
 list entries are the functions they call. Make sure you include
 multiplicity.}
+
+\item{package}{Name of the R package, or \code{NULL} if not an R
+package.}
+
+\item{rfile}{Name of the R script, or \code{NULL} if not an R script.}
+
+\item{rpath}{Path to the R folder, or \code{NULL} is not an R folder.}
+
+\item{rfilepattern}{Pattern for R files in the folder, or \code{NULL}
+if not an R folder.}
+
+\item{include_base}{Whether calls to base functions are included.}
 }
 \value{
 A function_map object.

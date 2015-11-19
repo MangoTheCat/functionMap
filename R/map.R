@@ -4,11 +4,17 @@
 #' @param data A named list. Names are function names,
 #'   list entries are the functions they call. Make sure you include
 #'   multiplicity.
-#' @inheritParams map_r_script
-#' @inheritParams map_r_folder
+#' @param package Name of the R package, or \code{NULL} if not an R
+#'   package.
+#' @param rfile Name of the R script, or \code{NULL} if not an R script.
+#' @param rpath Path to the R folder, or \code{NULL} is not an R folder.
+#' @param rfilepattern Pattern for R files in the folder, or \code{NULL}
+#'   if not an R folder.
+#' @param include_base Whether calls to base functions are included.
 #' @return A function_map object.
 
-create_function_map <- function(data, rfile = NULL, rpath = NULL,
+create_function_map <- function(data, package = NULL,
+                                rfile = NULL, rpath = NULL,
                                 rfilepattern = NULL, include_base = NULL,
                                 class = NULL) {
   structure(
@@ -60,6 +66,37 @@ map_r_folder <- function(rpath, rfilepattern = "\\.[R|r]$",
       rpath,
       rfilepattern,
       include_base,
+      multiples = TRUE
+    )
+  )
+}
+
+#' Map an R package
+#'
+#' @param rpath Name of a source R package, or a folder of an
+#'   R package.
+#' @inheritParams parse_r_folder
+#'
+#' @export
+
+map_r_package <- function(path, include_base = FALSE) {
+
+  ## Extract it to a temporary directory if it is a file
+  path <- extract_if_needed(path)
+
+  ## Check if basic structure is OK, has R code,
+  ## has DESCRIPTION, NAMESPACE, etc.
+  check_pkg_dir(path)
+
+  name <- package_name(path)
+
+  create_function_map(
+    package = name,
+    class = "function_map_rpackage",
+    data = parse_r_folder(
+      rpath = file.path(path, "R"),
+      rfilepattern = "\\.[R|r]$",
+      include_base = include_base,
       multiples = TRUE
     )
   )
