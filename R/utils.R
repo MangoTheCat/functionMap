@@ -10,6 +10,7 @@ match_list <- function(elem, list) {
 }
 
 #' Drop NULL elements from a list
+#' @param x input list
 
 drop_null <- function(x) {
   Filter(function(xx) !is.null(xx), x)

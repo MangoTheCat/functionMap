@@ -6,6 +6,9 @@
 \usage{
 drop_null(x)
 }
+\arguments{
+\item{x}{input list}
+}
 \description{
 Drop NULL elements from a list
 }
