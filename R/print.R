@@ -63,7 +63,7 @@ print.function_map <- function(x, ...) {
 
 print.function_map_rfile <- function(x, ...) {
 
-  head <- paste0("FMAP, R script '", x$rfile, "'")
+  head <- paste0("Map of R script '", x$rfile, "'")
   cat(head_style(head), "\n", sep = "")
 
   print_graph(x, ...)
@@ -76,7 +76,7 @@ print.function_map_rfile <- function(x, ...) {
 
 print.function_map_rfolder <- function(x, ...) {
 
-  head <- paste0("FMAP, R folder '", x$rpath, "'")
+  head <- paste0("Map of R folder '", x$rpath, "'")
   cat(head_style(head), "\n", sep = "")
 
   print_graph(x, ...)
