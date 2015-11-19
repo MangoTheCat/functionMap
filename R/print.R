@@ -5,14 +5,45 @@ print_graph <- function(x, ...) {
   data <- data[ sort(names(data)) ]
 
   lapply(names(data), function(n) {
-    cat(n, ":\n", sep = "")
+    cat(" ", tail_style(n), "\n", sep = "")
 
     funcs <- paste(sort(unique(data[[n]])), collapse = ", ")
-    funcs <- strwrap(paste0("-> ", funcs), indent = 2, exdent = 5)
+    funcs <- strwrap(paste0(arrow(), " ", funcs), indent = 3, exdent = 6)
     funcs <- paste(funcs, collapse = "\n")
 
     cat(funcs, "\n", sep = "")
   })
+}
+
+fill_line <- function(x, chr = "-", width = getOption("width", 80)) {
+  len <- width - nchar(x, type = "width") - 4
+  if (len <= 0) {
+    x
+  } else {
+    paste0(
+      paste0(rep(chr, len), collapse = ""),
+      " ", x,
+      " --"
+    )
+  }
+}
+
+#' @importFrom crayon green bold
+
+head_style <- function(x) {
+  bold(green(fill_line(x, "-")))
+}
+
+#' @importFrom crayon green
+
+tail_style <- function(x) {
+  green(x)
+}
+
+#' @importFrom crayon yellow
+
+arrow <- function(x) {
+  yellow("->")
 }
 
 #' @method print function_map
@@ -20,7 +51,7 @@ print_graph <- function(x, ...) {
 
 print.function_map <- function(x, ...) {
 
-  cat("Function map\n")
+  cat(head_style("Function map\n"))
 
   print_graph(x, ...)
 
@@ -32,7 +63,8 @@ print.function_map <- function(x, ...) {
 
 print.function_map_rfile <- function(x, ...) {
 
-  cat("Function map for R script '", x$rfile, "':\n", sep = "")
+  head <- paste0("FMAP, R script '", x$rfile, "'")
+  cat(head_style(head), "\n", sep = "")
 
   print_graph(x, ...)
 
@@ -44,7 +76,8 @@ print.function_map_rfile <- function(x, ...) {
 
 print.function_map_rfolder <- function(x, ...) {
 
-  cat("Function map for R folder '", x$rpath, "':\n", sep = "")
+  head <- paste0("FMAP, R folder '", x$rpath, "'")
+  cat(head_style(head), "\n", sep = "")
 
   print_graph(x, ...)
 
