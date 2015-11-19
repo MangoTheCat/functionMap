@@ -4,10 +4,11 @@
 \alias{create_function_map}
 \title{Create a function_map object from a parsed result}
 \usage{
-create_function_map(parsed)
+create_function_map(data, rfile = NULL, rpath = NULL, rfilepattern = NULL,
+  include_base = NULL, class = NULL)
 }
 \arguments{
-\item{parsed}{A named list. Names are function names,
+\item{data}{A named list. Names are function names,
 list entries are the functions they call. Make sure you include
 multiplicity.}
 }
