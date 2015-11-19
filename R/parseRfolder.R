@@ -21,6 +21,7 @@ parse_r_folder <- function(rpath, rfilepattern = "\\.[R|r]$",
   files <- lapply(
     rpath,
     function(rp) {
+      if (!file.exists(rp)) stop("File does not exist: ", rp)
       if (file.info(rp)$isdir) {
         list.files(rp, full.names = TRUE, pattern = rfilepattern)
       } else {
