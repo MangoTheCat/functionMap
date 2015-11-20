@@ -9,7 +9,8 @@
 
 get_imports <- function(path) {
   name <- package_name(path)
-  imp <- parseNamespaceFile(name, file.path(path, ".."))$imports
+  ns <- parseNamespaceFile(name, file.path(path, ".."))
+  imp <- ns$imports
 
   tab <- vapply(imp, character(2), FUN = function(x) {
     if (length(x) == 1) {
@@ -24,7 +25,8 @@ get_imports <- function(path) {
 
 get_exports <- function(path) {
   name <- package_name(path)
-  parseNamespaceFile(name, file.path(path, ".."))$exports
+  ns <- parseNamespaceFile(name, file.path(path, ".."))
+  c(ns$exports, paste(ns$S3methods[,1], sep = ".", ns$S3methods[,2]))
 }
 
 #' Find functions imported from a package
