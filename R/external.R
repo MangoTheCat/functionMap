@@ -38,7 +38,7 @@ find_external_calls <- function(expr, multiples) {
 
 extract_external_func <- function(expr) {
   paste(
-    sub(pattern = "^\\.", replacement = "", as.character(expr[[1]])),
+    expr[[1]],
     sep = "::",
     as.character(expr[[2]])
   )

@@ -138,7 +138,7 @@ test_that("find functions in do.call and external calls", {
 
   expect_equal(
     sort(parse_r_script(textConnection(src))$f),
-    sort(c("Call::foobar", "bar", "foo"))
+    sort(c(".Call::foobar", "bar", "foo"))
   )
 })
 

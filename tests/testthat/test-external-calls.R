@@ -12,7 +12,7 @@ test_that("string external calls are found", {
 
   expect_equal(
     external_calls(f),
-    c("C::foo", "Call::bar", "Fortran::foobar", "External::exfoobar")
+    c(".C::foo", ".Call::bar", ".Fortran::foobar", ".External::exfoobar")
   )
 })
 
@@ -24,7 +24,7 @@ test_that("external calls in arguments to external calls", {
 
   expect_equal(
     external_calls(f),
-    c("C::foo", "Call::bar", "Fortran::foobar")
+    c(".C::foo", ".Call::bar", ".Fortran::foobar")
   )
 })
 
@@ -39,12 +39,12 @@ test_that("external calls are counted properly", {
 
   expect_equal(
     external_calls(f),
-    c("C::foo", "Fortran::bar", "External::foobar")
+    c(".C::foo", ".Fortran::bar", ".External::foobar")
   )
 
   expect_equal(
     external_calls(f, multiples = TRUE),
-    c("C::foo", "C::foo", "Fortran::bar", "External::foobar")
+    c(".C::foo", ".C::foo", ".Fortran::bar", ".External::foobar")
   )
 
 })
@@ -55,5 +55,5 @@ test_that("external call in default argument is picked up", {
     g <- function(x = .Call("yy")) { }
   }
 
-  expect_equal(external_calls(f), "Call::yy")
+  expect_equal(external_calls(f), ".Call::yy")
 })
