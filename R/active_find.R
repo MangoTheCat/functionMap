@@ -30,9 +30,13 @@ parse_depends <- function(pkg) {
   setdiff(str_trim(deps), "R")
 }
 
+attach_q <- function(x) {
+  suppressMessages(suppressPackageStartupMessages(attachNamespace(x)))
+}
+
 load_dependencies <- function(pkg) {
-  try(lapply(parse_depends(pkg), attachNamespace), silent = TRUE)
-  try(attachNamespace(pkg), silent = TRUE)
+  try(lapply(parse_depends(pkg), attach_q), silent = TRUE)
+  try(attach_q(pkg), silent = TRUE)
 }
 
 unload_dependencies <- function(pkg) {
