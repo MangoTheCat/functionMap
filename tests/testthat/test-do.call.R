@@ -10,7 +10,7 @@ test_that("we can find globals in do.call calls", {
     do.call("foo", list())
   }
 
-  expect_equal(do_call_globals(f), "foo")
+  expect_equal(func_arg_globals(f), "foo")
 
   ## Find foo only, we don't report non-string arguments to do.call,
   ## because those are found by findGlobals() anyway
@@ -19,21 +19,21 @@ test_that("we can find globals in do.call calls", {
     do.call("foo", list())
   }
 
-  expect_equal(sort(do_call_globals(f)), c("foo", "y"))
+  expect_equal(sort(func_arg_globals(f)), c("foo", "y"))
 
   ## The original test cases
   expect_equal(
-    do_call_globals(function() do.call("sin", list(1:10))),
+    func_arg_globals(function() do.call("sin", list(1:10))),
     "sin"
   )
 
   expect_equal(
-    do_call_globals(function() do.call(myfunction, list(1:10))),
+    func_arg_globals(function() do.call(myfunction, list(1:10))),
     "myfunction"
   )
 
   expect_equal(
-    do_call_globals(function() do.call(fun2, list(1:10))),
+    func_arg_globals(function() do.call(fun2, list(1:10))),
     "fun2"
   )
 })
@@ -47,8 +47,8 @@ test_that("multiple calls are found multiple times", {
     do.call(y, list())
   }
 
-  expect_equal(do_call_globals(f), "y")
-  expect_equal(do_call_globals(f, multiples = TRUE), c("y", "y", "y"))
+  expect_equal(func_arg_globals(f), "y")
+  expect_equal(func_arg_globals(f, multiples = TRUE), c("y", "y", "y"))
 
   f <- function() {
     do.call("y", list())
@@ -56,8 +56,8 @@ test_that("multiple calls are found multiple times", {
     do.call("y", list())
   }
 
-  expect_equal(do_call_globals(f), "y")
-  expect_equal(do_call_globals(f, multiples = TRUE), c("y", "y", "y"))
+  expect_equal(func_arg_globals(f), "y")
+  expect_equal(func_arg_globals(f, multiples = TRUE), c("y", "y", "y"))
 })
 
 
@@ -71,8 +71,8 @@ test_that("mixed symbols and strings work", {
     do.call("y", list())
   }
 
-  expect_equal(do_call_globals(f), "y")
-  expect_equal(do_call_globals(f, multiples = TRUE), c("y", "y", "y", "y"))
+  expect_equal(func_arg_globals(f), "y")
+  expect_equal(func_arg_globals(f, multiples = TRUE), c("y", "y", "y", "y"))
 
 })
 
@@ -84,6 +84,6 @@ test_that("do.call in default argument is picked up", {
     do.call("yy", list())
   }
 
-  expect_equal(do_call_globals(f), c("xx", "yy"))
+  expect_equal(func_arg_globals(f), c("xx", "yy"))
 
 })

@@ -118,7 +118,7 @@ get_global_calls <- function(func, include_base = TRUE, multiples = FALSE) {
 
   res <- c(
     find_globals(func, multiples = multiples),
-    do_call_globals(func, multiples = multiples),
+    func_arg_globals(func, multiples = multiples),
     external_calls(func, multiples = multiples)
   )
 
