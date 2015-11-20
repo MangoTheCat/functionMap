@@ -1,8 +1,19 @@
 
+mark_exported <- function(names, exp) {
+  ifelse(names %in% exp, paste0(names, "*"), names)
+}
+
 print_graph <- function(x, ...) {
 
   data <- x$data
   data <- data[ sort(names(data)) ]
+
+  if (!is.null(x$exports)) {
+    for (i in seq_along(data)) {
+      data[[i]] <- mark_exported(data[[i]], x$exports)
+    }
+    names(data) <- mark_exported(names(data), x$exports)
+  }
 
   lapply(names(data), function(n) {
     cat(" ", tail_style(n), "\n", sep = "")

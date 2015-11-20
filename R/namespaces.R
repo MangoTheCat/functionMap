@@ -95,14 +95,13 @@ collapse_nas <- function(x) {
 }
 
 add_namespaces <- function(map) {
+  map$exports <- get_exports(map$rpath)
+
   wh <- where(map)
-  exp <- get_exports(map$rpath)
 
   for (i in seq_along(map$data)) {
     map$data[[i]] <- prefix_names(map$data[[i]], wh)
-    map$data[[i]] <- mark_exported(map$data[[i]], exp)
   }
-  names(map$data) <- mark_exported(names(map$data), exp)
 
   map
 }
@@ -110,8 +109,4 @@ add_namespaces <- function(map) {
 prefix_names <- function(names, table) {
   wh <- table[match(names, table[,1]), 2]
   ifelse(wh == "" | substr(wh, 1, 1) == '.', names, paste0(wh, "::", names))
-}
-
-mark_exported <- function(names, exp) {
-  ifelse(names %in% exp, paste0(names, "*"), names)
 }
