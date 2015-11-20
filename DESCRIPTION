@@ -9,7 +9,10 @@ License: GPL-2
 LazyData: yes
 Author: Mango Solutions <developers@mango-solutions.com>
 Imports:
-    codetools
+    codetools,
+    crayon,
+    stats,
+    utils
 Depends:
     R (>= 3.0.0)
 Suggests:

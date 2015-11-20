@@ -16,6 +16,8 @@ drop_null <- function(x) {
   Filter(function(xx) !is.null(xx), x)
 }
 
+#' @importFrom utils untar
+
 extract_if_needed <- function(path) {
 
   if (!file.exists(path)) stop("File does not exist: ", path)

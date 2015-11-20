@@ -90,8 +90,9 @@ map_r_package <- function(path, include_base = FALSE) {
 
   name <- package_name(path)
 
-  create_function_map(
+  map <- create_function_map(
     package = name,
+    rpath = path,
     class = "function_map_rpackage",
     data = parse_r_folder(
       rpath = file.path(path, "R"),
@@ -100,4 +101,6 @@ map_r_package <- function(path, include_base = FALSE) {
       multiples = TRUE
     )
   )
+
+  add_namespaces(map)
 }
