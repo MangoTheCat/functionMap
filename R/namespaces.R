@@ -8,8 +8,7 @@
 #' @return Table of imports
 
 get_imports <- function(path) {
-  name <- package_name(path)
-  ns <- parseNamespaceFile(name, file.path(path, ".."))
+  ns <- parseNamespaceFile(basename(path), file.path(path, ".."))
   imp <- ns$imports
 
   tab <- vapply(imp, character(2), FUN = function(x) {
@@ -23,10 +22,14 @@ get_imports <- function(path) {
   t(tab)
 }
 
-get_exports <- function(path) {
-  name <- package_name(path)
-  ns <- parseNamespaceFile(name, file.path(path, ".."))
-  c(ns$exports, paste(ns$S3methods[,1], sep = ".", ns$S3methods[,2]))
+get_exports <- function(path, funcs) {
+  ns <- parseNamespaceFile(basename(path), file.path(path, ".."))
+  exp <- ns$exports
+  s3 <- paste(ns$S3methods[,1], sep = ".", ns$S3methods[,2])
+  exp_pattern <- lapply(ns$exportPatterns, function(p) {
+    grep(p, funcs, value = TRUE)
+  })
+  unique(c(ns$exports, s3, unlist(exp_pattern)))
 }
 
 #' Find functions imported from a package
@@ -97,7 +100,7 @@ collapse_nas <- function(x) {
 }
 
 add_namespaces <- function(map) {
-  map$exports <- get_exports(map$rpath)
+  map$exports <- get_exports(map$rpath, functions(map))
 
   wh <- where(map)
 
