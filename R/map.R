@@ -23,6 +23,7 @@ create_function_map <- function(data, package = NULL,
     list(
       rfile = rfile,
       rpath = rpath,
+      package = package,
       rfilepattern = rfilepattern,
       include_base = include_base,
       data = data

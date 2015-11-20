@@ -3,6 +3,7 @@
 S3method(print,function_map)
 S3method(print,function_map_rfile)
 S3method(print,function_map_rfolder)
+S3method(print,function_map_rpackage)
 export(annotate)
 export(deps)
 export(functions)

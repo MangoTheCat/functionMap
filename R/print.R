@@ -112,3 +112,17 @@ print.function_map_rfolder <- function(x, ...) {
 
   invisible(x)
 }
+
+#' @method print function_map_rpackage
+#' @export
+
+print.function_map_rpackage <- function(x, ...) {
+
+  head <- paste0("Map of R package '", x$package, "'")
+  cat(header_style(head), "\n", sep = "")
+
+  print_graph(x, ...)
+
+  invisible(x)
+
+}
