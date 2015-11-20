@@ -62,3 +62,14 @@ check_pkg_dir <- function(path = ".") {
 package_name <- function(path = ".") {
   unname(read.dcf(file.path(path, "DESCRIPTION"))[, "Package"])
 }
+
+find_in_named_list <- function(list, elem) {
+  for (n in names(list)) {
+    if (elem %in% list[[n]]) return(n)
+  }
+  NA_character_
+}
+
+str_trim <- function(x) {
+  sub("\\s+$", "", sub("^\\s+", "", x))
+}

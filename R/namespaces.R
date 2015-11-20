@@ -84,6 +84,9 @@ where <- function(map) {
   }
 
   funcs <- collapse_nas(funcs)
+  if (any(is.na(funcs[,2]))) {
+    funcs <- actively_find_funcs(map, funcs)
+  }
   funcs[,2][is.na(funcs[,2])] <- "???"
 
   funcs
