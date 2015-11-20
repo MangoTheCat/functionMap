@@ -4,11 +4,6 @@ in_list <- function(elem, list) {
   FALSE
 }
 
-match_list <- function(elem, list) {
-  for (i in seq_along(list)) if (identical(elem, list[[i]])) return(i)
-  NA_integer_
-}
-
 #' Drop NULL elements from a list
 #' @param x input list
 
