@@ -23,6 +23,9 @@ package.}
 if not an R folder.}
 
 \item{include_base}{Whether calls to base functions are included.}
+
+\item{class}{What class to set on the result, in addition to
+\code{function_map}.}
 }
 \value{
 A function_map object.

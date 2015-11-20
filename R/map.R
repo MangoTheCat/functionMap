@@ -11,6 +11,8 @@
 #' @param rfilepattern Pattern for R files in the folder, or \code{NULL}
 #'   if not an R folder.
 #' @param include_base Whether calls to base functions are included.
+#' @param class What class to set on the result, in addition to
+#'   \code{function_map}.
 #' @return A function_map object.
 
 create_function_map <- function(data, package = NULL,
@@ -73,8 +75,8 @@ map_r_folder <- function(rpath, rfilepattern = "\\.[R|r]$",
 
 #' Map an R package
 #'
-#' @param rpath Name of a source R package, or a folder of an
-#'   R package.
+#' @param path Name of a source R package tar archive file,
+#'   or path to the folder of an R package.
 #' @inheritParams parse_r_folder
 #'
 #' @export

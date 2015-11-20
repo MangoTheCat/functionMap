@@ -7,11 +7,11 @@
 map_r_package(path, include_base = FALSE)
 }
 \arguments{
+\item{path}{Name of a source R package tar archive file,
+or path to the folder of an R package.}
+
 \item{include_base}{Whether to include functions from the
 \code{base} package.}
-
-\item{rpath}{Name of a source R package, or a folder of an
-R package.}
 }
 \description{
 Map an R package
