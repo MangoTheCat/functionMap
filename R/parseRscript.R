@@ -77,8 +77,11 @@ find_globals_multiple <- function(func) {
   globals <- findGlobals(func, merge = FALSE)$functions
 
   get_calls <- function(expr) {
-    if (is.call(expr) && (n <- as.character(expr[[1]])) %in% globals) {
-      L <<- c(L, n)
+    if (is.call(expr)) {
+      if (is.character(expr[[1]]) || is.symbol(expr[[1]])) {
+        n <- as.character(expr[[1]])
+        if (n %in% globals) L <<- c(L, n)
+      }
     }
   }
 

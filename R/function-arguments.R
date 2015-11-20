@@ -59,7 +59,10 @@ find_func_arg_globals <- function(needle, expr) {
   get_calls <- function(expr) {
     if (is.call(expr) && identical(expr[[1]], need_fun)) {
       expr_formal <- match.call(need_obj, expr)
-      L <<- c(L, expr_formal[[need_arg]])
+      fun <- expr_formal[[need_arg]]
+      if (is.character(fun) || is.symbol(fun)) {
+        L <<- c(L, expr_formal[[need_arg]])
+      }
     }
   }
 
