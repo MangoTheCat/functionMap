@@ -22,6 +22,11 @@ get_imports <- function(path) {
   t(tab)
 }
 
+get_exports <- function(path) {
+  name <- package_name(path)
+  parseNamespaceFile(name, file.path(path, ".."))$exports
+}
+
 #' Find functions imported from a package
 #'
 #' @param path The folder containing the (uncompressed) R package.
@@ -41,7 +46,7 @@ where <- function(map) {
   }
 
   name <- package_name(map$rpath)
-  
+
   ## Function in this package
   mine <- names(map$data)
 
@@ -52,7 +57,7 @@ where <- function(map) {
 
   ## Myself
   funcs$myself <- ifelse(funcs$func %in% mine, "", NA_character_)
-  
+
   ## Explicit namespace or external calls
   funcs$known <- ifelse(
     grepl("::", funcs$func),
@@ -91,15 +96,22 @@ collapse_nas <- function(x) {
 
 add_namespaces <- function(map) {
   wh <- where(map)
+  exp <- get_exports(map$rpath)
 
   for (i in seq_along(map$data)) {
     map$data[[i]] <- prefix_names(map$data[[i]], wh)
+    map$data[[i]] <- mark_exported(map$data[[i]], exp)
   }
+  names(map$data) <- mark_exported(names(map$data), exp)
 
   map
 }
 
 prefix_names <- function(names, table) {
   wh <- table[match(names, table[,1]), 2]
-  ifelse(wh == "", names, paste0(wh, "::", names)) 
+  ifelse(wh == "" | substr(wh, 1, 1) == '.', names, paste0(wh, "::", names))
+}
+
+mark_exported <- function(names, exp) {
+  ifelse(names %in% exp, paste0(names, "*"), names)
 }

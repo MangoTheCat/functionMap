@@ -41,13 +41,19 @@ tail_style <- function(x) {
   green(x)
 }
 
-#' @importFrom crayon blue
+#' @importFrom crayon blue yellow
 
 head_style <- function(x) {
   vapply(
     x, "",
     FUN = function(xx) {
-      if (grepl("::", xx)) blue(xx) else xx
+      if (grepl("^\\..*::", xx)) {
+        yellow(xx)
+      } else if (grepl("::", xx)) {
+        blue(xx)
+      } else {
+        xx
+      }
     }
   )
 }
