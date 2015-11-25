@@ -9,10 +9,11 @@ License: GPL-2
 LazyData: yes
 Author: Mango Solutions <developers@mango-solutions.com>
 Imports:
+    stats,
+    utils,
     codetools,
     crayon,
-    stats,
-    utils
+    riverplot
 Depends:
     R (>= 3.0.0)
 Suggests:
