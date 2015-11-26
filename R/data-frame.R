@@ -1,4 +1,9 @@
 
+#' Extract vertex (= function) metadata from the call graph
+#'
+#' @param map Function map.
+#' @return Data frame, one row for each function.
+
 node_data_frame <- function(map) {
   data.frame(
     stringsAsFactors = FALSE,
@@ -6,6 +11,11 @@ node_data_frame <- function(map) {
   )
 }
 
+#' Extract edge (= function call) metadata from the call graph
+#'
+#' @param map Function map.
+#' @return Data frame, one row for each edge.
+#'
 #' @importFrom stats aggregate
 
 edge_data_frame <- function(map) {

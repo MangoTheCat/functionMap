@@ -1,4 +1,11 @@
 
+#' Find a function in an environment or in its parent chain
+#'
+#' @param func Character scalar, function name.
+#' @param env Environment to start the search from.
+#' @return Name of the environment of \code{func}, or
+#'   \code{NA_character_} if it cannot be found.
+
 find_function <- function(func, env = parent.env()) {
 
   res <- if (identical(env, emptyenv())) {
@@ -21,6 +28,11 @@ find_function <- function(func, env = parent.env()) {
 
   res
 }
+
+#' Parse a DESCRIPTION Depends line
+#'
+#' @param pkg Name of the package. Must be installed.
+#' @return Character vector of the names of depended packages.
 
 parse_depends <- function(pkg) {
   deps <- packageDescription(pkg)$Depends

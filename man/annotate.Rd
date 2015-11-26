@@ -13,7 +13,7 @@ annotate(funcs = NULL, paths = NULL)
 to annotate.}
 }
 \value{
-A table object (named integer vector) of all functions
+A table object (named integer vector) of all terms.
 }
 \description{
 Assess the code by finding out what kind of statistical methods

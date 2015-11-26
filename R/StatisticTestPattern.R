@@ -505,7 +505,7 @@ annotation_db[["stats"]] <- list(
 #' @param funcs A character vector of function names to annotate.
 #' @param paths A character vector of R files or folders with R files
 #'    to annotate.
-#' @return A table object (named integer vector) of all functions
+#' @return A table object (named integer vector) of all terms.
 #'
 #' @export
 #' @examples
@@ -535,6 +535,11 @@ annotate <- function(funcs = NULL, paths = NULL) {
   res
 }
 
+#' Annotate functions
+#'
+#' @inheritParams annotate
+#' @return A character vector of terms.
+
 annotate_functions <- function(funcs) {
   objs <- mget(funcs, inherits = TRUE)
 
@@ -545,6 +550,11 @@ annotate_functions <- function(funcs) {
     multiples = TRUE
   ))
 }
+
+#' Annotate all functions in R scripts or folders of scripts
+#'
+#' @inheritParams annotate
+#' @return A character vector of terms.
 
 annotate_paths <- function(paths) {
 
