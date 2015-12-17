@@ -11,7 +11,7 @@ get_funcs_from_r_script(rfile)
 }
 \value{
 Named list of function objects, they also include
-the source code, i.e. they have \code{srcref} attributes.
+  the source code, i.e. they have `srcref` attributes.
 }
 \description{
 Reads the file into a temporary environment, and checks whether

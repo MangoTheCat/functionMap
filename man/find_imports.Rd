@@ -13,7 +13,7 @@ find_imports(path, functions)
 }
 \value{
 A character vector, the names of the environments
-for the \code{functions}.
+  for the \code{functions}.
 }
 \description{
 Find functions imported from a package

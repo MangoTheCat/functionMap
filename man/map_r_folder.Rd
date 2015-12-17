@@ -9,13 +9,13 @@ map_r_folder(rpath, rfilepattern = "\\\\.[R|r]$", include_base = FALSE)
 \arguments{
 \item{rpath}{Character vector of folders and files.
 Files are taken as given, folders are listed for files
-matching \code{rfilepattern}.}
+matching `rfilepattern`.}
 
 \item{rfilepattern}{Pattern of file names to analyse. By
-default files with \code{.R} and \code{.r} extensions are used.}
+default files with `.R` and `.r` extensions are used.}
 
 \item{include_base}{Whether to include functions from the
-\code{base} package.}
+`base` package.}
 }
 \value{
 A function_map object.

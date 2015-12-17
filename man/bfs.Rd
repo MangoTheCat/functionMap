@@ -13,7 +13,7 @@ bfs(graph, seeds)
 }
 \value{
 A character vector of vertex names, the visited vertices
-in the order of their visit.
+  in the order of their visit.
 }
 \description{
 Perform a BFS on a graph, from a set of seed vertices.

@@ -10,20 +10,20 @@ parse_r_folder(rpath, rfilepattern = "\\\\.[R|r]$", include_base = FALSE,
 \arguments{
 \item{rpath}{Character vector of folders and files.
 Files are taken as given, folders are listed for files
-matching \code{rfilepattern}.}
+matching `rfilepattern`.}
 
 \item{rfilepattern}{Pattern of file names to analyse. By
-default files with \code{.R} and \code{.r} extensions are used.}
+default files with `.R` and `.r` extensions are used.}
 
 \item{include_base}{Whether to include functions from the
-\code{base} package.}
+`base` package.}
 
 \item{multiples}{Whether to include functions as many times as
 they are called.}
 }
 \value{
 A named list with one entry for each analyzed functions.
-Each entry contains the names of the functions called.
+  Each entry contains the names of the functions called.
 }
 \description{
 Parse one or more folders of R scripts

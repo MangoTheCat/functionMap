@@ -25,9 +25,9 @@ does not allow us to always find the global calls reliably.
 }
 \details{
 Calls can be: \itemize{
-\item Direct function calls.
-\item Function calls via \code{do.call}.
-\item Calls to external functions via \code{.C}, \code{.Call}, etc.
+  \item Direct function calls.
+  \item Function calls via \code{do.call}.
+  \item Calls to external functions via \code{.C}, \code{.Call}, etc.
 }
 
 Internally we use \code{\link[codetools]{findGlobals}} for finding

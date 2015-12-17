@@ -13,7 +13,7 @@ find_function(func, env = parent.env())
 }
 \value{
 Name of the environment of \code{func}, or
-\code{NA_character_} if it cannot be found.
+  \code{NA_character_} if it cannot be found.
 }
 \description{
 Find a function in an environment or in its parent chain

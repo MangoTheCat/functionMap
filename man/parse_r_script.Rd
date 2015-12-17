@@ -17,7 +17,7 @@ they are called.}
 }
 \value{
 Named list of character vectors.
-Name is the caller, contents is the callees.
+  Name is the caller, contents is the callees.
 }
 \description{
 Find all function calls in an R script

@@ -11,7 +11,7 @@ map_r_package(path, include_base = FALSE)
 or path to the folder of an R package.}
 
 \item{include_base}{Whether to include functions from the
-\code{base} package.}
+`base` package.}
 }
 \description{
 Map an R package

@@ -19,4 +19,4 @@ Depends:
 Suggests:
     testthat,
     roxygen2
-RoxygenNote: 5.0.0.9000
+RoxygenNote: 5.0.1

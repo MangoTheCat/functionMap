@@ -14,9 +14,9 @@ times as they are called.}
 }
 \value{
 Character vector of external function names,
-prefixed according to the call type.
+  prefixed according to the call type.
 }
 \description{
-It supports \code{.C}, \code{.Call}, \code{.Fortran} and \code{.External} calls.
+It supports `.C`, `.Call`, `.Fortran` and `.External` calls.
 }
 

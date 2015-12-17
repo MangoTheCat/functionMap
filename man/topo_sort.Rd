@@ -11,7 +11,7 @@ topo_sort(graph)
 }
 \value{
 Character vector of vertex names in
-topological order.
+  topological order.
 }
 \description{
 Topological sort of a graph
