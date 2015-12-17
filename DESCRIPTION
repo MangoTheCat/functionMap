@@ -1,7 +1,7 @@
 Package: functionMap
 Title: Draw the functions map for a R package
-Description: Extracts all function calls from an R package, or a set of R
-    or SAS scripts. Creates a network of functions that can be then
+Description: Extract all function calls from an R package, or a set of R
+    scripts or an R package. Create a network of functions that can be then
     visualized.
 Version: 1.0.0
 Maintainer: Gabor Csardi <gcsardi@mango-solutions.com>
