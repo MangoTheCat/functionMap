@@ -13,7 +13,7 @@ Imports:
     utils,
     codetools,
     crayon,
-    riverplot
+    sankey
 Depends:
     R (>= 3.0.0)
 Suggests:

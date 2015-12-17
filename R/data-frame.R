@@ -5,10 +5,12 @@
 #' @return Data frame, one row for each function.
 
 node_data_frame <- function(map) {
-  data.frame(
+  df <- data.frame(
     stringsAsFactors = FALSE,
     ID = unique(c(names(map$data), unlist(map$data)))
   )
+  df$exported <- df$ID %in% map$exports
+  df
 }
 
 #' Extract edge (= function call) metadata from the call graph
@@ -21,12 +23,12 @@ node_data_frame <- function(map) {
 edge_data_frame <- function(map) {
 
   aggregate(
-    Value ~ .,
+    weight ~ .,
     data.frame(
       stringsAsFactors = FALSE,
-      N1 = rep(names(map$data), vapply(map$data, length, 1L)),
-      N2 = unlist(map$data),
-      Value = 1
+      from = rep(names(map$data), vapply(map$data, length, 1L)),
+      to = unlist(map$data),
+      weight = 1
     ),
     length
   )
