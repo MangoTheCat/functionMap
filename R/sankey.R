@@ -1,4 +1,18 @@
 
+#' Sankey plot of a function map
+#'
+#' Sankey plots usually show the flow of some quantity, but they can also
+#' be used to visualize functions calls between functions.
+#'
+#' By default exported functions in a package are colored dark blue, and
+#' packages called from another package are colored green.
+#'
+#' Recursive calls are omitted from the plot.
+#'
+#' @param map Function map.
+#' @param ... Additional arguments are passed to \code{sankey::sankey}.
+#' @return Nothing.
+#'
 #' @importFrom sankey sankey make_sankey
 #' @export
 
