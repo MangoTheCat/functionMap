@@ -108,7 +108,7 @@ test_that("a file with errors is fine", {
 
   expect_equal(
     suppressWarnings(parse_r_script(textConnection(src))),
-    list(f = "foo")
+    list(f = "foo", h = "bar")
   )
 
 })

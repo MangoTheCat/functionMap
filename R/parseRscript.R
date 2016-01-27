@@ -39,17 +39,43 @@ parse_r_script <- function(rfile, include_base = FALSE,
 
 get_funcs_from_r_script <- function(rfile) {
 
-  ## Load everything into a temporary environment
+  tryCatch(
+    exprs <- parse(rfile, keep.source = TRUE),
+    error = function (e) {
+      fname <- if (is.character(rfile)) rfile else class(rfile)[1]
+      warning(fname, ": ", e$message, call. = FALSE)
+    }
+  )
+
+  funcs_from_exprs(exprs, rfile)
+}
+
+funcs_from_exprs <- function(exprs, rfile) {
+  funcs <- lapply(exprs, func_from_expr, rfile = rfile)
+
+  res <- unlist(funcs, recursive = FALSE)
+
+  ## Consitency
+  if (length(res) == 0) {
+    structure(list(), names = character())
+  } else {
+    res
+  }
+}
+
+#' Get funcion(s) from an expression. Usually a single function,
+#' but not necessarily.
+
+func_from_expr <- function(expr, rfile) {
   tmp_env <- new.env()
   tryCatch(
-    source(rfile, local = tmp_env),
+    eval(expr, envir = tmp_env),
     error = function(e) {
       fname <- if (is.character(rfile)) rfile else class(rfile)[1]
       warning(fname, ": ", e$message, call. = FALSE)
     }
   )
 
-  ## Keep the functions
   keep <- Filter(
     function(x) is.function(get(x, envir = tmp_env)),
     ls(tmp_env, all.names = TRUE)
