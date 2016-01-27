@@ -4,10 +4,14 @@
 \alias{get_global_calls}
 \title{Get global function calls from a function}
 \usage{
-get_global_calls(func, include_base = TRUE, multiples = FALSE)
+get_global_calls(funcname, envir = parent.frame(), include_base = TRUE,
+  multiples = FALSE)
 }
 \arguments{
-\item{func}{Function object.}
+\item{funcname}{Name of the function to study.}
+
+\item{envir}{The environment containing the function. This environment
+is also used to look for S3 methods.}
 
 \item{include_base}{Whether to include calls to base functions
 in the output.}
@@ -28,6 +32,8 @@ Calls can be: \itemize{
   \item Direct function calls.
   \item Function calls via \code{do.call}.
   \item Calls to external functions via \code{.C}, \code{.Call}, etc.
+  \item We assume that an S3 generic calls all its methods
+    in the supplied environment.
 }
 
 Internally we use \code{\link[codetools]{findGlobals}} for finding

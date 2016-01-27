@@ -15,9 +15,16 @@ parse_r_script <- function(rfile, include_base = FALSE,
 
   ## Get all functions from the script
   funcs <- get_funcs_from_r_script(rfile)
+  envir <- as.environment(funcs)
+  funcnames <- structure(names(funcs), names = names(funcs))
 
   ## Get their non-local calls
-  res <- lapply(funcs, get_global_calls, multiples = multiples)
+  res <- lapply(
+    funcnames,
+    get_global_calls,
+    multiples = multiples,
+    envir = envir
+  )
 
   ## Remove base functions, potentially
   if (!include_base) {
@@ -124,6 +131,8 @@ find_globals_multiple <- function(func) {
 #'   \item Direct function calls.
 #'   \item Function calls via \code{do.call}.
 #'   \item Calls to external functions via \code{.C}, \code{.Call}, etc.
+#'   \item We assume that an S3 generic calls all its methods
+#'     in the supplied environment.
 #' }
 #'
 #' Internally we use \code{\link[codetools]{findGlobals}} for finding
@@ -133,7 +142,9 @@ find_globals_multiple <- function(func) {
 #' result, even of they are primitive functions (e.g. \code{<-},
 #' \code{==}, etc.).
 #'
-#' @param func Function object.
+#' @param funcname Name of the function to study.
+#' @param envir The environment containing the function. This environment
+#'   is also used to look for S3 methods.
 #' @param include_base Whether to include calls to base functions
 #'   in the output.
 #' @param multiples Whether to keep multiplicity in the result. I.e.
@@ -143,12 +154,16 @@ find_globals_multiple <- function(func) {
 #'
 #' @export
 
-get_global_calls <- function(func, include_base = TRUE, multiples = FALSE) {
+get_global_calls <- function(funcname, envir = parent.frame(),
+                             include_base = TRUE, multiples = FALSE) {
+
+  func <- get(funcname, envir = envir)
 
   res <- c(
     find_globals(func, multiples = multiples),
     func_arg_globals(func, multiples = multiples),
-    external_calls(func, multiples = multiples)
+    external_calls(func, multiples = multiples),
+    s3_calls(funcname, multiples = multiples, envir = envir)
   )
 
   if (!multiples) res <- unique(res)

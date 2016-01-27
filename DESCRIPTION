@@ -13,6 +13,7 @@ Imports:
     utils,
     codetools,
     crayon,
+    pryr,
     sankey
 Depends:
     R (>= 3.0.0)
