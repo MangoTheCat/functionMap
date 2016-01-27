@@ -84,6 +84,9 @@ map_r_folder <- function(rpath, rfilepattern = default_r_file_pattern(),
 
 map_r_package <- function(path, include_base = FALSE) {
 
+  ## Special case, it messes up parseNamespaceFile and others
+  if (path == "." || path == "./") path <-getwd()
+
   ## Extract it to a temporary directory if it is a file
   path <- extract_if_needed(path)
 
