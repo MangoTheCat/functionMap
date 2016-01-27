@@ -4,8 +4,8 @@
 \alias{parse_r_folder}
 \title{Parse one or more folders of R scripts}
 \usage{
-parse_r_folder(rpath, rfilepattern = "\\\\.[R|r]$", include_base = FALSE,
-  multiples = FALSE)
+parse_r_folder(rpath, rfilepattern = default_r_file_pattern(),
+  include_base = FALSE, multiples = FALSE)
 }
 \arguments{
 \item{rpath}{Character vector of folders and files.

@@ -4,7 +4,8 @@
 \alias{map_r_folder}
 \title{Map the function calls for a folder of R scripts}
 \usage{
-map_r_folder(rpath, rfilepattern = "\\\\.[R|r]$", include_base = FALSE)
+map_r_folder(rpath, rfilepattern = default_r_file_pattern(),
+  include_base = FALSE)
 }
 \arguments{
 \item{rpath}{Character vector of folders and files.

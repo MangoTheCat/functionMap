@@ -13,7 +13,7 @@
 #' @return A named list with one entry for each analyzed functions.
 #'   Each entry contains the names of the functions called.
 
-parse_r_folder <- function(rpath, rfilepattern = "\\.[R|r]$",
+parse_r_folder <- function(rpath, rfilepattern = default_r_file_pattern(),
                            include_base = FALSE, multiples = FALSE) {
 
   rpath <- as.character(rpath)

@@ -73,3 +73,11 @@ find_in_named_list <- function(list, elem) {
 str_trim <- function(x) {
   sub("\\s+$", "", sub("^\\s+", "", x))
 }
+
+#' Default pattern for R files
+#' @return Regular expression.
+#' @export
+
+default_r_file_pattern <- function() {
+  "\\.[RrSs]$"
+}

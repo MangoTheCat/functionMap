@@ -59,7 +59,7 @@ map_r_script <- function(rfile, include_base = FALSE) {
 #'
 #' @export
 
-map_r_folder <- function(rpath, rfilepattern = "\\.[R|r]$",
+map_r_folder <- function(rpath, rfilepattern = default_r_file_pattern(),
                          include_base = FALSE) {
   create_function_map(
     rpath = rpath,
@@ -99,7 +99,7 @@ map_r_package <- function(path, include_base = FALSE) {
     class = "function_map_rpackage",
     data = parse_r_folder(
       rpath = file.path(path, "R"),
-      rfilepattern = "\\.[R|r]$",
+      rfilepattern = default_r_file_pattern(),
       include_base = include_base,
       multiples = TRUE
     )
