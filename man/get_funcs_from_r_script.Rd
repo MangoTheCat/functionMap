@@ -4,10 +4,13 @@
 \alias{get_funcs_from_r_script}
 \title{Extract all functions from an R script}
 \usage{
-get_funcs_from_r_script(rfile)
+get_funcs_from_r_script(rfile, env = NULL)
 }
 \arguments{
 \item{rfile}{The .R input file.}
+
+\item{env}{An environment to evaluate the code in.
+If NULL, a new temporary environment is used.}
 }
 \value{
 Named list of function objects, they also include

@@ -41,10 +41,12 @@ parse_r_script <- function(rfile, include_base = FALSE,
 #' the objects in this environment are functions.
 #'
 #' @param rfile The .R input file.
+#' @param env An environment to evaluate the code in.
+#'   If NULL, a new temporary environment is used.
 #' @return Named list of function objects, they also include
 #'   the source code, i.e. they have `srcref` attributes.
 
-get_funcs_from_r_script <- function(rfile) {
+get_funcs_from_r_script <- function(rfile, env = NULL) {
 
   tryCatch(
     exprs <- parse(rfile, keep.source = TRUE),
@@ -54,11 +56,15 @@ get_funcs_from_r_script <- function(rfile) {
     }
   )
 
-  funcs_from_exprs(exprs, rfile)
+  if (is.null(env)) env <- new.env()
+
+  funcs_from_exprs(exprs, rfile, env = env)
 }
 
-funcs_from_exprs <- function(exprs, rfile) {
-  funcs <- lapply(exprs, func_from_expr, rfile = rfile)
+#' Get functions from a list of expressions
+
+funcs_from_exprs <- function(exprs, rfile, env) {
+  funcs <- lapply(exprs, func_from_expr, rfile = rfile, env = env)
 
   res <- unlist(funcs, recursive = FALSE)
 
@@ -70,13 +76,16 @@ funcs_from_exprs <- function(exprs, rfile) {
   }
 }
 
-#' Get funcion(s) from an expression. Usually a single function,
+#' Get funcion(s) from a single expression. Usually a single function,
 #' but not necessarily.
 
-func_from_expr <- function(expr, rfile) {
-  tmp_env <- new.env()
+func_from_expr <- function(expr, rfile, env) {
+
+  ## These were here before
+  past <- ls(env, all.names = TRUE)
+
   tryCatch(
-    eval(expr, envir = tmp_env),
+    eval(expr, envir = env),
     error = function(e) {
       fname <- if (is.character(rfile)) rfile else class(rfile)[1]
       warning(fname, ": ", e$message, call. = FALSE)
@@ -84,11 +93,11 @@ func_from_expr <- function(expr, rfile) {
   )
 
   keep <- Filter(
-    function(x) is.function(get(x, envir = tmp_env)),
-    ls(tmp_env, all.names = TRUE)
+    function(x) is.function(get(x, envir = env)),
+    setdiff(ls(env, all.names = TRUE), past)
   )
 
-  mget(keep, envir = tmp_env)
+  mget(keep, envir = env)
 }
 
 #' @importFrom codetools findGlobals

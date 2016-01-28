@@ -2,13 +2,13 @@
 % Please edit documentation in R/parseRscript.R
 \name{func_from_expr}
 \alias{func_from_expr}
-\title{Get funcion(s) from an expression. Usually a single function,
+\title{Get funcion(s) from a single expression. Usually a single function,
 but not necessarily.}
 \usage{
-func_from_expr(expr, rfile)
+func_from_expr(expr, rfile, env)
 }
 \description{
-Get funcion(s) from an expression. Usually a single function,
+Get funcion(s) from a single expression. Usually a single function,
 but not necessarily.
 }
 

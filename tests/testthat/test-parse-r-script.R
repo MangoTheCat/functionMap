@@ -163,3 +163,23 @@ test_that("call counts are OK", {
     list(f = c("foo", "foo", "bar", "foobar", "foobar"))
   )
 })
+
+test_that("The same env is used for the whole file", {
+
+  src <- "
+    f <- function() TRUE
+    g <- f
+    h <- function() g()
+    y <- h"
+
+  p <- parse_r_script(textConnection(src))
+
+  e <- list(
+    f = character(),
+    g = character(),
+    h = "g",
+    y = "g"
+  )
+
+  expect_equal(p, e)
+})
