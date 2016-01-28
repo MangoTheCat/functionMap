@@ -1,0 +1,7 @@
+Package: testEnv
+Version: 1.0.0
+Title: Test Package for 'functionMap'
+Description: Test how a package is parsed by functionMap.
+Author: Gabor Csardi
+Maintainer: Gabor Csardi <gcsardi@mango-solutions.com>
+License: GPL-2

@@ -13,7 +13,7 @@ Files are taken as given, folders are listed for files
 matching `rfilepattern`.}
 
 \item{rfilepattern}{Pattern of file names to analyse. By
-default files with `.R` and `.r` extensions are used.}
+default files with `.R`, `.r`, `.S` and `.s` extensions are used.}
 
 \item{include_base}{Whether to include functions from the
 `base` package.}

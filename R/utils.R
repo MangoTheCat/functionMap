@@ -63,6 +63,20 @@ package_name <- function(path = ".") {
   unname(read.dcf(file.path(path, "DESCRIPTION"))[, "Package"])
 }
 
+parse_collate <- function (str) {
+  scan(text = gsub("\n", " ", str), what = "", strip.white = TRUE,
+       quiet = TRUE)
+}
+
+package_collate <- function(path = ".") {
+  dcf <- read.dcf(file.path(path, "DESCRIPTION"))
+  if ("Collate" %in% colnames(dcf)) {
+    parse_collate(unname(dcf[, "Collate"]))
+  } else {
+    NULL
+  }
+}
+
 find_in_named_list <- function(list, elem) {
   for (n in names(list)) {
     if (elem %in% list[[n]]) return(n)
@@ -80,4 +94,21 @@ str_trim <- function(x) {
 
 default_r_file_pattern <- function() {
   "\\.[RrSs]$"
+}
+
+#' Get all source files of a package, in the right order
+#'
+#' It uses the `Collate` entry in the `DESCRIPTION` file,
+#' if there is one. Otherwise the order is alphabetical.
+
+r_package_files <- function(path) {
+  files <- package_collate(path)
+  if (is.null(files)) {
+    files <- list.files(
+      file.path(path, "R"),
+      pattern = default_r_file_pattern()
+    )
+  }
+
+  file.path(path, "R", files)
 }

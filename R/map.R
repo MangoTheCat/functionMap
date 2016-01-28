@@ -96,15 +96,19 @@ map_r_package <- function(path, include_base = FALSE) {
 
   name <- package_name(path)
 
+  ## Everyting is parsed into this
+  env <- new.env()
+
   map <- create_function_map(
     package = name,
     rpath = path,
     class = "function_map_rpackage",
     data = parse_r_folder(
-      rpath = file.path(path, "R"),
+      rpath = r_package_files(path),
       rfilepattern = default_r_file_pattern(),
       include_base = include_base,
-      multiples = TRUE
+      multiples = TRUE,
+      env = env
     )
   )
 
