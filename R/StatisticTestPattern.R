@@ -542,13 +542,12 @@ annotate <- function(funcs = NULL, paths = NULL) {
 #' @keywords internal
 
 annotate_functions <- function(funcs) {
-  objs <- mget(funcs, inherits = TRUE)
-
   unlist(lapply(
-    objs,
+    funcs,
     get_global_calls,
     include_base = FALSE,
-    multiples = TRUE
+    multiples = TRUE,
+    envir = environment()
   ))
 }
 
