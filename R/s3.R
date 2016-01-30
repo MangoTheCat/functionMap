@@ -1,7 +1,7 @@
 
 #' @importFrom pryr is_s3_generic is_s3_method
 
-s3_calls <- function(funcname, multiples = FALSE, envir = environment(func)) {
+s3_calls <- function(funcname, envir, multiples = FALSE) {
   if (!is_s3_generic(funcname, envir)) return(character())
 
   s3_candidates <- Filter(
