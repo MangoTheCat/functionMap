@@ -26,12 +26,17 @@ parse_r_script <- function(rfile, include_base = FALSE,
     funcnames,
     get_global_calls,
     multiples = multiples,
+    funcs = funcs,
     envir = env
   )
 
   ## Remove base functions, potentially
   if (!include_base) {
     res <- remove_base_functions(res)
+  }
+
+  if ("_" %in% names(res) && length(res[["_"]]) == 0) {
+    res <- res[ names(res) != "_" ]
   }
 
   res
@@ -61,7 +66,22 @@ get_funcs_from_r_script <- function(rfile, env = NULL) {
 
   if (is.null(env)) env <- new.env()
 
-  funcs_from_exprs(exprs, rfile, env = env)
+  funcs <- funcs_from_exprs(exprs, rfile, env = env)
+
+  if ("_" %in% names(funcs)) {
+    root <- make_func_from_exprs(funcs[names(funcs) == "_"])
+    funcs <- funcs[names(funcs) != "_"]
+    funcs <- c(funcs, list("_" = root))
+    assign("_", root, envir = env)
+  }
+
+  funcs
+}
+
+make_func_from_exprs <- function(exprs) {
+  func <- function() {}
+  body(func) <- as.call(c(as.symbol("{"), exprs))
+  func
 }
 
 #' Get functions from a list of expressions
@@ -100,7 +120,12 @@ func_from_expr <- function(expr, rfile, env) {
     setdiff(ls(env, all.names = TRUE), past)
   )
 
-  mget(keep, envir = env)
+  if (length(keep) == 1) {
+    structure(list(expr), names = keep)
+
+  } else {
+    structure(list(expr), names = "_")
+  }
 }
 
 #' @importFrom codetools findGlobals
@@ -155,6 +180,7 @@ find_globals_multiple <- function(func) {
 #' \code{==}, etc.).
 #'
 #' @param funcname Name of the function to study.
+#' @param funcs All expressions parsed from the file or package.
 #' @param envir The environment containing the function. This environment
 #'   is also used to look for S3 methods.
 #' @param include_base Whether to include calls to base functions
@@ -163,10 +189,8 @@ find_globals_multiple <- function(func) {
 #'   if this argument is \code{TRUE} and \code{func} calls \code{foobar}
 #'   twice, then \code{foobar} is included in the result twice.
 #' @return A character vector with the names of all functions called.
-#'
-#' @export
 
-get_global_calls <- function(funcname, envir = parent.frame(),
+get_global_calls <- function(funcname, funcs, envir = parent.frame(),
                              include_base = TRUE, multiples = FALSE) {
 
   func <- get(funcname, envir = envir)

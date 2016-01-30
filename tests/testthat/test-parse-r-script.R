@@ -183,3 +183,51 @@ test_that("The same env is used for the whole file", {
 
   expect_equal(p, e)
 })
+
+test_that("Non-function code works", {
+
+  src <- "
+    ls()
+    lm(1:10 ~ runif(10))
+    x <- function() { ls() }
+    x()"
+
+  expect_equal(
+    parse_r_script(textConnection(src)),
+    list(x = character(), "_" = c("lm", "x"))
+  )
+
+})
+
+test_that("More complex non-function code works", {
+
+  src <- "
+    description <- R6Class(
+      'description',
+      public = list(
+        initialize = function(cmd = NULL, file = NULL, text = NULL,
+                              package = NULL)
+          desc_create(self, private, cmd, file, text, package),
+        write = function(file = NULL, normalize = FALSE)
+          desc_write(self, private, file, normalize),
+        get_maintainer = function()
+          desc_get_maintainer(self, private)
+     ),
+     private = list(
+       data = NULL,
+       path = 'DESCRIPTION'
+     )
+   )"
+
+  expect_warning(
+    p <- parse_r_script(textConnection(src)),
+    "R6Class"
+  )
+
+  expect_equal(
+    p,
+    list(
+      "_" = c("desc_create", "desc_get_maintainer", "desc_write", "R6Class")
+    )
+  )
+})
