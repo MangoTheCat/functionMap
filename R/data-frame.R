@@ -3,6 +3,7 @@
 #'
 #' @param map Function map.
 #' @return Data frame, one row for each function.
+#' @keywords internal
 
 node_data_frame <- function(map) {
   df <- data.frame(
@@ -19,6 +20,7 @@ node_data_frame <- function(map) {
 #' @return Data frame, one row for each edge.
 #'
 #' @importFrom stats aggregate
+#' @keywords internal
 
 edge_data_frame <- function(map) {
 

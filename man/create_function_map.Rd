@@ -33,4 +33,5 @@ A function_map object.
 \description{
 Create a function_map object from a parsed result
 }
+\keyword{internal}
 

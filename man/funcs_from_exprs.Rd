@@ -6,7 +6,19 @@
 \usage{
 funcs_from_exprs(exprs, rfile, env)
 }
+\arguments{
+\item{exprs}{List of expressions.}
+
+\item{rfile}{Name of the R file being parsed, to be able to
+use it in a warning message.}
+
+\item{env}{Environment to store the parsed objects in.}
+}
+\value{
+A named list of expressions.
+}
 \description{
 Get functions from a list of expressions
 }
+\keyword{internal}
 

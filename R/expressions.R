@@ -1,5 +1,12 @@
 
+#' Find all (non-local) function calls in a function
+#' 
+#' @param func Function object.
+#' @param multiples Whether to keep multiplicity.
+#' @return Character vector of function calls.
+#'
 #' @importFrom codetools findGlobals
+#' @keywords internal
 
 find_globals <- function(func, multiples = FALSE) {
   if (multiples) {
@@ -10,7 +17,13 @@ find_globals <- function(func, multiples = FALSE) {
   }
 }
 
+#' Find all (non-local) function calls in a function, keep multiple calls
+#'
+#' @param func Function object.
+#' @return Character vector of function calls.
+#'
 #' @importFrom codetools findGlobals
+#' @keywords internal
 
 find_globals_multiple <- function(func) {
 
@@ -60,6 +73,7 @@ find_globals_multiple <- function(func) {
 #'   if this argument is \code{TRUE} and \code{func} calls \code{foobar}
 #'   twice, then \code{foobar} is included in the result twice.
 #' @return A character vector with the names of all functions called.
+#' @keywords internal
 
 get_global_calls <- function(funcname, funcs, envir = parent.frame(),
                              include_base = TRUE, multiples = FALSE) {

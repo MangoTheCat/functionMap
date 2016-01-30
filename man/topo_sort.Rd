@@ -16,4 +16,5 @@ Character vector of vertex names in
 \description{
 Topological sort of a graph
 }
+\keyword{internal}
 

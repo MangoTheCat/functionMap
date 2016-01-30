@@ -16,4 +16,5 @@ Table of imports
 First column is the name of the function, second is the
 name of the package it is imported from.
 }
+\keyword{internal}
 

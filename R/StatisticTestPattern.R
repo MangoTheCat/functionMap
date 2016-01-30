@@ -539,6 +539,7 @@ annotate <- function(funcs = NULL, paths = NULL) {
 #'
 #' @inheritParams annotate
 #' @return A character vector of terms.
+#' @keywords internal
 
 annotate_functions <- function(funcs) {
   objs <- mget(funcs, inherits = TRUE)
@@ -555,6 +556,7 @@ annotate_functions <- function(funcs) {
 #'
 #' @inheritParams annotate
 #' @return A character vector of terms.
+#' @keywords internal
 
 annotate_paths <- function(paths) {
 

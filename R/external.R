@@ -8,6 +8,7 @@
 #'   times as they are called.
 #' @return Character vector of external function names,
 #'   prefixed according to the call type.
+#' @keywords internal
 
 external_calls <- function(fun, multiples = FALSE) {
   res <- find_external_calls(body(fun))

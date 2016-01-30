@@ -7,8 +7,35 @@ but not necessarily.}
 \usage{
 func_from_expr(expr, rfile, env)
 }
+\arguments{
+\item{expr}{Expression to evaluate.}
+
+\item{rfile}{Name of the R file being parsed, to be able to
+use it in a warning message.}
+
+\item{env}{Environment to store the parsed objects in.}
+}
+\value{
+A named list of length one. (It is easy to concatenate
+  these lists in the caller, hence the format. A list with a
+  name and an expression is less convenient.)
+}
 \description{
 Get funcion(s) from a single expression. Usually a single function,
 but not necessarily.
 }
+\details{
+We need to handle expressions that are not simple function
+definitions. This is the current algorithm: \itemize{
+  \item We evaluate the expression in \code{env}.
+  \item Then we check if there is anything new in \code{env}.
+  \item If there is a single new function, then we assume that
+    the expression is the definition of this function, and
+    use the function's name as expression name.
+  \item Otherwise (zero or more than one new functions),
+    we assume that the expression is not a function defition
+    and we assign it to the function body (\code{_}).
+}
+}
+\keyword{internal}
 

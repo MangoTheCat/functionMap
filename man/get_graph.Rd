@@ -21,4 +21,5 @@ The graph is represented as an adjacency list. It is a named
 list of character vectors, and a character vector contains
 the successors of the vertex.
 }
+\keyword{internal}
 

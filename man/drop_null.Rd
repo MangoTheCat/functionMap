@@ -9,7 +9,11 @@ drop_null(x)
 \arguments{
 \item{x}{input list}
 }
+\value{
+List without NULLs.
+}
 \description{
 Drop NULL elements from a list
 }
+\keyword{internal}
 

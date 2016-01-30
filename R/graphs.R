@@ -10,6 +10,7 @@
 #'   (i.e. the functions defined in the script(s) or the package),
 #'   or all functions called by them as well.
 #' @return The graph as an adjacency list.
+#' @keywords internal
 
 get_graph <- function(map, only_me = TRUE) {
   if (only_me) {
@@ -33,6 +34,7 @@ get_graph <- function(map, only_me = TRUE) {
 #'
 #' @param graph The input graph, an adjacency list.
 #' @return The output graph
+#' @keywords internal
 
 twist_graph <- function(graph) {
   res <- structure(
@@ -54,6 +56,7 @@ twist_graph <- function(graph) {
 #' @param graph The input graph, an adjacency list.
 #' @param sources The names of the source vertices.
 #' @return A character vector of unreachable vertex names.
+#' @keywords internal
 
 isolates <- function(graph, sources) {
 
@@ -74,6 +77,7 @@ isolates <- function(graph, sources) {
 #' @param seeds The seed vertices, a character vector.
 #' @return A character vector of vertex names, the visited vertices
 #'   in the order of their visit.
+#' @keywords internal
 
 bfs <- function(graph, seeds) {
 
@@ -104,6 +108,7 @@ bfs <- function(graph, seeds) {
 #' @param graph Input graph as an adjacency list.
 #' @return Character vector of vertex names in
 #'   topological order.
+#' @keywords internal
 
 topo_sort <- function(graph) {
 
@@ -141,6 +146,7 @@ topo_sort <- function(graph) {
 #'
 #' @param graph Input graph, as an adjacency list.
 #' @return Another graph, with the loop edges removed.
+#' @keywords internal
 
 remove_loops <- function(graph) {
   structure(

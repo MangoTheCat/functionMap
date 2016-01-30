@@ -14,6 +14,8 @@
 #'   a separate temporary environment is used for each file.
 #' @return A named list with one entry for each analyzed functions.
 #'   Each entry contains the names of the functions called.
+#'
+#' @keywords internal
 
 parse_r_folder <- function(rpath, rfilepattern = default_r_file_pattern(),
                            include_base = FALSE, multiples = FALSE,

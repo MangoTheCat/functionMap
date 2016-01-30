@@ -6,8 +6,16 @@
 \usage{
 r_package_files(path)
 }
+\arguments{
+\item{path}{Path to the root of the R package.}
+}
+\value{
+A character vector of (relative) file
+  names in the corrent collation order.
+}
 \description{
 It uses the `Collate` entry in the `DESCRIPTION` file,
 if there is one. Otherwise the order is alphabetical.
 }
+\keyword{internal}
 

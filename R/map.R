@@ -14,6 +14,7 @@
 #' @param class What class to set on the result, in addition to
 #'   \code{function_map}.
 #' @return A function_map object.
+#' @keywords internal
 
 create_function_map <- function(data, package = NULL,
                                 rfile = NULL, rpath = NULL,

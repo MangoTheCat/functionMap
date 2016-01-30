@@ -15,4 +15,5 @@ Character vector of the names of depended packages.
 \description{
 Parse a DESCRIPTION Depends line
 }
+\keyword{internal}
 

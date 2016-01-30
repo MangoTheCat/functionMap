@@ -20,4 +20,5 @@ Named list of function objects, they also include
 Reads the file into a temporary environment, and checks whether
 the objects in this environment are functions.
 }
+\keyword{internal}
 

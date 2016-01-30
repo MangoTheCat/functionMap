@@ -15,4 +15,5 @@ Data frame, one row for each function.
 \description{
 Extract vertex (= function) metadata from the call graph
 }
+\keyword{internal}
 

@@ -25,4 +25,5 @@ Named list of character vectors.
 \description{
 Find all function calls in an R script
 }
+\keyword{internal}
 

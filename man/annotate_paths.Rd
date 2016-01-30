@@ -16,4 +16,5 @@ A character vector of terms.
 \description{
 Annotate all functions in R scripts or folders of scripts
 }
+\keyword{internal}
 

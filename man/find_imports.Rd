@@ -2,7 +2,7 @@
 % Please edit documentation in R/namespaces.R
 \name{find_imports}
 \alias{find_imports}
-\title{Find functions imported from a package}
+\title{Check if a list of function nameds were imported from a package}
 \usage{
 find_imports(path, functions)
 }
@@ -16,6 +16,7 @@ A character vector, the names of the environments
   for the \code{functions}.
 }
 \description{
-Find functions imported from a package
+Check if a list of function nameds were imported from a package
 }
+\keyword{internal}
 

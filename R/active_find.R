@@ -5,6 +5,7 @@
 #' @param env Environment to start the search from.
 #' @return Name of the environment of \code{func}, or
 #'   \code{NA_character_} if it cannot be found.
+#' @keywords internal
 
 find_function <- function(func, env = parent.env()) {
 
@@ -33,6 +34,7 @@ find_function <- function(func, env = parent.env()) {
 #'
 #' @param pkg Name of the package. Must be installed.
 #' @return Character vector of the names of depended packages.
+#' @keywords internal
 
 parse_depends <- function(pkg) {
   deps <- packageDescription(pkg)$Depends
@@ -42,19 +44,52 @@ parse_depends <- function(pkg) {
   setdiff(str_trim(deps), "R")
 }
 
+#' Attach a namespace quietly
+#'
+#' @param x Package name.
+#' @return The attached package env (from `attachNamespace`), invisibly.
+#' @keywords internal
+
 attach_q <- function(x) {
   suppressMessages(suppressPackageStartupMessages(attachNamespace(x)))
 }
+
+#' Load all dependencies of a package, and the package itself, quietly
+#'
+#' @param pkg Package name.
+#' @return Attached package namespace, or a `try-error` object
+#'   if an error happened.
+#' @keywords internal
 
 load_dependencies <- function(pkg) {
   try(lapply(parse_depends(pkg), attach_q), silent = TRUE)
   try(attach_q(pkg), silent = TRUE)
 }
 
+#' Unload all dependencies of a package
+#'
+#' @param pkg Package name.
+#' @keywords internal
+
 unload_dependencies <- function(pkg) {
   try(unloadNamespace(pkg), silent = TRUE)
   try(lapply(parse_depends(pkg), unloadNamespace), silent = TRUE)
 }
+
+#' Evaluate an expression with a package loaded
+#'
+#' The package will be installed into a temporary directory.
+#' Then all required dependencies will be loaded, and the package
+#' will be loaded as well.
+#'
+#' After the expression is evaluated, all dependencies and the package
+#' itself will be unloaded, and the temporary library directory
+#' will be deleted. The library path will be also restored.
+#'
+#' @param path Path to the package directory and tarball to load.
+#' @param expr Expression to evaluate.
+#' @return Value of the evaluated expression.
+#' @keywords internal
 
 with_package <- function(path, expr) {
 
@@ -94,6 +129,7 @@ with_package <- function(path, expr) {
 #'
 #' @param map Function map.
 #' @param funcs Character vector, functions to find.
+#' @keywords internal
 
 actively_find_funcs <- function(map, funcs) {
 

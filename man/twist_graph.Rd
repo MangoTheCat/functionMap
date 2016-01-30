@@ -16,4 +16,5 @@ The output graph
 I.e. from an in-adjacency list create an out-adjacency list,
 and vice versa.
 }
+\keyword{internal}
 

@@ -15,4 +15,5 @@ Another graph, with the loop edges removed.
 \description{
 Remove loops from a graph
 }
+\keyword{internal}
 

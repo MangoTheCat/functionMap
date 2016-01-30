@@ -11,6 +11,8 @@
 #'   then a temporary environment is used.
 #' @return Named list of character vectors.
 #'   Name is the caller, contents is the callees.
+#'
+#' @keywords internal
 
 parse_r_script <- function(rfile, include_base = FALSE,
                            multiples = FALSE, env = NULL) {

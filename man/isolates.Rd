@@ -17,4 +17,5 @@ A character vector of unreachable vertex names.
 \description{
 Vertices that cannot be found from the a set of source vertices
 }
+\keyword{internal}
 

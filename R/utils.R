@@ -1,4 +1,11 @@
 
+#' Check if an object is in a list
+#'
+#' @param elem The object.
+#' @param list The list.
+#' @return Logical scalar
+#' @keywords internal
+
 in_list <- function(elem, list) {
   for (e in list) if (identical(elem, e)) return(TRUE)
   FALSE
@@ -6,11 +13,23 @@ in_list <- function(elem, list) {
 
 #' Drop NULL elements from a list
 #' @param x input list
+#' @return List without NULLs.
+#' @keywords internal
 
 drop_null <- function(x) {
   Filter(function(xx) !is.null(xx), x)
 }
 
+#' Extract a package tarball
+#'
+#' The package is extracted in a temporary directory.
+#' 
+#' If `path` is a directory, then we do nothing.
+#' @param path Path to a package tarball, or a package directory.
+#' @return Path to the temporary directory (or the supplied `path`
+#'   if it was already a directory.
+#' @keywords internal
+#' 
 #' @importFrom utils untar
 
 extract_if_needed <- function(path) {
@@ -29,6 +48,18 @@ extract_if_needed <- function(path) {
 
   tmp
 }
+
+#' Check if a path is an R package root directory
+#'
+#' @details
+#' It must have: \itemize{
+#'   \item `DESCRIPTION`
+#'   \item `NAMESPACE`
+#'   \item A non-empty `R` folder.
+#' }
+#'
+#' @param path Path to the alleged package root.
+#' @keywords internal
 
 check_pkg_dir <- function(path = ".") {
 
@@ -59,14 +90,34 @@ check_pkg_dir <- function(path = ".") {
   }
 }
 
+#' Get the name of the package from `DESCRIPTION`
+#'
+#' @param path Path to the package root.
+#' @return Package name
+#' @keywords internal
+
 package_name <- function(path = ".") {
   unname(read.dcf(file.path(path, "DESCRIPTION"))[, "Package"])
 }
+
+#' Parse the `Collate` field of package `DESCRIPTION`
+#'
+#' @param str The description string.
+#' @return Character vector, the parsed file names.
+#' @keywords internal
 
 parse_collate <- function (str) {
   scan(text = gsub("\n", " ", str), what = "", strip.white = TRUE,
        quiet = TRUE)
 }
+
+#' `Collate` field from `DESCRIPTION`
+#'
+#' `NULL` is returned if there is no such field.
+#'
+#' @param path Path to the package root.
+#' @return Character scalar or `NULL`.
+#' @keywords internal
 
 package_collate <- function(path = ".") {
   dcf <- read.dcf(file.path(path, "DESCRIPTION"))
@@ -77,12 +128,26 @@ package_collate <- function(path = ".") {
   }
 }
 
+#' Find an element within entries of a named list
+#'
+#' @param list List.
+#' @param elem Element.
+#' @return Name of the list entry in which `elem` was
+#'   found, or `NA_character_` if it was not found.
+#' @keywords internal
+
 find_in_named_list <- function(list, elem) {
   for (n in names(list)) {
     if (elem %in% list[[n]]) return(n)
   }
   NA_character_
 }
+
+#' Trim leading and trailing whitespace from a character vector
+#'
+#' @param x Character vector.
+#' @return Trimmed character vector.
+#' @keywords internal
 
 str_trim <- function(x) {
   sub("\\s+$", "", sub("^\\s+", "", x))
@@ -100,6 +165,11 @@ default_r_file_pattern <- function() {
 #'
 #' It uses the `Collate` entry in the `DESCRIPTION` file,
 #' if there is one. Otherwise the order is alphabetical.
+#'
+#' @param path Path to the root of the R package.
+#' @return A character vector of (relative) file
+#'   names in the corrent collation order.
+#' @keywords internal
 
 r_package_files <- function(path) {
   files <- package_collate(path)

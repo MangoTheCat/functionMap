@@ -15,4 +15,5 @@ A character vector of terms.
 \description{
 Annotate functions
 }
+\keyword{internal}
 

@@ -31,4 +31,5 @@ A named list with one entry for each analyzed functions.
 \description{
 Parse one or more folders of R scripts
 }
+\keyword{internal}
 

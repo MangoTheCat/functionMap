@@ -15,4 +15,5 @@ Data frame, one row for each edge.
 \description{
 Extract edge (= function call) metadata from the call graph
 }
+\keyword{internal}
 

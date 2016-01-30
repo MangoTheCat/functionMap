@@ -75,6 +75,16 @@ arrow <- function(x) {
   yellow("->")
 }
 
+#' Print method for a function map object.
+#'
+#' The object can be the map of an R file, a folder containing
+#' R files, or an R package. It prints an adjacency list, nicely
+#' formatted.
+#'
+#' @param x Function map to print
+#' @param ... Additional arguments, ignored currently.
+#' @return Printed object, invisibly.
+#'
 #' @method print function_map
 #' @export
 
@@ -87,6 +97,10 @@ print.function_map <- function(x, ...) {
   invisible(x)
 }
 
+#' @rdname print.function_map
+#' @inheritParams print.function_map
+#' @return Printed object, invisibly.
+#' 
 #' @method print function_map_rfile
 #' @export
 
@@ -100,6 +114,10 @@ print.function_map_rfile <- function(x, ...) {
   invisible(x)
 }
 
+#' @inheritParams print.function_map
+#' @return Printed object, invisibly.
+#'
+#' @rdname print.function_map
 #' @method print function_map_rfolder
 #' @export
 
@@ -113,6 +131,10 @@ print.function_map_rfolder <- function(x, ...) {
   invisible(x)
 }
 
+#' @inheritParams print.function_map
+#' @return Printed object, invisibly.
+#'
+#' @rdname print.function_map
 #' @method print function_map_rpackage
 #' @export
 

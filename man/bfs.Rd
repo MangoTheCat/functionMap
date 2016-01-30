@@ -20,4 +20,5 @@ Perform a BFS on a graph, from a set of seed vertices.
 Once all vertices reachable from the seeds are visited,
 the search terminates.
 }
+\keyword{internal}
 

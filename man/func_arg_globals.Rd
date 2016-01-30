@@ -20,4 +20,5 @@ In \code{do.call}, \code{apply}, \code{lapply}, \code{sapply},
 \code{vapply}, \code{tapply}, \code{mapply}, \code{eapply},
 \code{rapply} functions.
 }
+\keyword{internal}
 

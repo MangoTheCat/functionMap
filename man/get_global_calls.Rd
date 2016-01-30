@@ -45,4 +45,5 @@ Note that by default calls to base function are also included in the
 result, even of they are primitive functions (e.g. \code{<-},
 \code{==}, etc.).
 }
+\keyword{internal}
 

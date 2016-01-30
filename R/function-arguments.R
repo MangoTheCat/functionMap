@@ -11,6 +11,7 @@
 #' @return Character vector of globals from these calls.
 #'
 #' @importFrom codetools findFuncLocals findGlobals
+#' @keywords internal
 
 func_arg_globals <- function(fun, multiples = FALSE) {
 

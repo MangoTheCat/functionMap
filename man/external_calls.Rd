@@ -19,4 +19,5 @@ Character vector of external function names,
 \description{
 It supports `.C`, `.Call`, `.Fortran` and `.External` calls.
 }
+\keyword{internal}
 

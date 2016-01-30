@@ -23,4 +23,5 @@ is given.
 We asume that the trivial search in imported packages
 and base packages did not work, so we don't try it again.
 }
+\keyword{internal}
 

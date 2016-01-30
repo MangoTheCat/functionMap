@@ -18,4 +18,5 @@ Name of the environment of \code{func}, or
 \description{
 Find a function in an environment or in its parent chain
 }
+\keyword{internal}
 
