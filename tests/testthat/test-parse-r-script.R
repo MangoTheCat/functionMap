@@ -201,8 +201,6 @@ test_that("Non-function code works", {
 
 test_that("More complex non-function code works", {
 
-  skip_without_package("R6")
-  
   src <- "
     description <- R6Class(
       'description',
@@ -226,10 +224,10 @@ test_that("More complex non-function code works", {
     "R6Class"
   )
 
+  expect_equal(names(p), "_")
+
   expect_equal(
-    p,
-    list(
-      "_" = c("desc_create", "desc_get_maintainer", "desc_write", "R6Class")
-    )
+    sort(p[["_"]]),
+    sort(c("desc_create", "desc_get_maintainer", "desc_write", "R6Class"))
   )
 })
