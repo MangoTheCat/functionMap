@@ -5,7 +5,7 @@ mark_exported <- function(names, exp) {
 
 print_graph <- function(x, ...) {
 
-  data <- x$data
+  data <- get_graph(x, only_me = FALSE)
   data <- data[ sort(names(data)) ]
 
   if (!is.null(x$exports)) {

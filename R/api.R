@@ -1,11 +1,47 @@
 
+#' Extract data about the functions in a function map
+#'
+#' Returns a data frame, where each row is a function in the function
+#' map. The data frame includes functions that are in (other) R
+#' packages, and are called from the mapped script, folder or package.
+#'
+#' @param map The function map object.
+#' @return A data frame with one row for each function in the map.
+#' Current columns:
+#'   \item{ID}{The name of the function.}
+#'   \item{own}{Whether it is a function in the mapped script, folder or
+#'     package.}
+#'   \item{exported}{Whether it is an exported function of the package.
+#'     For scripts and folders it is always \code{FALSE}.}
+#'
+#' @export
+
+node_df <- function(map) {
+  map$node_df
+}
+
+#' Extract data about the edges (function calls) in a function map
+#'
+#' @param map The function map.
+#' @return A data frame with columns:
+#'   \item{from}{Calling function.}
+#'   \item{to}{Called function.}
+#'   \item{weight}{Number of calls from the caller to the callee.}
+#'
+#' @export
+
+edge_df <- function(map) {
+  map$edge_df
+}
+
 #' All functions of a function map of a package or script
 #'
 #' @param map Function map.
 #' @export
 
 functions <- function(map) {
-  sort(names(map$data))
+  ndf <- node_df(map)
+  sort(ndf$ID[ ndf$own ])
 }
 
 #' All functions that called in a package or R script
@@ -15,7 +51,8 @@ functions <- function(map) {
 #' @export
 
 functions_called <- function(map) {
-  sort(unique(unlist(map$data)))
+  edf <- edge_df(map)
+  sort(unique(edf$to))
 }
 
 #' Functions that are never used in a package
@@ -28,7 +65,7 @@ functions_called <- function(map) {
 
 unused_functions <- function(map) {
   if (!is(map, "function_map_rpackage")) {
-    stop("This only workds for R packages")
+    stop("This only works for R packages")
   }
 
   g <- get_graph(map)
@@ -45,10 +82,11 @@ unused_functions <- function(map) {
 #' @export
 
 deps <- function(map, multiples = FALSE) {
+  g <- get_graph(map)
   if (multiples) {
-    map$data
+    g
   } else {
-    lapply(map$data, unique)
+    lapply(g, unique)
   }
 }
 

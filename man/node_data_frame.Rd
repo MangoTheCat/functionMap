@@ -4,10 +4,12 @@
 \alias{node_data_frame}
 \title{Extract vertex (= function) metadata from the call graph}
 \usage{
-node_data_frame(map)
+node_data_frame(data, exports)
 }
 \arguments{
-\item{map}{Function map.}
+\item{data}{Parsed function call data.}
+
+\item{exports}{Character vector of exported functions.}
 }
 \value{
 Data frame, one row for each function.

@@ -4,7 +4,7 @@
 \alias{edge_data_frame}
 \title{Extract edge (= function call) metadata from the call graph}
 \usage{
-edge_data_frame(map)
+edge_data_frame(data)
 }
 \arguments{
 \item{map}{Function map.}

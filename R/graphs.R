@@ -13,18 +13,23 @@
 #' @keywords internal
 
 get_graph <- function(map, only_me = TRUE) {
-  if (only_me) {
-    ## Only keep my own functions
-    V <- names(map$data)
-    lapply(map$data, intersect, V)
 
-  } else {
-    V <- unique(c(names(map$data), unlist(map$data)))
-    res <- replicate(length(V), character())
-    names(res) <- V
-    res[ names(map$data) ] <- map$data
-    res
+  nodes <- node_df(map)
+  edges <- edge_df(map)
+
+  if (only_me) {
+    own <- nodes$ID[ nodes$own ]
+    nodes <- nodes[ nodes$ID %in% own, ]
+    edges <- edges[ edges$to %in% own, ]
   }
+
+  modifyList(
+    structure(
+      replicate(nrow(nodes), character()),
+      names = nodes[[1]]
+    ),
+    tapply(edges[,2], edges[,1], c, simplify = FALSE)
+  )
 }
 
 #' Change the direction of each edge to the opposite in a graph

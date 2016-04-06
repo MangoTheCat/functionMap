@@ -20,7 +20,7 @@ create_function_map <- function(data, package = NULL,
                                 rfile = NULL, rpath = NULL,
                                 rfilepattern = NULL, include_base = NULL,
                                 class = NULL) {
-  structure(
+  res <- structure(
     list(
       rfile = rfile,
       rpath = rpath,
@@ -31,6 +31,14 @@ create_function_map <- function(data, package = NULL,
     ),
     class = c(class, "function_map")
   )
+
+  if (class == "function_map_rpackage") res <- add_namespaces(res)
+
+  res$node_df <- node_data_frame(res$data, exports = res$exports)
+  res$edge_df <- edge_data_frame(res$data)
+  res$data <- NULL
+
+  res
 }
 
 #' Map the function calls for an R script
@@ -100,7 +108,7 @@ map_r_package <- function(path, include_base = FALSE) {
   ## Everyting is parsed into this
   env <- new.env()
 
-  map <- create_function_map(
+  create_function_map(
     package = name,
     rpath = path,
     class = "function_map_rpackage",
@@ -112,6 +120,4 @@ map_r_package <- function(path, include_base = FALSE) {
       env = env
     )
   )
-
-  add_namespaces(map)
 }
