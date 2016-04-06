@@ -201,6 +201,8 @@ test_that("Non-function code works", {
 
 test_that("More complex non-function code works", {
 
+  skip_without_package("R6")
+  
   src <- "
     description <- R6Class(
       'description',
