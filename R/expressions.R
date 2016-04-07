@@ -82,6 +82,7 @@ get_global_calls <- function(funcname, funcs, envir = parent.frame(),
 
   res <- c(
     find_globals(func, multiples = multiples),
+    double_colon_calls(func, multiples = multiples),
     func_arg_globals(func, multiples = multiples),
     external_calls(func, multiples = multiples),
     s3_calls(funcname, multiples = multiples, envir = envir)

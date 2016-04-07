@@ -158,5 +158,9 @@ add_namespaces <- function(map) {
 
 prefix_names <- function(names, table) {
   wh <- table[match(names, table[,1]), 2]
-  ifelse(wh == "" | substr(wh, 1, 1) == '.', names, paste0(wh, "::", names))
+  ifelse(
+    grepl("::", names) | wh == "" | substr(wh, 1, 1) == '.',
+    names,
+    paste0(wh, "::", names)
+  )
 }
