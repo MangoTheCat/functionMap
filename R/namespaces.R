@@ -150,7 +150,7 @@ add_namespaces <- function(map) {
   wh <- where(map)
 
   for (i in seq_along(map$data)) {
-    map$data[[i]] <- prefix_names(map$data[[i]], wh)
+    map$data[[i]]$to <- prefix_names(map$data[[i]]$to, wh)
   }
 
   map

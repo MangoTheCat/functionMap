@@ -9,8 +9,10 @@
 #'   they are called.
 #' @param env Environment to parse the objects into. If `NULL`,
 #'   then a temporary environment is used.
-#' @return Named list of character vectors.
-#'   Name is the caller, contents is the callees.
+#' @return Named list of data frames, initially with columns:
+#'   \code{func} and \code{type}. Type can be currently \code{call} and
+#'   \code{s3}, the latter denoting an S3 generic instead of a regular
+#'   function call.
 #'
 #' @keywords internal
 
@@ -34,12 +36,10 @@ parse_r_script <- function(rfile, include_base = FALSE,
 
   ## Remove base functions, potentially
   if (!include_base) {
-    res <- remove_base_functions(res)
+    res <- lapply(res, remove_base_functions)
+    res <- lapply(res, reset_row_names)
   }
 
-  if ("_" %in% names(res) && length(res[["_"]]) == 0) {
-    res <- res[ names(res) != "_" ]
-  }
-
-  res
+  ## Remove _ body, if nothing is called from there
+  res[ names(res) != "_" | vapply(res, NROW, 1L) != 0 ]
 }

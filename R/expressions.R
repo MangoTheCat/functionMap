@@ -1,6 +1,6 @@
 
 #' Find all (non-local) function calls in a function
-#' 
+#'
 #' @param func Function object.
 #' @param multiples Whether to keep multiplicity.
 #' @return Character vector of function calls.
@@ -72,7 +72,7 @@ find_globals_multiple <- function(func) {
 #' @param multiples Whether to keep multiplicity in the result. I.e.
 #'   if this argument is \code{TRUE} and \code{func} calls \code{foobar}
 #'   twice, then \code{foobar} is included in the result twice.
-#' @return A character vector with the names of all functions called.
+#' @return A data frame of function calls and call types.
 #' @keywords internal
 
 get_global_calls <- function(funcname, funcs, envir = parent.frame(),
@@ -80,12 +80,14 @@ get_global_calls <- function(funcname, funcs, envir = parent.frame(),
 
   func <- get(funcname, envir = envir)
 
-  res <- c(
-    find_globals(func, multiples = multiples),
-    double_colon_calls(func, multiples = multiples),
-    func_arg_globals(func, multiples = multiples),
-    external_calls(func, multiples = multiples),
-    s3_calls(funcname, multiples = multiples, envir = envir)
+  df <- function(x, y) data_frame(to = x, type = y)
+
+  res <- rbind(
+    df(find_globals(func, multiples = multiples), "call"),
+    df(double_colon_calls(func, multiples = multiples), "call"),
+    df(func_arg_globals(func, multiples = multiples), "call"),
+    df(external_calls(func, multiples = multiples), "external"),
+    df(s3_calls(funcname, multiples = multiples, envir = envir), "s3")
   )
 
   if (!multiples) res <- unique(res)

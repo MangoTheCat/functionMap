@@ -7,11 +7,13 @@
 #' @keywords internal
 
 node_data_frame <- function(data, exports) {
+  callers <- names(data)
+  callees <- unlist(lapply(data, "[[", "to"))
   df <- data.frame(
     stringsAsFactors = FALSE,
-    ID = unique(c(names(data), unlist(data)))
+    ID = unique(c(callers, callees))
   )
-  df$own <- df$ID %in% names(data)
+  df$own <- df$ID %in% callers
   df$exported <- df$ID %in% exports
   df
 }
@@ -26,14 +28,12 @@ node_data_frame <- function(data, exports) {
 
 edge_data_frame <- function(data) {
 
-  aggregate(
-    weight ~ .,
-    data.frame(
-      stringsAsFactors = FALSE,
-      from = rep(names(data), vapply(data, length, 1L)),
-      to = unlist(data),
-      weight = 1
-    ),
-    length
-  )
+  callers <- names(data)
+  dfs <- lapply(callers, function(caller) {
+    data_frame(from = caller, data[[caller]])
+  })
+
+  df <- do.call(rbind, dfs)
+
+  aggregate(weight ~., data = transform(df, weight = 1), length)
 }

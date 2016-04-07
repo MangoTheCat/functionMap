@@ -34,9 +34,9 @@ test_that("function calls are found", {
   expect_equal(
     parse_r_script(textConnection(src)),
     list(
-      f = character(),
-      g = "foo",
-      h = c("bar", "g")
+      f = data_frame(to = character(), type = character()),
+      g = data_frame(to = "foo", type = "call"),
+      h = data_frame(to = c("bar", "g"), type = "call")
     )
   )
 })
@@ -48,7 +48,7 @@ test_that("calls within do.call are found", {
 
   expect_equal(
     parse_r_script(textConnection(src)),
-    list(f = 'blah')
+    list(f = data_frame(to = "blah", type = "call"))
   )
 })
 
@@ -68,9 +68,9 @@ test_that("locally defined functions are ignored", {
   expect_equal(
     parse_r_script(textConnection(src)),
     list(
-      f = character(),
-      g = "foo",
-      h = c("bar", "g")
+      f = data_frame(to = character(), type = character()),
+      g = data_frame(to = "foo", type = "call"),
+      h = data_frame(to = c("bar", "g"), type = "call")
     )
   )
 })
@@ -84,7 +84,7 @@ test_that("functions passed as arguments are ignored", {
 
   expect_equal(
     parse_r_script(textConnection(src)),
-    list(h = "bar")
+    list(h = data_frame(to = "bar", type = "call"))
   )
 
 })
@@ -108,7 +108,10 @@ test_that("a file with errors is fine", {
 
   expect_equal(
     suppressWarnings(parse_r_script(textConnection(src))),
-    list(f = "foo", h = "bar")
+    list(
+      f = data_frame(to = "foo", type = "call"),
+      h = data_frame(to = "bar", type = "call")
+    )
   )
 
 })
@@ -137,7 +140,7 @@ test_that("find functions in do.call and external calls", {
     }"
 
   expect_equal(
-    sort(parse_r_script(textConnection(src))$f),
+    sort(parse_r_script(textConnection(src))$f$to),
     sort(c(".Call::foobar", "bar", "foo"))
   )
 })
@@ -155,12 +158,17 @@ test_that("call counts are OK", {
 
   expect_equal(
     parse_r_script(textConnection(src)),
-    list(f = c("bar", "foo", "foobar"))
+    list(f = data_frame(to = c("bar", "foo", "foobar"), type = "call"))
   )
 
   expect_equal(
     parse_r_script(textConnection(src), multiples = TRUE),
-    list(f = c("foo", "foo", "bar", "foobar", "foobar"))
+    list(
+      f = data_frame(
+        to = c("foo", "foo", "bar", "foobar", "foobar"),
+        type = "call"
+      )
+    )
   )
 })
 
@@ -175,10 +183,10 @@ test_that("The same env is used for the whole file", {
   p <- parse_r_script(textConnection(src))
 
   e <- list(
-    f = character(),
-    g = character(),
-    h = "g",
-    y = "g"
+    f = data_frame(to = character(), type = character()),
+    g = data_frame(to = character(), type = character()),
+    h = data_frame(to = "g", type = "call"),
+    y = data_frame(to = "g", type = "call")
   )
 
   expect_equal(p, e)
@@ -194,7 +202,10 @@ test_that("Non-function code works", {
 
   expect_equal(
     parse_r_script(textConnection(src)),
-    list(x = character(), "_" = c("lm", "x"))
+    list(
+      x = data_frame(to = character(), type = character()),
+      "_" = data_frame(to = c("lm", "x"), type = "call")
+    )
   )
 
 })
@@ -227,7 +238,7 @@ test_that("More complex non-function code works", {
   expect_equal(names(p), "_")
 
   expect_equal(
-    sort(p[["_"]]),
+    sort(p[["_"]]$to),
     sort(c("desc_create", "desc_get_maintainer", "desc_write", "R6Class"))
   )
 })
