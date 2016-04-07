@@ -4,10 +4,12 @@
 \alias{map_cran_package}
 \title{Create the map of a CRAN package}
 \usage{
-map_cran_package(package, version = NULL)
+map_cran_package(package, quiet = FALSE)
 }
 \arguments{
 \item{package}{CRAN package name.}
+
+\item{quiet}{Whether to be quiet or show download progress.}
 }
 \description{
 The latest version of the package is used.

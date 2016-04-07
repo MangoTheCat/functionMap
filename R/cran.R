@@ -4,6 +4,7 @@
 #' The latest version of the package is used.
 #'
 #' @param package CRAN package name.
+#' @param quiet Whether to be quiet or show download progress.
 #' 
 #' @importFrom utils download.packages untar
 #' @export
@@ -14,7 +15,7 @@
 #' sankey_plot(map)
 #' }
 
-map_cran_package <- function(package, version = NULL) {
+map_cran_package <- function(package, quiet = FALSE) {
   tmp <- tempfile()
   on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
   dir.create(tmp)
@@ -23,7 +24,7 @@ map_cran_package <- function(package, version = NULL) {
     package,
     destdir = tmp,
     type = "source",
-    quiet = TRUE
+    quiet = quiet
   )
   untar(file[,2], exdir = tmp)
 
