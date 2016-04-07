@@ -20,7 +20,6 @@ sankey_plot <- function(map, ...) {
 
   node_data <- node_df(map)
   edge_data <- edge_df(map)
-  names(edge_data) <- c("from", "to", "weight")
 
   ## Need to remove loop edges
   edge_data <- edge_data[ edge_data[,1] != edge_data[,2], ]
