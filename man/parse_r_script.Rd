@@ -19,8 +19,10 @@ they are called.}
 then a temporary environment is used.}
 }
 \value{
-Named list of character vectors.
-  Name is the caller, contents is the callees.
+Named list of data frames, initially with columns:
+  \code{func} and \code{type}. Type can be currently \code{call} and
+  \code{s3}, the latter denoting an S3 generic instead of a regular
+  function call.
 }
 \description{
 Find all function calls in an R script

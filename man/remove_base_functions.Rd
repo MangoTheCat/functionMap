@@ -2,20 +2,19 @@
 % Please edit documentation in R/base.R
 \name{remove_base_functions}
 \alias{remove_base_functions}
-\title{Remove base function names form a character vector, or a list
-of character vectors}
+\title{Remove base function names form a data frame of functions}
 \usage{
 remove_base_functions(funcs)
 }
 \arguments{
-\item{funcs}{Character vector, or list of character vectors.}
+\item{funcs}{Data frame, first column is the function names.
+Other columns are extra metadata, which we do not use.}
 }
 \value{
 Filtered character vector, or list of character vectors.
 }
 \description{
-Remove base function names form a character vector, or a list
-of character vectors
+Remove base function names form a data frame of functions
 }
 \keyword{internal}
 

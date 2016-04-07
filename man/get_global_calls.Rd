@@ -23,7 +23,7 @@ if this argument is \code{TRUE} and \code{func} calls \code{foobar}
 twice, then \code{foobar} is included in the result twice.}
 }
 \value{
-A character vector with the names of all functions called.
+A data frame of function calls and call types.
 }
 \description{
 Note the results are approximate only. R's dynamic nature
