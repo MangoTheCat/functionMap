@@ -138,7 +138,7 @@ actively_find_funcs <- function(map, funcs) {
 
   name <- package_name(map$rpath)
 
-  if (isNamespaceLoaded(name)) {
+  if (name %in% loadedNamespaces()) {
     warning(name, " is already loaded, trying to unload.")
     unloadNamespace(name)
   }
