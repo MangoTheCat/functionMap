@@ -15,7 +15,7 @@ external_calls <- function(fun, multiples = FALSE) {
   if (multiples) res else unique(res)
 }
 
-find_external_calls <- function(expr, multiples) {
+find_external_calls <- function(expr) {
 
   external_calls <- list(
     quote(.C),
