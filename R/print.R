@@ -5,7 +5,13 @@ mark_exported <- function(names, exp) {
 
 print_graph <- function(x, ...) {
 
+  ## Get adjacency list format
   data <- get_graph(x, only_me = FALSE)
+
+  ## Only keep our own functions
+  data <- data[ names(data) %in% functions(x) ]
+
+  ## Sort them
   data <- data[ sort(names(data)) ]
 
   if (!is.null(x$exports)) {
