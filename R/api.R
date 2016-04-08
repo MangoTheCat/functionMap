@@ -82,16 +82,35 @@ unused_functions <- function(map) {
 #' @export
 
 deps <- function(map, multiples = FALSE) {
-  g <- get_graph(map, only_me = FALSE)
-
-  ## keep out own functions only
-  g <- g[ functions(map) ]
-
   if (multiples) {
-    g
+    deps_multiples(map)
+
   } else {
-    lapply(g, unique)
+    deps_no_multiples(map)
   }
+}
+
+deps_multiples <- function(map) {
+  func <- functions(map)
+  edges <- edge_df(map)
+  structure(
+    lapply(func, function(f) {
+      my <- edges$from == f
+      rep(edges$to[my], edges$weight[my])
+    }),
+    names = func
+  )
+}
+
+deps_no_multiples <- function(map) {
+  func <- functions(map)
+  edges <- edge_df(map)
+  structure(
+    lapply(func, function(f) {
+      edges$to[ edges$from == f]
+    }),
+    names = func
+  )
 }
 
 #' Reverse dependencies of all functions
