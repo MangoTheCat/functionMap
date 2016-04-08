@@ -86,6 +86,9 @@ isolates <- function(graph, sources) {
 
 bfs <- function(graph, seeds) {
 
+  ## This simplifies the algorithm
+  graph <- remove_loops(graph)
+
   V <- names(graph)
   N <- length(V)
   reachable <- seeds
