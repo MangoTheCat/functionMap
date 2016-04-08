@@ -18,6 +18,7 @@ Imports:
 Depends:
     R (>= 3.0.0)
 Suggests:
+    pingr,
     testthat,
     roxygen2
 RoxygenNote: 5.0.1

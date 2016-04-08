@@ -82,7 +82,11 @@ unused_functions <- function(map) {
 #' @export
 
 deps <- function(map, multiples = FALSE) {
-  g <- get_graph(map)
+  g <- get_graph(map, only_me = FALSE)
+
+  ## keep out own functions only
+  g <- g[ functions(map) ]
+
   if (multiples) {
     g
   } else {
