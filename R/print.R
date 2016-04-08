@@ -1,6 +1,16 @@
 
+#' @importFrom clisymbols symbol
+#' @importFrom crayon yellow
+
 mark_exported <- function(names, exp) {
-  ifelse(names %in% exp, paste0(names, "*"), names)
+  paste0(
+    ifelse(
+      names %in% exp,
+      paste0(yellow(symbol$star), " "),
+      "  "
+    ),
+    names
+  )
 }
 
 print_graph <- function(x, ...) {
@@ -22,11 +32,11 @@ print_graph <- function(x, ...) {
   }
 
   lapply(names(data), function(n) {
-    cat(" ", tail_style(n), "\n", sep = "")
+    cat(" ", tail_style(n), " ", arrow(), sep = "")
 
     funcs <- head_style(sort(unique(data[[n]])))
-    funcs <- paste(funcs, collapse = ", ")
-    funcs <- strwrap(paste0(arrow(), " ", funcs), indent = 3, exdent = 6)
+    funcs <- paste(funcs, collapse = ",")
+    funcs <- strwrap(funcs, indent = 1, exdent = 6)
     funcs <- paste(funcs, collapse = "\n")
 
     cat(funcs, "\n", sep = "")
@@ -41,15 +51,16 @@ fill_line <- function(x, chr = "-", width = getOption("width", 80)) {
     paste0(
       paste0(rep(chr, len), collapse = ""),
       " ", x,
-      " --"
+      " ", symbol$line, symbol$line
     )
   }
 }
 
 #' @importFrom crayon green bold
+#' @importFrom clisymbols symbol
 
 header_style <- function(x) {
-  bold(green(fill_line(x, "-")))
+  bold(green(fill_line(x, symbol$line)))
 }
 
 #' @importFrom crayon green
@@ -76,9 +87,10 @@ head_style <- function(x) {
 }
 
 #' @importFrom crayon yellow
+#' @importFrom clisymbols symbol
 
 arrow <- function(x) {
-  yellow("->")
+  yellow(symbol$pointer)
 }
 
 #' Print method for a function map object.

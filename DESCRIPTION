@@ -12,6 +12,7 @@ Imports:
     stats,
     utils,
     codetools,
+    clisymbols,
     crayon,
     pryr,
     sankey,
