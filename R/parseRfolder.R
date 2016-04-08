@@ -28,7 +28,10 @@ parse_r_folder <- function(rpath, rfilepattern = default_r_file_pattern(),
     function(rp) {
       if (!file.exists(rp)) stop("File does not exist: ", rp)
       if (file.info(rp)$isdir) {
-        list.files(rp, full.names = TRUE, pattern = rfilepattern)
+        withr::with_collate(
+          "C",
+          list.files(rp, full.names = TRUE, pattern = rfilepattern)
+        )
       } else {
         rp
       }
