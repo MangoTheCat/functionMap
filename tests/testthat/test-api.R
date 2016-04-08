@@ -1,23 +1,6 @@
 
 context("function maps api")
 
-get_map <- function() {
-  src <- "
-    f <- function(foo, bar) {
-      g()
-    }
-    g <- function(foobar) {
-      h()
-      utils::untar(foobar)
-    }
-    h <- function() {
-      print('hello')
-    }
-  "
-  map_r_script(textConnection(src))
-}
-
-
 test_that("node_df", {
   map <- get_map()
   expect_equal(
@@ -54,6 +37,18 @@ test_that("functions", {
 test_that("functions_called", {
   map <- get_map()
   expect_equal(functions_called(map), c("g", "h", "utils::untar"))
+})
+
+
+test_that("unused_functions", {
+  map <- map_r_package("testEnv")
+  expect_equal(unused_functions(map), character())
+
+  map <- map_r_package("testpkg")
+  expect_equal(unused_functions(map), c("iso", "k", "y"))
+  
+  map <- get_map2()
+  expect_error(unused_functions(map), "only works for R packages")
 })
 
 

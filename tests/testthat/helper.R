@@ -20,3 +20,40 @@ skip_if_offline <- function(host = "httpbin.org", port = 80) {
 
   if (is.na(res)) skip("No internet connection")
 }
+
+get_map <- function() {
+  src <- "
+    f <- function(foo, bar) {
+      g()
+    }
+    g <- function(foobar) {
+      h()
+      utils::untar(foobar)
+    }
+    h <- function() {
+      print('hello')
+    }
+  "
+  map_r_script(textConnection(src))
+}
+
+get_map2 <- function() {
+  src <- "
+    f <- function(foo, bar) {
+      f()
+      g()
+    }
+    g <- function(foobar) {
+      h()
+      utils::untar(foobar)
+    }
+    h <- function() {
+      print('hello')
+    }
+    iso <- function() {
+      ## This is never called
+    }
+  "
+  map_r_script(textConnection(src))
+}
+

@@ -14,7 +14,8 @@ Imports:
     codetools,
     crayon,
     pryr,
-    sankey
+    sankey,
+    withr
 Depends:
     R (>= 3.0.0)
 Suggests:
