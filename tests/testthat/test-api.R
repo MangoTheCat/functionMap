@@ -46,7 +46,7 @@ test_that("unused_functions", {
 
   map <- map_r_package("testpkg")
   expect_equal(unused_functions(map), c("iso", "k", "y"))
-  
+
   map <- get_map2()
   expect_error(unused_functions(map), "only works for R packages")
 })
@@ -58,6 +58,16 @@ test_that("deps", {
     deps(map),
     list(f = "g", g = c("h", "utils::untar"), h = character())
   )
+  map <- get_map3()
+  expect_equal(
+    deps(map, multiples = TRUE),
+    list(
+      f = c("f", "g", "g"),
+      g = c("h", "h", "utils::untar"),
+      h = character(),
+      iso = character()
+    )
+  )
 })
 
 
@@ -66,5 +76,15 @@ test_that("rev_deps", {
   expect_equal(
     rev_deps(map),
     list(f = character(), g = "f", h = "g")
+  )
+  map <- get_map3()
+  expect_equal(
+    rev_deps(map, multiples = TRUE),
+    list(
+      f = "f",
+      g = c("f", "f"),
+      h = c("g", "g"),
+      iso = character()
+    )
   )
 })

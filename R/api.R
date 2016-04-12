@@ -123,10 +123,6 @@ deps_no_multiples <- function(map) {
 #' @export
 
 rev_deps <- function(map, multiples = FALSE) {
-  graph <- twist_graph(get_graph(map))
-  if (multiples) {
-    graph
-  } else {
-    lapply(graph, unique)
-  }
+  deps <- deps(map, multiple = multiples)
+  twist_graph(deps)[functions(map)]
 }
