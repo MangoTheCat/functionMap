@@ -57,3 +57,24 @@ get_map2 <- function() {
   map_r_script(textConnection(src))
 }
 
+get_map3 <- function() {
+  src <- "
+    f <- function(foo, bar) {
+      f()
+      g()
+      g()
+    }
+    g <- function(foobar) {
+      h()
+      h()
+      utils::untar(foobar)
+    }
+    h <- function() {
+      print('hello')
+    }
+    iso <- function() {
+      ## This is never called
+    }
+  "
+  map_r_script(textConnection(src))
+}

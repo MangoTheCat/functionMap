@@ -13,6 +13,7 @@
 
 get_funcs_from_r_script <- function(rfile, env = NULL) {
 
+  exprs <- list()
   tryCatch(
     exprs <- parse(rfile, keep.source = TRUE),
     error = function (e) {
