@@ -4,13 +4,14 @@
 #' It supports `.C`, `.Call`, `.Fortran` and `.External` calls.
 #'
 #' @param fun Function object.
+#' @param row The row of the function in the parse data.
 #' @param multiples Whether to include functions as many
 #'   times as they are called.
 #' @return Character vector of external function names,
 #'   prefixed according to the call type.
 #' @keywords internal
 
-external_calls <- function(fun, multiples = FALSE) {
+external_calls <- function(fun, row, multiples = FALSE) {
   res <- find_external_calls(body(fun))
   if (multiples) res else unique(res)
 }

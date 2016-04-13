@@ -30,6 +30,7 @@ parse_r_script <- function(rfile, include_base = FALSE,
     funcnames,
     get_global_calls,
     multiples = multiples,
+    funcnames = funcnames,
     funcs = funcs,
     envir = env
   )

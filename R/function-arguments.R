@@ -6,6 +6,7 @@
 #' \code{rapply} functions.
 #'
 #' @param fun A function object.
+#' @param row The row of the function in the parse data.
 #' @param multiples Whether to include functions as many
 #'   times as they are called.
 #' @return Character vector of globals from these calls.
@@ -13,7 +14,7 @@
 #' @importFrom codetools findFuncLocals findGlobals
 #' @keywords internal
 
-func_arg_globals <- function(fun, multiples = FALSE) {
+func_arg_globals <- function(fun, row, multiples = FALSE) {
 
   funcs <- list(
     c(fun = "do.call", arg = "what"),

@@ -1,5 +1,5 @@
 
-double_colon_calls <- function(func, multiples) {
+double_colon_calls <- function(func, row, multiples) {
   res <- find_double_colon_calls(body(func))
   if (multiples) res else unique(res)
 }

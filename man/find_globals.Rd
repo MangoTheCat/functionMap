@@ -4,10 +4,12 @@
 \alias{find_globals}
 \title{Find all (non-local) function calls in a function}
 \usage{
-find_globals(func, multiples = FALSE)
+find_globals(func, row, multiples = FALSE)
 }
 \arguments{
 \item{func}{Function object.}
+
+\item{row}{The row of the function in the parse data.}
 
 \item{multiples}{Whether to keep multiplicity.}
 }

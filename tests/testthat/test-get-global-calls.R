@@ -9,7 +9,7 @@ test_that("including base functions", {
     stats::mad(1:10)
   }
 
-  gc <- get_global_calls("f", f)
+  gc <- get_global_calls("f", "f", f)
 
   expect_equal(
     gc,
@@ -28,7 +28,7 @@ test_that("excluding base functions", {
     stats::mad(1:10)
   }
 
-  gc <- get_global_calls("f", f, include_base = FALSE)
+  gc <- get_global_calls("f", "f", f, include_base = FALSE)
   rownames(gc) <- NULL
 
   expect_equal(

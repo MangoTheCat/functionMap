@@ -22,6 +22,13 @@ get_funcs_from_r_script <- function(rfile, env = NULL) {
     }
   )
 
+  for (i in seq_along(exprs)) {
+    if (is.null(exprs[[i]])) next
+    attr(exprs[[i]], "srcref") <- attr(exprs, "srcref")[[i]]
+    attr(exprs[[i]], "srcfile") <- attr(exprs, "srcfile")
+    attr(exprs[[i]], "wholeSrcref") <- attr(exprs, "wholeSrcref")
+  }
+
   if (is.null(env)) env <- new.env()
 
   funcs <- funcs_from_exprs(exprs, rfile, env = env)
@@ -89,7 +96,7 @@ funcs_from_exprs <- function(exprs, rfile, env) {
 #'     we assume that the expression is not a function defition
 #'     and we assign it to the function body (\code{_}).
 #' }
-#' 
+#'
 #' @param expr Expression to evaluate.
 #' @inheritParams funcs_from_exprs
 #' @return A named list of length one. (It is easy to concatenate

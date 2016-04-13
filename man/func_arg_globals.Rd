@@ -4,10 +4,12 @@
 \alias{func_arg_globals}
 \title{Find the global functions that are used as arguments}
 \usage{
-func_arg_globals(fun, multiples = FALSE)
+func_arg_globals(fun, row, multiples = FALSE)
 }
 \arguments{
 \item{fun}{A function object.}
+
+\item{row}{The row of the function in the parse data.}
 
 \item{multiples}{Whether to include functions as many
 times as they are called.}

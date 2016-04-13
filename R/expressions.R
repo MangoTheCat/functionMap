@@ -2,13 +2,14 @@
 #' Find all (non-local) function calls in a function
 #'
 #' @param func Function object.
+#' @param row The row of the function in the parse data.
 #' @param multiples Whether to keep multiplicity.
 #' @return Character vector of function calls.
 #'
 #' @importFrom codetools findGlobals
 #' @keywords internal
 
-find_globals <- function(func, multiples = FALSE) {
+find_globals <- function(func, row, multiples = FALSE) {
   if (multiples) {
     find_globals_multiple(func)
 
@@ -64,7 +65,10 @@ find_globals_multiple <- function(func) {
 #' \code{==}, etc.).
 #'
 #' @param funcname Name of the function to study.
-#' @param funcs All expressions parsed from the file or package.
+#' @param funcnames Names of the parsed functions from the file,
+#'   in the order they appear. We need this is calculate line and column
+#'   positions.
+#' @param funcs All expressions parsed from the file.
 #' @param envir The environment containing the function. This environment
 #'   is also used to look for S3 methods.
 #' @param include_base Whether to include calls to base functions
@@ -75,18 +79,21 @@ find_globals_multiple <- function(func) {
 #' @return A data frame of function calls and call types.
 #' @keywords internal
 
-get_global_calls <- function(funcname, funcs, envir = parent.frame(),
+get_global_calls <- function(funcname, funcnames, funcs,
+                             envir = parent.frame(),
                              include_base = TRUE, multiples = FALSE) {
 
   func <- get(funcname, envir = envir)
+  num <- match(funcname, funcnames)
+  row <- which(getParseData(func)$parent == 0)[num]
 
   df <- function(x, y) data_frame(to = x, type = y)
 
   res <- rbind(
-    df(find_globals(func, multiples = multiples), "call"),
-    df(double_colon_calls(func, multiples = multiples), "call"),
-    df(func_arg_globals(func, multiples = multiples), "call"),
-    df(external_calls(func, multiples = multiples), "external"),
+    df(find_globals(func, row, multiples = multiples), "call"),
+    df(double_colon_calls(func, row, multiples = multiples), "call"),
+    df(func_arg_globals(func, row, multiples = multiples), "call"),
+    df(external_calls(func, row, multiples = multiples), "external"),
     df(s3_calls(funcname, multiples = multiples, envir = envir), "s3")
   )
 

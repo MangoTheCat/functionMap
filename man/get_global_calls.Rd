@@ -4,13 +4,17 @@
 \alias{get_global_calls}
 \title{Get global function calls from a function}
 \usage{
-get_global_calls(funcname, funcs, envir = parent.frame(),
+get_global_calls(funcname, funcnames, funcs, envir = parent.frame(),
   include_base = TRUE, multiples = FALSE)
 }
 \arguments{
 \item{funcname}{Name of the function to study.}
 
-\item{funcs}{All expressions parsed from the file or package.}
+\item{funcnames}{Names of the parsed functions from the file,
+in the order they appear. We need this is calculate line and column
+positions.}
+
+\item{funcs}{All expressions parsed from the file.}
 
 \item{envir}{The environment containing the function. This environment
 is also used to look for S3 methods.}
