@@ -158,11 +158,6 @@ test_that("call counts are OK", {
 
   expect_equal(
     parse_r_script(textConnection(src)),
-    list(f = data_frame(to = c("bar", "foo", "foobar"), type = "call"))
-  )
-
-  expect_equal(
-    parse_r_script(textConnection(src), multiples = TRUE),
     list(
       f = data_frame(
         to = c("foo", "foo", "bar", "foobar", "foobar"),

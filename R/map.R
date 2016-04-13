@@ -55,8 +55,7 @@ map_r_script <- function(rfile, include_base = FALSE) {
     class = "function_map_rfile",
     data = parse_r_script(
       rfile,
-      include_base,
-      multiples = TRUE)
+      include_base)
   )
 }
 
@@ -77,8 +76,7 @@ map_r_folder <- function(rpath, rfilepattern = default_r_file_pattern(),
     data = parse_r_folder(
       rpath,
       rfilepattern,
-      include_base,
-      multiples = TRUE
+      include_base
     )
   )
 }
@@ -116,7 +114,6 @@ map_r_package <- function(path, include_base = FALSE) {
       rpath = r_package_files(path),
       rfilepattern = default_r_file_pattern(),
       include_base = include_base,
-      multiples = TRUE,
       env = env
     )
   )

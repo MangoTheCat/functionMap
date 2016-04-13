@@ -47,8 +47,7 @@ test_that("multiple calls are found multiple times", {
     do.call(y, list())
   }
 
-  expect_equal(func_arg_globals(f), "y")
-  expect_equal(func_arg_globals(f, multiples = TRUE), c("y", "y", "y"))
+  expect_equal(func_arg_globals(f), rep("y", 3))
 
   f <- function() {
     do.call("y", list())
@@ -56,8 +55,7 @@ test_that("multiple calls are found multiple times", {
     do.call("y", list())
   }
 
-  expect_equal(func_arg_globals(f), "y")
-  expect_equal(func_arg_globals(f, multiples = TRUE), c("y", "y", "y"))
+  expect_equal(func_arg_globals(f), c("y", "y", "y"))
 })
 
 
@@ -71,8 +69,7 @@ test_that("mixed symbols and strings work", {
     do.call("y", list())
   }
 
-  expect_equal(func_arg_globals(f), "y")
-  expect_equal(func_arg_globals(f, multiples = TRUE), c("y", "y", "y", "y"))
+  expect_equal(func_arg_globals(f), c("y", "y", "y", "y"))
 
 })
 

@@ -39,14 +39,8 @@ test_that("external calls are counted properly", {
 
   expect_equal(
     external_calls(f),
-    c(".C::foo", ".Fortran::bar", ".External::foobar")
-  )
-
-  expect_equal(
-    external_calls(f, multiples = TRUE),
     c(".C::foo", ".C::foo", ".Fortran::bar", ".External::foobar")
   )
-
 })
 
 test_that("external call in default argument is picked up", {

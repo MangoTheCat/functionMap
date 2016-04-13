@@ -9,11 +9,8 @@ test_that(":: calls are found, only calls", {
     pkg::func2
   }
 
-  cc <- double_colon_calls(f, multiples = TRUE)
+  cc <- double_colon_calls(f)
   expect_equal(cc, rep("pkg::func", 3))
-
-  cc2 <- double_colon_calls(f, multiples = FALSE)
-  expect_equal(cc2, rep("pkg::func"))
 })
 
 

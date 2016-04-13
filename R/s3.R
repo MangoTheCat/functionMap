@@ -6,12 +6,11 @@
 #'
 #' @param funcname Name of the S3 generic.
 #' @param envir Environment containing functions, we search in this.
-#' @param multiples Has no effect.
 #' 
 #' @importFrom pryr is_s3_generic is_s3_method
 #' @keywords internal
 
-s3_calls <- function(funcname, envir, multiples = FALSE) {
+s3_calls <- function(funcname, envir) {
   if (!is_s3_generic(funcname, envir)) return(character())
 
   s3_candidates <- Filter(
@@ -19,12 +18,10 @@ s3_calls <- function(funcname, envir, multiples = FALSE) {
     ls(envir)
   )
 
-  res <- Filter(
+  Filter(
     function(x) is_s3_method(x, env = envir),
     s3_candidates
   )
-
-  if (!multiples) unique(res) else res
 }
 
 #' Predicate to pre-filter possible S3 methods

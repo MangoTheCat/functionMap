@@ -14,7 +14,7 @@ test_that("including base functions", {
   expect_equal(
     gc,
     data_frame(
-      to = c(":", "::", "{", "utils::untar", "stats::mad"),
+      to = c("{", "::", "::", ":", "utils::untar", "stats::mad"),
       type = "call"
     )
   )

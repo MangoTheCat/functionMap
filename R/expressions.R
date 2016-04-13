@@ -3,19 +3,11 @@
 #'
 #' @param func Function object.
 #' @param row The row of the function in the parse data.
-#' @param multiples Whether to keep multiplicity.
-#' @return Character vector of function calls.
 #'
-#' @importFrom codetools findGlobals
 #' @keywords internal
 
-find_globals <- function(func, row, multiples = FALSE) {
-  if (multiples) {
+find_globals <- function(func, row) {
     find_globals_multiple(func)
-
-  } else {
-    findGlobals(func, merge = FALSE)$functions
-  }
 }
 
 #' Find all (non-local) function calls in a function, keep multiple calls
@@ -73,15 +65,11 @@ find_globals_multiple <- function(func) {
 #'   is also used to look for S3 methods.
 #' @param include_base Whether to include calls to base functions
 #'   in the output.
-#' @param multiples Whether to keep multiplicity in the result. I.e.
-#'   if this argument is \code{TRUE} and \code{func} calls \code{foobar}
-#'   twice, then \code{foobar} is included in the result twice.
 #' @return A data frame of function calls and call types.
 #' @keywords internal
 
 get_global_calls <- function(funcname, funcnames, funcs,
-                             envir = parent.frame(),
-                             include_base = TRUE, multiples = FALSE) {
+                             envir = parent.frame(), include_base = TRUE) {
 
   func <- get(funcname, envir = envir)
   num <- match(funcname, funcnames)
@@ -90,14 +78,12 @@ get_global_calls <- function(funcname, funcnames, funcs,
   df <- function(x, y) data_frame(to = x, type = y)
 
   res <- rbind(
-    df(find_globals(func, row, multiples = multiples), "call"),
-    df(double_colon_calls(func, row, multiples = multiples), "call"),
-    df(func_arg_globals(func, row, multiples = multiples), "call"),
-    df(external_calls(func, row, multiples = multiples), "external"),
-    df(s3_calls(funcname, multiples = multiples, envir = envir), "s3")
+    df(find_globals(func, row), "call"),
+    df(double_colon_calls(func, row), "call"),
+    df(func_arg_globals(func, row), "call"),
+    df(external_calls(func, row), "external"),
+    df(s3_calls(funcname, envir = envir), "s3")
   )
-
-  if (!multiples) res <- unique(res)
 
   if (!include_base) {
     res <- remove_base_functions(res)

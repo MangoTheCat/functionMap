@@ -7,14 +7,12 @@
 #'
 #' @param fun A function object.
 #' @param row The row of the function in the parse data.
-#' @param multiples Whether to include functions as many
-#'   times as they are called.
 #' @return Character vector of globals from these calls.
 #'
 #' @importFrom codetools findFuncLocals findGlobals
 #' @keywords internal
 
-func_arg_globals <- function(fun, row, multiples = FALSE) {
+func_arg_globals <- function(fun, row) {
 
   funcs <- list(
     c(fun = "do.call", arg = "what"),
@@ -43,11 +41,7 @@ func_arg_globals <- function(fun, row, multiples = FALSE) {
   dc_str <- unlist(Filter(is.character, dc))
   dc_sym <- vapply(Filter(is.symbol, dc), as.character, "")
 
-  if (multiples) {
-    c(dc_str[ ! dc_str %in% locals ], dc_sym[ dc_sym %in% globals ])
-  } else {
-    unique(c(setdiff(dc_str, locals), intersect(dc_sym, globals)))
-  }
+  c(dc_str[ ! dc_str %in% locals ], dc_sym[ dc_sym %in% globals ])
 }
 
 find_func_arg_globals <- function(needle, expr) {
