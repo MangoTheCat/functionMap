@@ -9,8 +9,8 @@ test_that("syntax errors", {
   "
 
   expect_warning(
-    p <- parse_r_script(textConnection(src)),
-    "textConnection.*unexpected"
+    p <- with_src(src, parse_r_script(src)),
+    "unexpected"
   )
 
 })

@@ -20,7 +20,7 @@ test_that("map_r_script", {
     }
   "
 
-  map <- map_r_script(textConnection(src))
+  map <- with_src(src, map_r_script(src))
   expect_equal(class(map), c("function_map_rfile", "function_map"))
   expect_equal(
     deps(map),

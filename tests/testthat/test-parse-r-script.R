@@ -13,7 +13,7 @@ test_that("all functions are found", {
     y <- 1:10"
 
   expect_equal(
-    names(parse_r_script(textConnection(src))),
+    names(with_src(src, parse_r_script(src))),
     c("f", "g", "h")
   )
 })
@@ -32,7 +32,7 @@ test_that("function calls are found", {
     y <- 1:10"
 
   expect_equal(
-    parse_r_script(textConnection(src)),
+    with_src(src, parse_r_script(src)),
     list(
       f = data_frame(to = character(), type = character()),
       g = data_frame(to = "foo", type = "call"),
@@ -47,7 +47,7 @@ test_that("calls within do.call are found", {
   "
 
   expect_equal(
-    parse_r_script(textConnection(src)),
+    with_src(src, parse_r_script(src)),
     list(f = data_frame(to = "blah", type = "call"))
   )
 })
@@ -66,7 +66,7 @@ test_that("locally defined functions are ignored", {
     y <- 1:10"
 
   expect_equal(
-    parse_r_script(textConnection(src)),
+    with_src(src, parse_r_script(src)),
     list(
       f = data_frame(to = character(), type = character()),
       g = data_frame(to = "foo", type = "call"),
@@ -83,7 +83,7 @@ test_that("functions passed as arguments are ignored", {
   "
 
   expect_equal(
-    parse_r_script(textConnection(src)),
+    with_src(src, parse_r_script(src)),
     list(h = data_frame(to = "bar", type = "call"))
   )
 
@@ -92,7 +92,7 @@ test_that("functions passed as arguments are ignored", {
 test_that("empty file is fine", {
 
   expect_equal(
-    parse_r_script(textConnection("")),
+    with_src("", parse_r_script(src)),
     structure(list(), names = character())
   )
 
@@ -107,7 +107,7 @@ test_that("a file with errors is fine", {
   "
 
   expect_equal(
-    suppressWarnings(parse_r_script(textConnection(src))),
+    suppressWarnings(with_src(src, parse_r_script(src))),
     list(
       f = data_frame(to = "foo", type = "call"),
       h = data_frame(to = "bar", type = "call")
@@ -125,7 +125,7 @@ test_that("a file with a syntax error creates a warning", {
   "
 
   expect_warning(
-    parse_r_script(textConnection(src)),
+    with_src(src, parse_r_script(src)),
     "object 'this' not found"
   )
 })
@@ -140,7 +140,7 @@ test_that("find functions in do.call and external calls", {
     }"
 
   expect_equal(
-    sort(parse_r_script(textConnection(src))$f$to),
+    sort(with_src(src, parse_r_script(src))$f$to),
     sort(c(".Call::foobar", "bar", "foo"))
   )
 })
@@ -157,7 +157,7 @@ test_that("call counts are OK", {
     }"
 
   expect_equal(
-    parse_r_script(textConnection(src)),
+    with_src(src, parse_r_script(src)),
     list(
       f = data_frame(
         to = c("foo", "foo", "bar", "foobar", "foobar"),
@@ -175,7 +175,7 @@ test_that("The same env is used for the whole file", {
     h <- function() g()
     y <- h"
 
-  p <- parse_r_script(textConnection(src))
+  p <- with_src(src, parse_r_script(src))
 
   e <- list(
     f = data_frame(to = character(), type = character()),
@@ -196,7 +196,7 @@ test_that("Non-function code works", {
     x()"
 
   expect_equal(
-    parse_r_script(textConnection(src)),
+    with_src(src, parse_r_script(src)),
     list(
       x = data_frame(to = character(), type = character()),
       "_" = data_frame(to = c("lm", "x"), type = "call")
@@ -226,7 +226,7 @@ test_that("More complex non-function code works", {
    )"
 
   expect_warning(
-    p <- parse_r_script(textConnection(src)),
+    p <- with_src(src, parse_r_script(src)),
     "R6Class"
   )
 

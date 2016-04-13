@@ -21,6 +21,13 @@ skip_if_offline <- function(host = "httpbin.org", port = 80) {
   if (is.na(res)) skip("No internet connection")
 }
 
+with_src <- function(src, expr) {
+  file <- tempfile()
+  on.exit(unlink(file), add = TRUE)
+  cat(src, file = file)
+  eval(substitute(expr), envir = list(src = file))
+}
+
 get_map <- function() {
   src <- "
     f <- function(foo, bar) {
@@ -34,7 +41,7 @@ get_map <- function() {
       print('hello')
     }
   "
-  map_r_script(textConnection(src))
+  with_src(src, map_r_script(src))
 }
 
 get_map2 <- function() {
@@ -54,7 +61,8 @@ get_map2 <- function() {
       ## This is never called
     }
   "
-  map_r_script(textConnection(src))
+
+  with_src(src, map_r_script(src))
 }
 
 get_map3 <- function() {
@@ -76,5 +84,6 @@ get_map3 <- function() {
       ## This is never called
     }
   "
-  map_r_script(textConnection(src))
+
+  with_src(src, map_r_script(src))
 }
