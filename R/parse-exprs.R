@@ -133,7 +133,7 @@ eval_to_get_func_name <- function(expr, rfile, env) {
     )
 
   } else {
-    list("_" = structure(expr, src = attr(expr, "src")))
+    list("_" = structure(wrap_in_function(expr), src = attr(expr, "src")))
   }
 }
 

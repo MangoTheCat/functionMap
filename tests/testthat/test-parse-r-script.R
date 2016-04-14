@@ -1,9 +1,9 @@
 
 context("Parsing R scripts")
 
-df <- function(to, type) {
-  data_frame(to = to, type = type, line = NA_integer_,
-             col1 = NA_integer_, col2 = NA_integer_)
+df <- function(to, type, line = NA_integer_, col1 = NA_integer_,
+               col2 = NA_integer_) {
+  data_frame(to = to, type = type, line = line, col1 = col1, col2 = col2)
 }
 
 test_that("all functions are found", {
@@ -40,8 +40,9 @@ test_that("function calls are found", {
     with_src(src, parse_r_script(src)),
     list(
       f = df(to = character(), type = character()),
-      g = df(to = "foo", type = "call"),
-      h = df(to = c("bar", "g"), type = "call")
+      g = df(to = "foo", type = "call", line = 4, col1 = 21, col2 = 23),
+      h = df(to = c("bar", "g"), type = "call",
+             line = c(8, 9), col1 = 7, col2 = c(9, 7))
     )
   )
 })
@@ -74,8 +75,9 @@ test_that("locally defined functions are ignored", {
     with_src(src, parse_r_script(src)),
     list(
       f = df(to = character(), type = character()),
-      g = df(to = "foo", type = "call"),
-      h = df(to = c("bar", "g"), type = "call")
+      g = df(to = "foo", type = "call", line = 4, col1 = 21, col2 = 23),
+      h = df(to = c("bar", "g"), type = "call",
+             line = c(8, 9), col1 = 7, col2 = c(9, 7))
     )
   )
 })
@@ -115,24 +117,10 @@ test_that("a file with errors is fine", {
     suppressWarnings(with_src(src, parse_r_script(src))),
     list(
       f = data_frame(to = "foo", type = "call", line = 2, col1 = 21, col2 = 23),
-      h = df(to = "bar", type = "call")
+      h = df(to = "bar", type = "call", line = 4, col1 = 21, col2 = 23)
     )
   )
 
-})
-
-test_that("a file with a syntax error creates a warning", {
-
-  src <- "
-    f <- function() foo()
-    g <- this-is-an-error-here
-    h <- function() bar()
-  "
-
-  expect_warning(
-    with_src(src, parse_r_script(src)),
-    "object 'this' not found"
-  )
 })
 
 test_that("find functions in do.call and external calls", {
@@ -187,9 +175,7 @@ test_that("The same env is used for the whole file", {
 
   e <- list(
     f = df(to = character(), type = character()),
-    g = df(to = character(), type = character()),
-    h = data_frame(to = "g", type = "call", line = 4, col1 = 21, col2 = 21),
-    y = df(to = "g", type = "call")
+    h = data_frame(to = "g", type = "call", line = 4, col1 = 21, col2 = 21)
   )
 
   expect_equal(p, e)
@@ -207,7 +193,8 @@ test_that("Non-function code works", {
     with_src(src, parse_r_script(src)),
     list(
       x = df(to = character(), type = character()),
-      "_" = df(to = c("lm", "x"), type = "call")
+      "_" = df(to = c("lm", "x"), type = "call",
+        line = c(3, 5), col1 = 5, col2 = c(6, 5))
     )
   )
 

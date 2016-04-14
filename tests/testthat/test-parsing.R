@@ -22,12 +22,8 @@ test_that("get_funcs_from_r_script keeps srcrefs", {
     f() # top-level
     h <- function() { g() }
   "
-  tmp <- tempfile()
-  on.exit(unlink(tmp), add = TRUE)
-  cat(src, file = tmp)
+  funcs <- with_src(src, get_funcs_from_r_script(src))
 
-  funcs <- get_funcs_from_r_script(tmp)
-
-  expect_equal(names(funcs), c("f", "g", "h", "_"))
+  expect_equal(names(funcs), c("f", "g", "_", "h"))
   expect_true(! is.null(getSrcref(funcs[[1]])))
 })
