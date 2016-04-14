@@ -25,8 +25,10 @@ Get funcion(s) from a single expression. Usually a single function,
 but not necessarily.
 }
 \details{
-We need to handle expressions that are not simple function
-definitions. This is the current algorithm: \itemize{
+If the expression has a \code{function} token and at least
+one assignment, then we assume that it is a function definition
+and evaluate it to get the function name.
+This is the current algorithm: \itemize{
   \item We evaluate the expression in \code{env}.
   \item Then we check if there is anything new in \code{env}.
   \item If there is a single new function, then we assume that
@@ -35,6 +37,8 @@ definitions. This is the current algorithm: \itemize{
   \item Otherwise (zero or more than one new functions),
     we assume that the expression is not a function defition
     and we assign it to the function body (\code{_}).
+
+Othewise we assume it is not a function definition.
 }
 }
 \keyword{internal}

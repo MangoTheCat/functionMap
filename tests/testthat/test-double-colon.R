@@ -21,7 +21,7 @@ test_that(":: calls are not prefixed twice with pkg name", {
   expect_equal(
     get_graph(map, only_me = FALSE),
     list(
-      "f" = c("pkg::func1", "pkg::func2"),
+      "f" = c("pkg::func1", "pkg::func2", "pkg::func1"),
       "pkg::func1" = character(),
       "pkg::func2" = character()
     )

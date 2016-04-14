@@ -33,7 +33,5 @@ edge_data_frame <- function(data) {
     data_frame(from = caller, data[[caller]])
   })
 
-  df <- do.call(rbind, dfs)
-
-  aggregate(weight ~., data = transform(df, weight = 1), length)
+  do.call(rbind, dfs)
 }

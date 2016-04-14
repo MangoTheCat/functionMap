@@ -4,16 +4,13 @@
 \alias{parse_r_script}
 \title{Find all function calls in an R script}
 \usage{
-parse_r_script(rfile, include_base = FALSE, multiples = FALSE, env = NULL)
+parse_r_script(rfile, include_base = FALSE, env = NULL)
 }
 \arguments{
 \item{rfile}{The .R input file, or a connection to read from.}
 
 \item{include_base}{Whether to include calls to base functions
 in the output.}
-
-\item{multiples}{Whether to include functions as many times as
-they are called.}
 
 \item{env}{Environment to parse the objects into. If `NULL`,
 then a temporary environment is used.}

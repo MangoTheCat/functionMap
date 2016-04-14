@@ -8,7 +8,8 @@
 #' @param env An environment to evaluate the code in.
 #'   If NULL, a new temporary environment is used.
 #' @return Named list of function objects, they also include
-#'   the source code, i.e. they have `srcref` attributes.
+#'   the source code, in a parsed data base form, as attribute
+#'   \sQuote{src}.
 #' @keywords internal
 
 get_funcs_from_r_script <- function(rfile, env = NULL) {
@@ -24,39 +25,22 @@ get_funcs_from_r_script <- function(rfile, env = NULL) {
 
   for (i in seq_along(exprs)) {
     if (is.null(exprs[[i]])) next
-    attr(exprs[[i]], "srcref") <- attr(exprs, "srcref")[[i]]
-    attr(exprs[[i]], "srcfile") <- attr(exprs, "srcfile")
-    attr(exprs[[i]], "wholeSrcref") <- attr(exprs, "wholeSrcref")
+    attr(exprs[[i]], "src") <- extract_src_attr(exprs, i)
   }
 
   if (is.null(env)) env <- new.env()
 
   funcs <- funcs_from_exprs(exprs, rfile, env = env)
 
-  if ("_" %in% names(funcs)) {
-    root <- make_func_from_exprs(funcs[names(funcs) == "_"])
-    funcs <- funcs[names(funcs) != "_"]
-    funcs <- c(funcs, list("_" = root))
-    assign("_", root, envir = env)
-  }
-
   funcs
 }
 
-#' Create a function from a list of expressions
-#'
-#' We do this, so that `codetools::findGlobals` can be
-#' called on the function.
-#'
-#' @param exprs The list of expressions to put into the
-#'   function body.
-#' @return A function.
-#' @keywords internal
-
-make_func_from_exprs <- function(exprs) {
-  func <- function() {}
-  body(func) <- as.call(c(as.symbol("{"), exprs))
-  func
+extract_src_attr <- function(exprs, num) {
+  pd <- getParseData(exprs, includeText = TRUE)
+  tops <- which(pd$parent == 0)
+  first <- tops[num]
+  last <- if (num < length(tops)) tops[num + 1] - 1 else nrow(pd)
+  pd[first:last, , drop = FALSE ]
 }
 
 #' Get functions from a list of expressions
@@ -85,8 +69,10 @@ funcs_from_exprs <- function(exprs, rfile, env) {
 #' but not necessarily.
 #'
 #' @details
-#' We need to handle expressions that are not simple function
-#' definitions. This is the current algorithm: \itemize{
+#' If the expression has a \code{function} token and at least
+#' one assignment, then we assume that it is a function definition
+#' and evaluate it to get the function name.
+#' This is the current algorithm: \itemize{
 #'   \item We evaluate the expression in \code{env}.
 #'   \item Then we check if there is anything new in \code{env}.
 #'   \item If there is a single new function, then we assume that
@@ -95,6 +81,8 @@ funcs_from_exprs <- function(exprs, rfile, env) {
 #'   \item Otherwise (zero or more than one new functions),
 #'     we assume that the expression is not a function defition
 #'     and we assign it to the function body (\code{_}).
+#'
+#' Othewise we assume it is not a function definition.
 #' }
 #'
 #' @param expr Expression to evaluate.
@@ -105,6 +93,22 @@ funcs_from_exprs <- function(exprs, rfile, env) {
 #' @keywords internal
 
 func_from_expr <- function(expr, rfile, env) {
+
+  parseData <- attr(expr, "src")
+
+  name <- if ("FUNCTION" %in% parseData$token &&
+      any(c("LEFT_ASSIGN", "RIGHT_ASSIGN", "EQ_ASSIGN") %in% parseData$token)) {
+    eval_to_get_func_name(expr, rfile, env)
+
+  } else {
+    list(
+      "_" = structure(wrap_in_function(expr), src = attr(expr, "src"))
+    )
+  }
+
+}
+
+eval_to_get_func_name <- function(expr, rfile, env) {
 
   ## These were here before
   past <- ls(env, all.names = TRUE)
@@ -123,9 +127,18 @@ func_from_expr <- function(expr, rfile, env) {
   )
 
   if (length(keep) == 1) {
-    structure(list(expr), names = keep)
+    structure(
+      list(structure(get(keep, env), src = attr(expr, "src"))),
+      names = keep
+    )
 
   } else {
-    structure(list(expr), names = "_")
+    list("_" = structure(expr, src = attr(expr, "src")))
   }
+}
+
+wrap_in_function <- function(expr) {
+  f <- function() { }
+  body(f) <- expr
+  f
 }

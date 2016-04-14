@@ -5,7 +5,7 @@
 \title{Parse one or more folders of R scripts}
 \usage{
 parse_r_folder(rpath, rfilepattern = default_r_file_pattern(),
-  include_base = FALSE, multiples = FALSE, env = NULL)
+  include_base = FALSE, env = NULL)
 }
 \arguments{
 \item{rpath}{Character vector of folders and files.
@@ -17,9 +17,6 @@ default files with `.R`, `.r`, `.S` and `.s` extensions are used.}
 
 \item{include_base}{Whether to include functions from the
 `base` package.}
-
-\item{multiples}{Whether to include functions as many times as
-they are called.}
 
 \item{env}{Environment to parse the files into. If `NULL`, then
 a separate temporary environment is used for each file.}

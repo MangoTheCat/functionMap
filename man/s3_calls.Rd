@@ -4,14 +4,12 @@
 \alias{s3_calls}
 \title{Find the S3 methods of a function, in an environment}
 \usage{
-s3_calls(funcname, envir, multiples = FALSE)
+s3_calls(funcname, envir)
 }
 \arguments{
 \item{funcname}{Name of the S3 generic.}
 
 \item{envir}{Environment containing functions, we search in this.}
-
-\item{multiples}{Has no effect.}
 }
 \description{
 Typically used to find the S3 methods defined in a package,

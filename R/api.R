@@ -26,7 +26,10 @@ node_df <- function(map) {
 #' @return A data frame with columns:
 #'   \item{from}{Calling function.}
 #'   \item{to}{Called function.}
-#'   \item{weight}{Number of calls from the caller to the callee.}
+#'   \item{type}{Call type.}
+#'   \item{line}{Line number.}
+#'   \item{col1}{Starting column number.}
+#'   \item{col2}{Ending column number.}
 #'
 #' @export
 
@@ -86,23 +89,12 @@ deps <- function(map, multiples = FALSE) {
     deps_multiples(map)
 
   } else {
-    deps_no_multiples(map)
+    d <- deps_multiples(map)
+    structure(lapply(d, unique), names = names(d))
   }
 }
 
 deps_multiples <- function(map) {
-  func <- functions(map)
-  edges <- edge_df(map)
-  structure(
-    lapply(func, function(f) {
-      my <- edges$from == f
-      rep(edges$to[my], edges$weight[my])
-    }),
-    names = func
-  )
-}
-
-deps_no_multiples <- function(map) {
   func <- functions(map)
   edges <- edge_df(map)
   structure(

@@ -14,22 +14,20 @@
 #'
 #' @keywords internal
 
-parse_r_script <- function(rfile, include_base = FALSE,
-                           env = NULL) {
+parse_r_script <- function(rfile, include_base = FALSE, env = NULL) {
 
   if (is.null(env)) env <- new.env()
 
   ## Get all functions from the script
   funcs <- get_funcs_from_r_script(rfile, env = env)
-  funcnames <- structure(names(funcs), names = names(funcs))
 
   ## Get their non-local calls
-  res <- lapply(
-    funcnames,
-    get_global_calls,
-    funcnames = funcnames,
-    funcs = funcs,
-    envir = env
+  res <- mapply(
+    FUN = get_global_calls,
+    funcs,
+    names(funcs),
+    MoreArgs=list(envir = env),
+    SIMPLIFY = FALSE
   )
 
   ## Remove base functions, potentially
@@ -39,5 +37,15 @@ parse_r_script <- function(rfile, include_base = FALSE,
   }
 
   ## Remove _ body, if nothing is called from there
-  res[ names(res) != "_" | vapply(res, NROW, 1L) != 0 ]
+  res <- res[ names(res) != "_" | vapply(res, NROW, 1L) != 0 ]
+
+  ## Collapse body into a single "caller"
+  if (any(names(res) == "_")) {
+    body <- do.call(rbind, res[names(res) == "_"])
+    res <- res[ names(res) != "_" ]
+    res$`_` <- body
+    rownames(res$`_`) <- NULL
+  }
+
+  res
 }

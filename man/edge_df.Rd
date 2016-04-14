@@ -13,7 +13,10 @@ edge_df(map)
 A data frame with columns:
   \item{from}{Calling function.}
   \item{to}{Called function.}
-  \item{weight}{Number of calls from the caller to the callee.}
+  \item{type}{Call type.}
+  \item{line}{Line number.}
+  \item{col1}{Starting column number.}
+  \item{col2}{Ending column number.}
 }
 \description{
 Extract data about the edges (function calls) in a function map

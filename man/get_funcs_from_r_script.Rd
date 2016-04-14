@@ -14,7 +14,8 @@ If NULL, a new temporary environment is used.}
 }
 \value{
 Named list of function objects, they also include
-  the source code, i.e. they have `srcref` attributes.
+  the source code, in a parsed data base form, as attribute
+  \sQuote{src}.
 }
 \description{
 Reads the file into a temporary environment, and checks whether

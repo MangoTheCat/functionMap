@@ -1,6 +1,11 @@
 
 context("Parsing R scripts")
 
+df <- function(to, type) {
+  data_frame(to = to, type = type, line = NA_integer_,
+             col1 = NA_integer_, col2 = NA_integer_)
+}
+
 test_that("all functions are found", {
   src <- "
     x <- NULL
@@ -34,9 +39,9 @@ test_that("function calls are found", {
   expect_equal(
     with_src(src, parse_r_script(src)),
     list(
-      f = data_frame(to = character(), type = character()),
-      g = data_frame(to = "foo", type = "call"),
-      h = data_frame(to = c("bar", "g"), type = "call")
+      f = df(to = character(), type = character()),
+      g = df(to = "foo", type = "call"),
+      h = df(to = c("bar", "g"), type = "call")
     )
   )
 })
@@ -48,7 +53,7 @@ test_that("calls within do.call are found", {
 
   expect_equal(
     with_src(src, parse_r_script(src)),
-    list(f = data_frame(to = "blah", type = "call"))
+    list(f = df(to = "blah", type = "call"))
   )
 })
 
@@ -68,9 +73,9 @@ test_that("locally defined functions are ignored", {
   expect_equal(
     with_src(src, parse_r_script(src)),
     list(
-      f = data_frame(to = character(), type = character()),
-      g = data_frame(to = "foo", type = "call"),
-      h = data_frame(to = c("bar", "g"), type = "call")
+      f = df(to = character(), type = character()),
+      g = df(to = "foo", type = "call"),
+      h = df(to = c("bar", "g"), type = "call")
     )
   )
 })
@@ -84,7 +89,7 @@ test_that("functions passed as arguments are ignored", {
 
   expect_equal(
     with_src(src, parse_r_script(src)),
-    list(h = data_frame(to = "bar", type = "call"))
+    list(h = data_frame(to = "bar", type = "call", line = 3, col1 = 7, col2 = 9))
   )
 
 })
@@ -109,8 +114,8 @@ test_that("a file with errors is fine", {
   expect_equal(
     suppressWarnings(with_src(src, parse_r_script(src))),
     list(
-      f = data_frame(to = "foo", type = "call"),
-      h = data_frame(to = "bar", type = "call")
+      f = data_frame(to = "foo", type = "call", line = 2, col1 = 21, col2 = 23),
+      h = df(to = "bar", type = "call")
     )
   )
 
@@ -161,7 +166,10 @@ test_that("call counts are OK", {
     list(
       f = data_frame(
         to = c("foo", "foo", "bar", "foobar", "foobar"),
-        type = "call"
+        type = "call",
+        line = c(3, 4, 5, 6, 7),
+        col1 = 7,
+        col2 = c(9, 9, 9, 12, 12)
       )
     )
   )
@@ -178,10 +186,10 @@ test_that("The same env is used for the whole file", {
   p <- with_src(src, parse_r_script(src))
 
   e <- list(
-    f = data_frame(to = character(), type = character()),
-    g = data_frame(to = character(), type = character()),
-    h = data_frame(to = "g", type = "call"),
-    y = data_frame(to = "g", type = "call")
+    f = df(to = character(), type = character()),
+    g = df(to = character(), type = character()),
+    h = data_frame(to = "g", type = "call", line = 4, col1 = 21, col2 = 21),
+    y = df(to = "g", type = "call")
   )
 
   expect_equal(p, e)
@@ -198,8 +206,8 @@ test_that("Non-function code works", {
   expect_equal(
     with_src(src, parse_r_script(src)),
     list(
-      x = data_frame(to = character(), type = character()),
-      "_" = data_frame(to = c("lm", "x"), type = "call")
+      x = df(to = character(), type = character()),
+      "_" = df(to = c("lm", "x"), type = "call")
     )
   )
 

@@ -22,7 +22,9 @@ test_that("edge_df", {
       from = c("f", "g", "g"),
       to = c("g", "h", "utils::untar"),
       type = "call",
-      weight = 1
+      line = c(3, 6, NA),
+      col1 = c(7, 7, NA),
+      col2 = c(7, 7, NA)
     )
   )
 })

@@ -4,27 +4,15 @@
 \alias{get_global_calls}
 \title{Get global function calls from a function}
 \usage{
-get_global_calls(funcname, funcnames, funcs, envir = parent.frame(),
-  include_base = TRUE, multiples = FALSE)
+get_global_calls(func, funcname, envir = parent.frame())
 }
 \arguments{
-\item{funcname}{Name of the function to study.}
+\item{func}{The function to examine.}
 
-\item{funcnames}{Names of the parsed functions from the file,
-in the order they appear. We need this is calculate line and column
-positions.}
-
-\item{funcs}{All expressions parsed from the file.}
+\item{funcname}{Name of the function.}
 
 \item{envir}{The environment containing the function. This environment
 is also used to look for S3 methods.}
-
-\item{include_base}{Whether to include calls to base functions
-in the output.}
-
-\item{multiples}{Whether to keep multiplicity in the result. I.e.
-if this argument is \code{TRUE} and \code{func} calls \code{foobar}
-twice, then \code{foobar} is included in the result twice.}
 }
 \value{
 A data frame of function calls and call types.

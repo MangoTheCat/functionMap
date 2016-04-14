@@ -2,17 +2,17 @@
 #' Find all (non-local) function calls in a function
 #'
 #' @param func Function object.
-#' @param row The row of the function in the parse data.
 #'
 #' @keywords internal
 
-find_globals <- function(func, row) {
-    find_globals_multiple(func)
+find_globals <- function(func) {
+  calls <- find_globals_multiple(func)
+  match_to_parse_data(calls, func)
 }
 
 #' Find all (non-local) function calls in a function, keep multiple calls
 #'
-#' @param func Function object.
+#' @inheritParams find_globals
 #' @return Character vector of function calls.
 #'
 #' @importFrom codetools findGlobals
@@ -56,38 +56,28 @@ find_globals_multiple <- function(func) {
 #' result, even of they are primitive functions (e.g. \code{<-},
 #' \code{==}, etc.).
 #'
-#' @param funcname Name of the function to study.
-#' @param funcnames Names of the parsed functions from the file,
-#'   in the order they appear. We need this is calculate line and column
-#'   positions.
-#' @param funcs All expressions parsed from the file.
+#' @param func The function to examine.
+#' @param funcname Name of the function.
 #' @param envir The environment containing the function. This environment
 #'   is also used to look for S3 methods.
-#' @param include_base Whether to include calls to base functions
-#'   in the output.
 #' @return A data frame of function calls and call types.
 #' @keywords internal
 
-get_global_calls <- function(funcname, funcnames, funcs,
-                             envir = parent.frame(), include_base = TRUE) {
+get_global_calls <- function(func, funcname, envir = parent.frame()) {
 
-  func <- get(funcname, envir = envir)
-  num <- match(funcname, funcnames)
-  row <- which(getParseData(func)$parent == 0)[num]
-
-  df <- function(x, y) data_frame(to = x, type = y)
+  df <- function(
+    to, ty = "call",
+    l = NA_integer_, c1 = NA_integer_, c2 = NA_integer_) {
+    data_frame(to = to, type = ty, line = l, col1 = c1, col2 = c2 )
+  }
 
   res <- rbind(
-    df(find_globals(func, row), "call"),
-    df(double_colon_calls(func, row), "call"),
-    df(func_arg_globals(func, row), "call"),
-    df(external_calls(func, row), "external"),
+    find_globals(func),
+    df(double_colon_calls(func)),
+    df(func_arg_globals(func), "call"),
+    df(external_calls(func), "external"),
     df(s3_calls(funcname, envir = envir), "s3")
   )
-
-  if (!include_base) {
-    res <- remove_base_functions(res)
-  }
 
   res
 }
