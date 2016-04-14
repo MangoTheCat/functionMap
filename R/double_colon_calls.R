@@ -1,6 +1,7 @@
 
-double_colon_calls <- function(func, row) {
-  find_double_colon_calls(body(func))
+double_colon_calls <- function(func) {
+  calls <- find_double_colon_calls(body(func))
+  match_to_parse_data(calls, func)
 }
 
 find_double_colon_calls <- function(expr) {

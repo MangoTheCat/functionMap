@@ -19,9 +19,9 @@ test_that("including base functions", {
     data_frame(
       to = c("{", "::", "::", ":", "utils::untar", "stats::mad"),
       type = "call",
-      line = c(2, 3, 4, 4, NA_integer_, NA_integer_),
-      col1 = c(21, 12, 12, 19, NA_integer_, NA_integer_),
-      col2 = c(21, 13, 13, 19, NA_integer_, NA_integer_)
+      line = c(2, 3, 4, 4, 3, 4),
+      col1 = c(21, 12, 12, 19, 7, 7),
+      col2 = c(21, 13, 13, 19, 18, 16)
     )
   )
 })

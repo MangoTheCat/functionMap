@@ -54,13 +54,17 @@ parse_trans_table <- c(
 
 find_call_in_parse_data <- function(call, pd) {
 
-  if (call %in% names(parse_trans_table)) call <- parse_trans_table[call]
-  quoted_call <- paste0("'", call, "'")
+  w <- if (grepl("::", call) && call != "::") {
+    find_call_in_parse_data_pkg(call, pd)
 
-  w <- which(pd$token == quoted_call |
-             pd$token == call |
-             pd$token == "SPECIAL" & pd$text == call |
-             pd$token == "SYMBOL_FUNCTION_CALL" & pd$text == call)[1]
+  } else {
+    if (call %in% names(parse_trans_table)) call <- parse_trans_table[call]
+    quoted_call <- paste0("'", call, "'")
+    which(pd$token == quoted_call |
+          pd$token == call |
+          pd$token == "SPECIAL" & pd$text == call |
+          pd$token == "SYMBOL_FUNCTION_CALL" & pd$text == call)[1]
+  }
 
   if (!is.na(w)) {
     list(
@@ -69,5 +73,27 @@ find_call_in_parse_data <- function(call, pd) {
       col2 = pd$col2[w],
       rowname = as.character(rownames(pd)[w])
     )
+  }
+}
+
+find_call_in_parse_data_pkg <- function(call, pd) {
+
+  w <- which(pd$text == call)[1]
+  children <- which(pd$parent == pd$id[w])
+  child_tokens <- pd$token[children]
+  pkgcall_tokens <- c("NS_GET", "SYMBOL_FUNCTION_CALL", "SYMBOL_PACKAGE")
+
+  if (!identical(sort(child_tokens), pkgcall_tokens)) {
+    NA
+
+  } else {
+    child_text <- pd$text[children]
+    rec_call <- paste0(
+      child_text[match("SYMBOL_PACKAGE", child_tokens)],
+      child_text[match("NS_GET", child_tokens)],
+      child_text[match("SYMBOL_FUNCTION_CALL", child_tokens)]
+    )
+
+    if (rec_call == call) w else NA
   }
 }

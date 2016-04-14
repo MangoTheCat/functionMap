@@ -3,14 +3,28 @@ context("double colon (::) calls")
 
 test_that(":: calls are found, only calls", {
 
-  f <- function() {
+  fobj <- function()
+  {
     pkg::func("foobar", 1:5)
     pkg::func(pkg::func(1:10, "foo"))
     pkg::func2
   }
 
-  cc <- double_colon_calls(f)
-  expect_equal(cc, rep("pkg::func", 3))
+  f <- with_src(
+    paste(deparse(fobj), collapse = "\n"),
+    get_funcs_from_r_script(src)
+  )[[1]]
+
+  expect_equal(
+    double_colon_calls(f),
+    data_frame(
+      to = "pkg::func",
+      type = "call",
+      line = c(3, 4, 4),
+      col1 = c(5, 5, 15),
+      col2 = c(13, 13, 23)
+    )
+  )
 })
 
 
