@@ -17,7 +17,7 @@ test_that("node_df", {
 test_that("edge_df", {
   map <- get_map()
   expect_equal(
-    edge_df(map),
+    edge_df(map)[, 1:6],
     data_frame(
       from = c("f", "g", "g"),
       to = c("g", "h", "utils::untar"),

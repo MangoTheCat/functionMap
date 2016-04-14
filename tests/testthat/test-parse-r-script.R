@@ -6,6 +6,10 @@ df <- function(to, type, line = NA_integer_, col1 = NA_integer_,
   data_frame(to = to, type = type, line = line, col1 = col1, col2 = col2)
 }
 
+drop_filenames <- function(x) {
+  lapply(x, function(xx) xx[, 1:5])
+}
+
 test_that("all functions are found", {
   src <- "
     x <- NULL
@@ -37,7 +41,7 @@ test_that("function calls are found", {
     y <- 1:10"
 
   expect_equal(
-    with_src(src, parse_r_script(src)),
+    drop_filenames(with_src(src, parse_r_script(src))),
     list(
       f = df(to = character(), type = character()),
       g = df(to = "foo", type = "call", line = 4, col1 = 21, col2 = 23),
@@ -53,7 +57,7 @@ test_that("calls within do.call are found", {
   "
 
   expect_equal(
-    with_src(src, parse_r_script(src)),
+    drop_filenames(with_src(src, parse_r_script(src))),
     list(f = df(to = "blah", type = "call"))
   )
 })
@@ -72,7 +76,7 @@ test_that("locally defined functions are ignored", {
     y <- 1:10"
 
   expect_equal(
-    with_src(src, parse_r_script(src)),
+    drop_filenames(with_src(src, parse_r_script(src))),
     list(
       f = df(to = character(), type = character()),
       g = df(to = "foo", type = "call", line = 4, col1 = 21, col2 = 23),
@@ -90,7 +94,7 @@ test_that("functions passed as arguments are ignored", {
   "
 
   expect_equal(
-    with_src(src, parse_r_script(src)),
+    drop_filenames(with_src(src, parse_r_script(src))),
     list(h = data_frame(to = "bar", type = "call", line = 3, col1 = 7, col2 = 9))
   )
 
@@ -114,7 +118,7 @@ test_that("a file with errors is fine", {
   "
 
   expect_equal(
-    suppressWarnings(with_src(src, parse_r_script(src))),
+    suppressWarnings(drop_filenames(with_src(src, parse_r_script(src)))),
     list(
       f = data_frame(to = "foo", type = "call", line = 2, col1 = 21, col2 = 23),
       h = df(to = "bar", type = "call", line = 4, col1 = 21, col2 = 23)
@@ -150,7 +154,7 @@ test_that("call counts are OK", {
     }"
 
   expect_equal(
-    with_src(src, parse_r_script(src)),
+    drop_filenames(with_src(src, parse_r_script(src))),
     list(
       f = data_frame(
         to = c("foo", "foo", "bar", "foobar", "foobar"),
@@ -171,7 +175,7 @@ test_that("The same env is used for the whole file", {
     h <- function() g()
     y <- h"
 
-  p <- with_src(src, parse_r_script(src))
+  p <- drop_filenames(with_src(src, parse_r_script(src)))
 
   e <- list(
     f = df(to = character(), type = character()),
@@ -190,7 +194,7 @@ test_that("Non-function code works", {
     x()"
 
   expect_equal(
-    with_src(src, parse_r_script(src)),
+    drop_filenames(with_src(src, parse_r_script(src))),
     list(
       x = df(to = character(), type = character()),
       "_" = df(to = c("lm", "x"), type = "call",

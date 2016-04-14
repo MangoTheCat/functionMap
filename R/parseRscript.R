@@ -47,5 +47,10 @@ parse_r_script <- function(rfile, include_base = FALSE, env = NULL) {
     rownames(res$`_`) <- NULL
   }
 
+  ## Add file name
+  for (i in seq_along(res)) {
+    res[[i]] <- data_frame(res[[i]], file = rfile)
+  }
+
   res
 }
