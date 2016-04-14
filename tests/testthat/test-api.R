@@ -3,8 +3,10 @@ context("function maps api")
 
 test_that("node_df", {
   map <- get_map()
+  res <- node_df(map)[, c("ID", "own", "exported")]
+  row.names(res) <- NULL
   expect_equal(
-    node_df(map),
+    res,
     data_frame(
       ID = c("f", "g", "h", "utils::untar"),
       own = c(TRUE, TRUE, TRUE, FALSE),

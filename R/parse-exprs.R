@@ -96,7 +96,7 @@ func_from_expr <- function(expr, rfile, env) {
 
   parseData <- attr(expr, "src")
 
-  name <- if ("FUNCTION" %in% parseData$token &&
+  func <- if ("FUNCTION" %in% parseData$token &&
       any(c("LEFT_ASSIGN", "RIGHT_ASSIGN", "EQ_ASSIGN") %in% parseData$token)) {
     eval_to_get_func_name(expr, rfile, env)
 
@@ -106,6 +106,16 @@ func_from_expr <- function(expr, rfile, env) {
     )
   }
 
+  attr(func[[1]], "pos") <- get_function_position(func[[1]])
+
+  func
+}
+
+get_function_position <- function(func) {
+
+  pd <- attr(func, "src")
+  line <- which(pd$token == "FUNCTION")[1]
+  list(line = pd$line1[line] %||% NA_integer_)
 }
 
 eval_to_get_func_name <- function(expr, rfile, env) {

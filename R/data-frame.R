@@ -8,10 +8,22 @@
 
 node_data_frame <- function(data, exports) {
   callers <- names(data)
-  callees <- unlist(lapply(data, "[[", "to"))
+  callees <- setdiff(unique(unlist(lapply(data, "[[", "to"))), callers)
+
+  files <- c(
+    vapply(data, function(x) as.character(attr(x, "pos")$file), ""),
+    rep(NA_character_, length(callees))
+  )
+  lines <- c(
+    vapply(data, function(x) as.integer(attr(x, "pos")$line), 1L),
+    rep(NA_character_, length(callees))
+  )
+
   df <- data.frame(
     stringsAsFactors = FALSE,
-    ID = unique(c(callers, callees))
+    ID = c(callers, callees),
+    file = files,
+    line = lines
   )
   df$own <- df$ID %in% callers
   df$exported <- df$ID %in% exports

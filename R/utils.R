@@ -1,4 +1,6 @@
 
+`%||%` <- function(l, r) if (is.null(l)) r else l
+
 #' Check if an object is in a list
 #'
 #' @param elem The object.

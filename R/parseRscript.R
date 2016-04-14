@@ -36,6 +36,13 @@ parse_r_script <- function(rfile, include_base = FALSE, env = NULL) {
     res <- lapply(res, reset_row_names)
   }
 
+  ## Add file name to both nodes and edges
+  for (i in seq_along(res)) {
+    res[[i]] <- data_frame(res[[i]], file = rfile)
+    attr(res[[i]], "pos") <-
+      modifyList(attr(funcs[[i]], "pos"), list(file = rfile))
+  }
+
   ## Remove _ body, if nothing is called from there
   res <- res[ names(res) != "_" | vapply(res, NROW, 1L) != 0 ]
 
@@ -45,11 +52,6 @@ parse_r_script <- function(rfile, include_base = FALSE, env = NULL) {
     res <- res[ names(res) != "_" ]
     res$`_` <- body
     rownames(res$`_`) <- NULL
-  }
-
-  ## Add file name
-  for (i in seq_along(res)) {
-    res[[i]] <- data_frame(res[[i]], file = rfile)
   }
 
   res
