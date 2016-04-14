@@ -40,7 +40,8 @@ func_arg_globals <- function(fun) {
   dc_str <- unlist(Filter(is.character, dc))
   dc_sym <- vapply(Filter(is.symbol, dc), as.character, "")
 
-  c(dc_str[ ! dc_str %in% locals ], dc_sym[ dc_sym %in% globals ])
+  calls <- c(dc_str[ ! dc_str %in% locals ], dc_sym[ dc_sym %in% globals ])
+  match_to_parse_data(calls, fun, mode = "do.call")
 }
 
 find_func_arg_globals <- function(needle, expr) {

@@ -74,7 +74,7 @@ get_global_calls <- function(func, funcname, envir = parent.frame()) {
   res <- rbind(
     find_globals(func),
     double_colon_calls(func),
-    df(func_arg_globals(func), "call"),
+    func_arg_globals(func),
     df(external_calls(func), "external"),
     df(s3_calls(funcname, envir = envir), "s3")
   )

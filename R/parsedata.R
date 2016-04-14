@@ -1,5 +1,9 @@
 
-match_to_parse_data <- function(calls, func, row) {
+match_to_parse_data <- function(calls, func,
+                                mode = c("call", "::", "do.call")) {
+
+  mode <- match.arg(mode)
+
   pd <- attr(func, "src")
 
   res <- data_frame(
@@ -14,7 +18,7 @@ match_to_parse_data <- function(calls, func, row) {
   if (is.null(pd)) return(res)
 
   for (i in seq_len(nrow(res))) {
-    pl <- find_call_in_parse_data(res$to[i], pd)
+    pl <- find_call_in_parse_data(res$to[i], pd, mode)
     if (!is.null(pl)) {
       res$line[i] <- pl$line
       res$col1[i] <- pl$col1
@@ -52,10 +56,13 @@ parse_trans_table <- c(
   ":::"  = "NS_GET_INT"
 )
 
-find_call_in_parse_data <- function(call, pd) {
+find_call_in_parse_data <- function(call, pd, mode) {
 
-  w <- if (grepl("::", call) && call != "::") {
+  w <- if (mode == "::") {
     find_call_in_parse_data_pkg(call, pd)
+
+  } else if (mode == "do.call") {
+    NA
 
   } else {
     if (call %in% names(parse_trans_table)) call <- parse_trans_table[call]
@@ -78,7 +85,7 @@ find_call_in_parse_data <- function(call, pd) {
 
 find_call_in_parse_data_pkg <- function(call, pd) {
 
-  w <- which(pd$text == call)[1]
+  w <- which(pd$text == call & pd$token == "expr")[1]
   children <- which(pd$parent == pd$id[w])
   child_tokens <- pd$token[children]
   pkgcall_tokens <- c("NS_GET", "SYMBOL_FUNCTION_CALL", "SYMBOL_PACKAGE")
