@@ -102,13 +102,20 @@ func_from_expr <- function(expr, rfile, env) {
 
   } else {
     list(
-      "_" = structure(wrap_in_function(expr), src = attr(expr, "src"))
+      "_" = structure(
+        wrap_in_function(expr),
+        src = attr(expr, "src") %||% empty_parse_data()
+      )
     )
   }
 
   attr(func[[1]], "pos") <- get_function_position(func[[1]])
 
   func
+}
+
+empty_parse_data <- function() {
+  getParseData(parse(text = "", keep.source = TRUE))
 }
 
 get_function_position <- function(func) {
@@ -143,7 +150,10 @@ eval_to_get_func_name <- function(expr, rfile, env) {
     )
 
   } else {
-    list("_" = structure(wrap_in_function(expr), src = attr(expr, "src")))
+    list("_" = structure(
+           wrap_in_function(expr),
+           src = attr(expr, "src")) %||% empty_parse_date()
+         )
   }
 }
 
