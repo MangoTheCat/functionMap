@@ -16,7 +16,10 @@ get_funcs_from_r_script <- function(rfile, env = NULL) {
 
   exprs <- list()
   tryCatch(
-    exprs <- parse(rfile, keep.source = TRUE),
+    {
+      exprs <- parse(rfile, keep.source = TRUE)
+      exprs <- parse(rfile, keep.source = TRUE)
+    },
     error = function (e) {
       fname <- if (is.character(rfile)) rfile else class(rfile)[1]
       warning(fname, ": ", e$message, call. = FALSE)
