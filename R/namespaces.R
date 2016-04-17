@@ -12,15 +12,15 @@ get_imports <- function(path) {
   ns <- parseNamespaceFile(basename(path), file.path(path, ".."))
   imp <- ns$imports
 
-  tab <- vapply(imp, character(2), FUN = function(x) {
+  tab <- lapply(imp, function(x) {
     if (length(x) == 1) {
-      c("*", x[[1]])
+      cbind("*", x[[1]])
     } else {
-      c(x[[2]], x[[1]])
+      cbind(x[[2]], x[[1]])
     }
   })
 
-  t(tab)
+  do.call(rbind, tab)
 }
 
 #' Get exported functions from a package, from `NAMESPACE`

@@ -6,8 +6,8 @@ test_that("reading a NAMESPACE file, imports", {
   expect_equal(
     imp,
     cbind(
-      c("symbol", "findFuncLocals", "untar", "*"),
-      c("clisymbols", "codetools", "utils", "foo")
+      c("symbol", "findFuncLocals", "untar", "install.packages", "*"),
+      c("clisymbols", "codetools", "utils", "utils", "foo")
     )
   )
 })
