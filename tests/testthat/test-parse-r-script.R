@@ -224,10 +224,7 @@ test_that("More complex non-function code works", {
      )
    )"
 
-  expect_warning(
-    p <- with_src(src, parse_r_script(src)),
-    "R6Class"
-  )
+  p <- with_src(src, parse_r_script(src))
 
   expect_equal(names(p), "_")
 

@@ -133,11 +133,14 @@ eval_to_get_func_name <- function(expr, rfile, env) {
   ## These were here before
   past <- ls(env, all.names = TRUE)
 
+  ## We don't warn for errors currently. We could, but then for
+  ## packages we would need to load the package to get the
+  ## dependencies.
   tryCatch(
     eval(expr, envir = env),
     error = function(e) {
       fname <- if (is.character(rfile)) rfile else class(rfile)[1]
-      warning(fname, ": ", e$message, call. = FALSE)
+      ## warning(fname, ": ", e$message, call. = FALSE)
     }
   )
 
