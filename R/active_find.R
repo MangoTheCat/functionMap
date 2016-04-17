@@ -1,81 +1,4 @@
 
-#' Find a function in an environment or in its parent chain
-#'
-#' @param func Character scalar, function name.
-#' @param env Environment to start the search from.
-#' @return Name of the environment of \code{func}, or
-#'   \code{NA_character_} if it cannot be found.
-#' @keywords internal
-
-find_function <- function(func, env = parent.env()) {
-
-  res <- if (identical(env, emptyenv())) {
-    NA_character_
-  } else {
-    if (exists(func, env, inherits = FALSE)) {
-      environmentName(env)
-    } else {
-      find_function(func, parent.env(env))
-    }
-  }
-
-  if (grepl("^imports", res)) {
-    pkg <- sub("imports:", "", res, fixed = TRUE)
-    ns <- getNamespaceImports(pkg)
-    res <- find_in_named_list(ns, func)
-  } else if (grepl("^package:", res)) {
-    res <- sub("package:", "", res, fixed = TRUE)
-  }
-
-  res
-}
-
-#' Parse a DESCRIPTION Depends line
-#'
-#' @param pkg Name of the package. Must be installed.
-#' @return Character vector of the names of depended packages.
-#' @keywords internal
-
-parse_depends <- function(pkg) {
-  deps <- packageDescription(pkg)$Depends
-  if (is.null(deps)) return(character())
-  deps <- strsplit(deps, ",")[[1]]
-  deps <- sub("\\(.*\\)", "", deps)
-  setdiff(str_trim(deps), "R")
-}
-
-#' Attach a namespace quietly
-#'
-#' @param x Package name.
-#' @return The attached package env (from `attachNamespace`), invisibly.
-#' @keywords internal
-
-attach_q <- function(x) {
-  suppressMessages(suppressPackageStartupMessages(attachNamespace(x)))
-}
-
-#' Load all dependencies of a package, and the package itself, quietly
-#'
-#' @param pkg Package name.
-#' @return Attached package namespace, or a `try-error` object
-#'   if an error happened.
-#' @keywords internal
-
-load_dependencies <- function(pkg) {
-  try(lapply(parse_depends(pkg), attach_q), silent = TRUE)
-  try(attach_q(pkg), silent = TRUE)
-}
-
-#' Unload all dependencies of a package
-#'
-#' @param pkg Package name.
-#' @keywords internal
-
-unload_dependencies <- function(pkg) {
-  try(unloadNamespace(pkg), silent = TRUE)
-  try(lapply(parse_depends(pkg), unloadNamespace), silent = TRUE)
-}
-
 #' Evaluate an expression with a package loaded
 #'
 #' The package will be installed into a temporary directory.
@@ -89,28 +12,19 @@ unload_dependencies <- function(pkg) {
 #' @param path Path to the package directory and tarball to load.
 #' @param expr Expression to evaluate.
 #' @return Value of the evaluated expression.
+#'
+#' @importFrom remotes install_local
 #' @keywords internal
 
 with_package <- function(path, expr) {
 
-  package <- package_name(path)
+  lib <- tempfile()
+  on.exit(unlink(lib, recursive = TRUE), add = TRUE)
+  dir.create(lib)
 
-  tmp <- tempfile()
-  lib_dir <- dirname(tmp)
-
-  on.exit(try(unlink(tmp, recursive = TRUE), silent = TRUE), add = TRUE)
-  install.packages(path, lib = lib_dir, repos = NULL, type = "source",
-                   quiet = TRUE)
-
-  lp <- .libPaths()
-  on.exit(try(.libPaths(lp), silent = TRUE), add = TRUE)
-  .libPaths(c(lib_dir, lp))
-
-  on.exit(try(unloadNamespace(package), silent = TRUE), add = TRUE)
-  loadNamespace(package)
-
-  on.exit(try(unload_dependencies(package), silent = TRUE), add = TRUE)
-  load_dependencies(package)
+  message("Installing package ", package_name(path), " to temporary library")
+  install_local(path, lib = lib, quiet = TRUE)
+  loadNamespace(package_name(path), lib.loc = lib)
 
   expr
 }
@@ -138,18 +52,25 @@ actively_find_funcs <- function(map, funcs) {
 
   name <- package_name(map$rpath)
 
-  if (name %in% loadedNamespaces()) {
-    warning(name, " is already loaded, trying to unload.")
-    unloadNamespace(name)
-  }
-
   found <- with_package(
     map$rpath,
-    vapply(functions, find_function, "", env = asNamespace(name))
+    mget(
+      functions,
+      envir = asNamespace(name),
+      inherits = TRUE,
+      ifnotfound = NA_character_
+    )
   )
 
+  pkgs <- vapply(found, FUN.VALUE = "", function(x) {
+    if (is.function(x)) {
+      environmentName(environment(x))
+    } else {
+       NA_character_
+    }
+  })
 
-  funcs[wh, 2] <- found
+  funcs[wh, 2] <- pkgs
 
   funcs
 }

@@ -16,6 +16,7 @@ Imports:
     crayon,
     jsonlite,
     pryr,
+    remotes,
     sankey,
     withr
 Depends:
@@ -24,4 +25,6 @@ Suggests:
     pingr,
     testthat,
     roxygen2
+Remotes:
+    MangoTheCat/remotes
 RoxygenNote: 5.0.1.9000

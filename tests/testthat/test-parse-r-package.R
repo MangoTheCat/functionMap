@@ -7,7 +7,7 @@ test_that("package sources are evaluated in a single env", {
 
   expect_equal(
     get_graph(map),
-    list(f = "f", g = "f")
+    list(f = "f")
   )
 })
 
@@ -17,6 +17,6 @@ test_that("package sources use Collate from DESCRIPTION", {
 
   expect_equal(
     get_graph(map),
-    list(f = "f", g = "f")
+    list(f = "f")
   )
 })

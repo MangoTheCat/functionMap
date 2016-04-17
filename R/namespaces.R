@@ -90,7 +90,7 @@ where <- function(map) {
 
   funcs <- data.frame(
     stringsAsFactors = FALSE,
-    func = sort(unique(unlist(map$data)))
+    func = sort(unique(unlist(lapply(map$data, "[[", "to"))))
   )
 
   ## Myself
