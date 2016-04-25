@@ -247,3 +247,30 @@ reset_row_names <- function(df) {
   rownames(df) <- NULL
   df
 }
+
+path_isabs <- function(path) {
+  if (is_windows()) {
+    win_path_isabs(path)
+  } else {
+    posix_path_isabs(path)
+  }
+}
+
+#' @importFrom rematch re_match
+
+win_path_isabs <- function(path) {
+  device_re <- paste0(
+    "^([a-zA-Z]:|",
+    "[\\\\\\/]{2}[^\\\\\\/]+[\\\\\\/]+[^\\\\\\/]+)?",
+    "([\\\\\\/])?([\\s\\S]*?)$"
+  )
+  result <- re_match(pattern = device_re, text = path)
+  device <- result[, 2]
+  isunc  <- device != "" & substr(device, 2, 2) != ":";
+
+  unname(isunc | result[, 3] != "")
+}
+
+posix_path_isabs <- function(path) {
+  startswith(path, "/")
+}
