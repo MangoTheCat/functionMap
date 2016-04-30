@@ -45,6 +45,9 @@ test_that("functions_called", {
 
 
 test_that("unused_functions", {
+
+  Sys.unsetenv("R_TESTS")
+
   map <- map_r_package("testEnv")
   expect_equal(unused_functions(map), character())
 
