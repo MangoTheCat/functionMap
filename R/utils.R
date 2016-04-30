@@ -248,29 +248,47 @@ reset_row_names <- function(df) {
   df
 }
 
-path_isabs <- function(path) {
-  if (is_windows()) {
-    win_path_isabs(path)
+is_windows <- function() {
+  .Platform$OS.type == "windows"
+}
+
+drop_empty <- function(x) {
+  x [ x != "" ]
+}
+
+##' The longest prefix of both lists
+##'
+##' @param x First list.
+##' @param y Second list.
+##' @return List, longest common prefix of both.
+##'
+##' @keywords internal
+
+common_prefix <- function(x, y) {
+
+  ## l1 is the shorter list
+  if (length(x) > length(y)) {
+    l1 <- y
+    l2 <- x
   } else {
-    posix_path_isabs(path)
+    l1 <- x
+    l2 <- y
   }
+
+  for (i in seq_along(l1)) {
+    if (!identical(l1[[i]], l2[[i]])) return(head(l1, i - 1))
+  }
+  l1
 }
 
-#' @importFrom rematch re_match
-
-win_path_isabs <- function(path) {
-  device_re <- paste0(
-    "^([a-zA-Z]:|",
-    "[\\\\\\/]{2}[^\\\\\\/]+[\\\\\\/]+[^\\\\\\/]+)?",
-    "([\\\\\\/])?([\\s\\S]*?)$"
-  )
-  result <- re_match(pattern = device_re, text = path)
-  device <- result[, 2]
-  isunc  <- device != "" & substr(device, 2, 2) != ":";
-
-  unname(isunc | result[, 3] != "")
+startswith <- function(x, y) {
+  substr(x, 1L, nchar(y)) == y
 }
 
-posix_path_isabs <- function(path) {
-  startswith(path, "/")
+endswith <- function(x, y) {
+  substr(x, nchar(x) - nchar(y) + 1, nchar(x)) == y
+}
+
+normcase <- function(x) {
+  tolower(gsub("/", "\\", fixed = TRUE, x))
 }
