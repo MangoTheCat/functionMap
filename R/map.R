@@ -38,6 +38,18 @@ create_function_map <- function(data, package = NULL,
   res$edge_df <- edge_data_frame(res$data)
   res$data <- NULL
 
+  if (class == "function_map_rpackage" ||
+      class == "function_map_rfolder") {
+    res$node_df$file <- path_rel(
+      path.expand(res$node_df$file),
+      path.expand(res$rpath)
+    )
+    res$edge_df$file <- path_rel(
+      path.expand(res$edge_df$file),
+      path.expand(res$rpath)
+    )
+  }
+
   res
 }
 
