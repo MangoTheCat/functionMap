@@ -158,7 +158,7 @@ eval_to_get_func_name <- function(expr, rfile, env) {
   } else {
     list("_" = structure(
            wrap_in_function(expr),
-           src = attr(expr, "src")) %||% empty_parse_date()
+           src = attr(expr, "src")) %||% empty_parse_data()
          )
   }
 }
