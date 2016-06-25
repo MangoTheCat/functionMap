@@ -4,10 +4,12 @@
 \alias{where}
 \title{Try to find where some called functions live}
 \usage{
-where(map)
+where(map, active_find = TRUE)
 }
 \arguments{
 \item{map}{Function map object.}
+
+\item{active_find}{Whether to try to find called functions actively.}
 }
 \value{
 Data frame with columns:

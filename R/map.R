@@ -13,13 +13,14 @@
 #' @param include_base Whether calls to base functions are included.
 #' @param class What class to set on the result, in addition to
 #'   \code{function_map}.
+#' @param active_find Whether to try to find call endpoints actively.
 #' @return A function_map object.
 #' @keywords internal
 
 create_function_map <- function(data, package = NULL,
                                 rfile = NULL, rpath = NULL,
                                 rfilepattern = NULL, include_base = NULL,
-                                class = NULL) {
+                                class = NULL, active_find = TRUE) {
   res <- structure(
     list(
       rfile = rfile,
@@ -32,7 +33,9 @@ create_function_map <- function(data, package = NULL,
     class = c(class, "function_map")
   )
 
-  if (class == "function_map_rpackage") res <- add_namespaces(res)
+  if (class == "function_map_rpackage") {
+    res <- add_namespaces(res, active_find)
+  }
 
   res$node_df <- node_data_frame(res$data, exports = res$exports)
   res$edge_df <- edge_data_frame(res$data)
@@ -97,11 +100,14 @@ map_r_folder <- function(rpath, rfilepattern = default_r_file_pattern(),
 #'
 #' @param path Name of a source R package tar archive file,
 #'   or path to the folder of an R package.
+#' @param active_find Whether to try to find call endpoints actively.
+#'   Active search means that we load the package, so it must be installed,
+#'   together with all its dependencies.
 #' @inheritParams parse_r_folder
 #'
 #' @export
 
-map_r_package <- function(path, include_base = FALSE) {
+map_r_package <- function(path, include_base = FALSE, active_find = TRUE) {
 
   ## Special case, it messes up parseNamespaceFile and others
   if (path == "." || path == "./") path <-getwd()
@@ -122,6 +128,7 @@ map_r_package <- function(path, include_base = FALSE) {
     package = name,
     rpath = path,
     class = "function_map_rpackage",
+    active_find = active_find,
     data = parse_r_folder(
       rpath = r_package_files(path),
       rfilepattern = default_r_file_pattern(),

@@ -4,7 +4,7 @@
 \alias{add_namespaces}
 \title{Add namespace information to a map of an R package}
 \usage{
-add_namespaces(map)
+add_namespaces(map, active_find = TRUE)
 }
 \arguments{
 \item{map}{Function map.}

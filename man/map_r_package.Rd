@@ -4,7 +4,7 @@
 \alias{map_r_package}
 \title{Map an R package}
 \usage{
-map_r_package(path, include_base = FALSE)
+map_r_package(path, include_base = FALSE, active_find = TRUE)
 }
 \arguments{
 \item{path}{Name of a source R package tar archive file,
@@ -12,6 +12,10 @@ or path to the folder of an R package.}
 
 \item{include_base}{Whether to include functions from the
 `base` package.}
+
+\item{active_find}{Whether to try to find call endpoints actively.
+Active search means that we load the package, so it must be installed,
+together with all its dependencies.}
 }
 \description{
 Map an R package

@@ -70,6 +70,7 @@ find_imports <- function(path, functions) {
 #' }
 #'
 #' @param map Function map object.
+#' @param active_find Whether to try to find called functions actively.
 #' @return Data frame with columns:
 #'   \item{func}{Function name.}
 #'   \item{place}{Name of the package it is coming from.
@@ -77,7 +78,7 @@ find_imports <- function(path, functions) {
 #'     we don't know where it is coming from.}
 #' @keywords internal
 
-where <- function(map) {
+where <- function(map, active_find = TRUE) {
 
   if (!inherits(map, "function_map_rpackage")) {
     stop("This is not a map of an R package")
@@ -117,7 +118,7 @@ where <- function(map) {
   }
 
   funcs <- collapse_nas(funcs)
-  if (any(is.na(funcs[,2]))) {
+  if (any(is.na(funcs[,2])) && active_find) {
     funcs <- actively_find_funcs(map, funcs)
   }
   funcs[,2][is.na(funcs[,2])] <- "???"
@@ -144,10 +145,10 @@ collapse_nas <- function(x) {
 #' @return The annotated map.
 #' @keywords internal
 
-add_namespaces <- function(map) {
+add_namespaces <- function(map, active_find = TRUE) {
   map$exports <- get_exports(map$rpath, functions(map))
 
-  wh <- where(map)
+  wh <- where(map, active_find = active_find)
 
   for (i in seq_along(map$data)) {
     map$data[[i]]$to <- prefix_names(map$data[[i]]$to, wh)
