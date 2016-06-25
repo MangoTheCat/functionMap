@@ -23,8 +23,7 @@ source("https://raw.githubusercontent.com/MangoTheCat/remotes/master/install-git
 
 ## Usage
 
-
-```r
+```{r}
 library(functionMap)
 ```
 
