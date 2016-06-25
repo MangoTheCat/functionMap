@@ -18,12 +18,22 @@ node_data_frame <- function(data, exports) {
     vapply(data, function(x) as.integer(attr(x, "pos")$line), 1L),
     rep(NA_character_, length(callees))
   )
+  col1 <- c(
+    vapply(data, function(x) as.integer(attr(x, "pos")$col1), 1L),
+    rep(NA_character_, length(callees))
+  )
+  col2 <- c(
+    vapply(data, function(x) as.integer(attr(x, "pos")$col2), 1L),
+    rep(NA_character_, length(callees))
+  )
 
   df <- data.frame(
     stringsAsFactors = FALSE,
     ID = c(callers, callees),
     file = files,
-    line = lines
+    line = lines,
+    col1 = col1,
+    col2 = col2
   )
   df$own <- df$ID %in% callers
   df$exported <- df$ID %in% exports
