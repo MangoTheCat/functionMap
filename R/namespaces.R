@@ -45,7 +45,7 @@ get_exports <- function(path, funcs) {
   unique(c(ns$exports, s3, unlist(exp_pattern)))
 }
 
-#' Check if a list of function nameds were imported from a package
+#' Check if a list of function names were imported from a package
 #'
 #' @param path The folder containing the (uncompressed) R package.
 #' @param functions The functions to find, a character vector.
@@ -70,7 +70,6 @@ find_imports <- function(path, functions) {
 #' }
 #'
 #' @param map Function map object.
-#' @param active_find Whether to try to find called functions actively.
 #' @return Data frame with columns:
 #'   \item{func}{Function name.}
 #'   \item{place}{Name of the package it is coming from.
@@ -78,7 +77,7 @@ find_imports <- function(path, functions) {
 #'     we don't know where it is coming from.}
 #' @keywords internal
 
-where <- function(map, active_find = TRUE) {
+where <- function(map) {
 
   if (!inherits(map, "function_map_rpackage")) {
     stop("This is not a map of an R package")
@@ -118,9 +117,7 @@ where <- function(map, active_find = TRUE) {
   }
 
   funcs <- collapse_nas(funcs)
-  if (any(is.na(funcs[,2])) && active_find) {
-    funcs <- actively_find_funcs(map, funcs)
-  }
+
   funcs[,2][is.na(funcs[,2])] <- "???"
 
   funcs
@@ -145,10 +142,10 @@ collapse_nas <- function(x) {
 #' @return The annotated map.
 #' @keywords internal
 
-add_namespaces <- function(map, active_find = TRUE) {
+add_namespaces <- function(map) {
   map$exports <- get_exports(map$rpath, functions(map))
 
-  wh <- where(map, active_find = active_find)
+  wh <- where(map)
 
   for (i in seq_along(map$data)) {
     map$data[[i]]$to <- prefix_names(map$data[[i]]$to, wh)

@@ -27,6 +27,5 @@ Suggests:
     pingr,
     testthat,
     roxygen2
-Remotes:
-    MangoTheCat/remotes
-RoxygenNote: 5.0.1.9000
+Remotes: MangoTheCat/remotes
+RoxygenNote: 5.0.1

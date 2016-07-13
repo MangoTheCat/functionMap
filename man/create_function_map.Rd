@@ -5,8 +5,7 @@
 \title{Create a function_map object from a parsed result}
 \usage{
 create_function_map(data, package = NULL, rfile = NULL, rpath = NULL,
-  rfilepattern = NULL, include_base = NULL, class = NULL,
-  active_find = TRUE)
+  rfilepattern = NULL, include_base = NULL, class = NULL)
 }
 \arguments{
 \item{data}{A named list. Names are function names,
@@ -27,8 +26,6 @@ if not an R folder.}
 
 \item{class}{What class to set on the result, in addition to
 \code{function_map}.}
-
-\item{active_find}{Whether to try to find call endpoints actively.}
 }
 \value{
 A function_map object.
