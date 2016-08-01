@@ -1,4 +1,12 @@
-
+collapse_underscore_caller <- function(res) {
+  if (any(names(res) == "_")) {
+    body <- do.call(rbind, res[names(res) == "_"])
+    res <- res[ names(res) != "_" ]
+    res$`_` <- body
+    rownames(res$`_`) <- NULL
+  }
+  res
+}
 
 #' Find all function calls in an R script
 #'
@@ -47,12 +55,7 @@ parse_r_script <- function(rfile, include_base = FALSE, env = NULL) {
   res <- res[ names(res) != "_" | vapply(res, NROW, 1L) != 0 ]
 
   ## Collapse body into a single "caller"
-  if (any(names(res) == "_")) {
-    body <- do.call(rbind, res[names(res) == "_"])
-    res <- res[ names(res) != "_" ]
-    res$`_` <- body
-    rownames(res$`_`) <- NULL
-  }
+  res <- collapse_underscore_caller(res)
 
   res
 }

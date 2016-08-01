@@ -44,5 +44,6 @@ parse_r_folder <- function(rpath, rfilepattern = default_r_file_pattern(),
     env = env
   )
 
-  do.call(c, res)
+  res <- do.call(c, res)
+  collapse_underscore_caller(res)
 }
