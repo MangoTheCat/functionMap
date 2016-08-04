@@ -1,31 +1,20 @@
 Package: functionMap
-Title: Draw the Function Map for a R Package
+Title: Create the Function Map for a R Package
 Description: Extract all function calls from an R package, or a set of R
-    scripts. Create a network of functions that can be then visualized.
-    Can also extract the places of the function definitions and function
-    calls and export them in a 'JSON' file.
+    scripts, including the locations of the calling and called functions
+    in the code.
 Version: 1.0.0
 Maintainer: Gabor Csardi <gcsardi@mango-solutions.com>
 License: GPL-2
 LazyData: yes
 Author: Mango Solutions <developers@mango-solutions.com>
 Imports:
-    stats,
-    utils,
-    codetools,
-    clisymbols,
-    crayon,
-    jsonlite,
-    pryr,
-    rematch,
-    remotes,
-    sankey,
-    withr
+    xml2,
+    xmlparsedata
 Depends:
     R (>= 3.0.0)
 Suggests:
     pingr,
     testthat,
     roxygen2
-Remotes: MangoTheCat/remotes
 RoxygenNote: 5.0.1
