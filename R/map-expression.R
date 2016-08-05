@@ -2,7 +2,7 @@
 #' @importFrom xmlparsedata xml_parse_data
 #' @importFrom xml2 read_xml
 
-map_expression <- function(file = NULL, text = NULL, parsed = NULL) {
+parse_expression <- function(file = NULL, text = NULL, parsed = NULL) {
 
   if (is.null(file) + is.null(text) + is.null(parsed) != 2) {
     stop("Supply exactly one of 'file', 'text' and 'parsed'")
@@ -29,21 +29,16 @@ map_expression <- function(file = NULL, text = NULL, parsed = NULL) {
   pd$start <- pd$line1 * maxcol + pd$col1
   pd$end   <- pd$line2 * maxcol + pd$col2
 
-  data <- list(xml = xml, parse = pd)
+  list(xml = xml, parse = pd, expr = parsed)
+}
+
+map_expression <- function(data) {
 
   assvars  <- find_assignments(data)
   formals  <- find_formals(data)
   funcalls <- find_function_calls(data)
   fundefs  <- find_function_defs(data)
 
-  ## Add a virtual function, which contains the assignments and calls
-  ## outside of any function
-  fundefs <- rbind(
-    list(var = NA, line1 = 0, col1 = 0, line2 = .Machine$integer.max,
-         col2 = 1, start = 0, end = .Machine$integer.max),
-    fundefs
-  )
-  
   ## Map assignments to closures, to see what is local, what is global
   fundefs$locals  <- map_assignments(fundefs, assvars, formals)
 
@@ -59,17 +54,17 @@ map_expression <- function(file = NULL, text = NULL, parsed = NULL) {
   res <- integer()
 
   events <- rbind(
-    data.frame(
+    data_frame(
       what = "start",
       which = seq_len(nrow(fundefs)),
       pos = fundefs$start
     ),
-    data.frame(
+    data_frame(
       what = "end",
       which = seq_len(nrow(fundefs)),
       pos = fundefs$end
     ),
-    data.frame(
+    data_frame(
       what = "call",
       which = seq_len(nrow(funcalls)),
       pos = funcalls$start
@@ -80,7 +75,7 @@ map_expression <- function(file = NULL, text = NULL, parsed = NULL) {
   for (e in seq_len(nrow(events))) {
     ev <- events[e,]
     switch(
-      as.character(ev$what),
+      ev$what,
       "start" = { locals <- c(locals, fundefs$local[[ev$which]]) },
       "end" = {
         if (len <- length(fundefs$local[[ev$which]])) {
@@ -97,7 +92,7 @@ map_expression <- function(file = NULL, text = NULL, parsed = NULL) {
 
   list(
     calls = reset_row_names(funcalls[res, , drop = FALSE]),
-    funcs = fundefs[-1, , drop = FALSE]
+    funcs = fundefs
   )
 }
 
@@ -154,33 +149,6 @@ find_formals <- function(data) {
 
 find_function_calls <- function(data) {
   find_these(data$parse, "SYMBOL_FUNCTION_CALL")
-}
-
-find_function_defs <- function(data) {
-
-  ## A function definition with no arguments
-  xp_noargs <- paste0(
-    "//expr[count(*)=4]",
-    "[*[1][self::FUNCTION]]",
-    "[*[2][self::OP-LEFT-PAREN]]",
-    "[*[3][self::OP-RIGHT-PAREN]]",
-    "[*[4][self::expr]]"
-  )
-
-  ## A function definition with arguments
-  xp_args <- paste0(
-    "//expr[count(*)=5]",
-    "[*[1][self::FUNCTION]]",
-    "[*[2][self::OP-LEFT-PAREN]]",
-    "[*[3][self::SYMBOL_FORMALS]]",
-    "[*[4][self::OP-RIGHT-PAREN]]",
-    "[*[5][self::expr]]"
-  )
-
-  xp <- sprintf("(%s) | (%s)", xp_noargs, xp_args)
-
-  fun_exprs <- xml_find_all(data$xml, xp)
-  collect_symbols(fun_exprs, text = FALSE)
 }
 
 #' @importFrom xml2 xml_attr xml_text
