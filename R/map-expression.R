@@ -93,9 +93,11 @@ map_expression <- function(file = NULL, text = NULL, parsed = NULL) {
     )
   }
 
+  ## We drop the imaginary function definition from the results
+
   list(
     calls = reset_row_names(funcalls[res, , drop = FALSE]),
-    funcs = fundefs
+    funcs = fundefs[-1, , drop = FALSE]
   )
 }
 
