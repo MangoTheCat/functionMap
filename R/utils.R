@@ -78,3 +78,8 @@ check_pkg_dir <- function(path = ".") {
 package_name <- function(path = ".") {
   unname(read.dcf(file.path(path, "DESCRIPTION"))[, "Package"])
 }
+
+reset_row_names <- function(df) {
+  rownames(df) <- NULL
+  df
+}

@@ -86,7 +86,7 @@ global_calls <- function(file = NULL, text = NULL) {
     )
   }
 
-  funcalls[res, , drop = FALSE]
+  reset_row_names(funcalls[res, , drop = FALSE])
 }
 
 #' @importFrom xml2 xml_find_all
