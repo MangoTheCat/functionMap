@@ -11,7 +11,7 @@ test_that("simple global calls", {
     f()
   "
 
-  g <- map_expression(text = code)
+  g <- map_expression(text = code)$calls
   expect_equal(g$var, "g")
   expect_equal(g$line1, 3)
 
@@ -22,7 +22,7 @@ test_that("simple global calls", {
     }
   '
 
-  g <- map_expression(text = code)
+  g <- map_expression(text = code)$calls
   expect_equal(g$var, c("untar", "mad"))
   expect_equal(g$line1, 3:4)
   expect_equal(g$line2, 3:4)
@@ -42,7 +42,7 @@ test_that("function calls are found", {
     y <- 1:10"
 
   expect_equal(
-    map_expression(text = src)[, test_columns],
+    map_expression(text = src)$calls[, test_columns],
     df(
       var = c("foo", "bar"),
       line1 = c(4, 8),
@@ -63,7 +63,7 @@ test_that("functions passed as arguments are ignored", {
   "
 
   expect_equal(
-    map_expression(text = src)[, test_columns],
+    map_expression(text = src)$calls[, test_columns],
     df(var = "bar", line1 = 4, col1 = 7, line2 = 4, col2 = 9)
   )
 })
@@ -79,7 +79,7 @@ test_that("map_expression works with parsed data", {
   parsed <- parse(text = src, keep.source = TRUE)
 
   expect_equal(
-    map_expression(parsed = parsed)[, test_columns],
+    map_expression(parsed = parsed)$calls[, test_columns],
     df(var = "bar", line1 = 4, col1 = 7, line2 = 4, col2 = 9)
   )
 

@@ -93,7 +93,10 @@ map_expression <- function(file = NULL, text = NULL, parsed = NULL) {
     )
   }
 
-  reset_row_names(funcalls[res, , drop = FALSE])
+  list(
+    calls = reset_row_names(funcalls[res, , drop = FALSE]),
+    funcs = fundefs
+  )
 }
 
 #' @importFrom xml2 xml_find_all
