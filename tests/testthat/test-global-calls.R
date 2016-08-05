@@ -67,3 +67,20 @@ test_that("functions passed as arguments are ignored", {
     df(var = "bar", line1 = 4, col1 = 7, line2 = 4, col2 = 9)
   )
 })
+
+test_that("global_calls works with parsed data", {
+  src <- "
+    h <- function(k) {
+      k()
+      bar()
+    }
+  "
+
+  parsed <- parse(text = src, keep.source = TRUE)
+
+  expect_equal(
+    global_calls(parsed = parsed)[, test_columns],
+    df(var = "bar", line1 = 4, col1 = 7, line2 = 4, col2 = 9)
+  )
+
+})

@@ -2,10 +2,10 @@
 #' @importFrom xmlparsedata xml_parse_data
 #' @importFrom xml2 read_xml
 
-global_calls <- function(file = NULL, text = NULL) {
+global_calls <- function(file = NULL, text = NULL, parsed = NULL) {
 
-  if (is.null(file) + is.null(text) != 1) {
-    stop("Supply exactly one of 'file' and 'text'")
+  if (is.null(file) + is.null(text) + is.null(parsed) != 2) {
+    stop("Supply exactly one of 'file', 'text' and 'parsed'")
   }
 
   ## We provide both the parse data both in XML and the usual
@@ -13,8 +13,15 @@ global_calls <- function(file = NULL, text = NULL) {
   ## expressions. The data frame is good for finding simple things,
   ## like symbols
 
-  parsed <- parse(file = file, text = text, keep.source = TRUE)
-  pd <- getParseData(parsed)
+  if (is.null(parsed)) {
+    parsed <- parse(file = file, text = text, keep.source = TRUE)
+    pd <- getParseData(parsed)
+  } else {
+    pd <- getParseData(parsed)
+    if (is.null(pd)) {
+      stop("'parsed' has no parse data, use keep.source in parse()")
+    }
+  }
   xml <- read_xml(xml_parse_data(pd))
 
   ## Positions, to make it easy to compare what comes first
