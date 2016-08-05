@@ -2,7 +2,7 @@
 #' @importFrom xmlparsedata xml_parse_data
 #' @importFrom xml2 read_xml
 
-global_calls <- function(file = NULL, text = NULL, parsed = NULL) {
+map_expression <- function(file = NULL, text = NULL, parsed = NULL) {
 
   if (is.null(file) + is.null(text) + is.null(parsed) != 2) {
     stop("Supply exactly one of 'file', 'text' and 'parsed'")
