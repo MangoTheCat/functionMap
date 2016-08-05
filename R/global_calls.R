@@ -25,7 +25,7 @@ global_calls <- function(file = NULL, text = NULL) {
   data <- list(xml = xml, parse = pd)
 
   assvars  <- find_assignments(data)
-  formals  <- find_formals(data)        # TODO
+  formals  <- find_formals(data)
   funcalls <- find_function_calls(data)
   fundefs  <- find_function_defs(data)
 
@@ -38,7 +38,7 @@ global_calls <- function(file = NULL, text = NULL) {
   )
   
   ## Map assignments to closures, to see what is local, what is global
-  fundefs$locals  <- map_assignments(fundefs, assvars)
+  fundefs$locals  <- map_assignments(fundefs, assvars, formals)
 
   ## Now go over the collected data. We process the following events:
   ## 1. Start of closure. We put all assignments that belong to that
@@ -186,7 +186,7 @@ collect_symbols <- function(nodes, text = TRUE) {
   )
 }
 
-map_assignments <- function(funcs, symbols) {
+map_assignments <- function(funcs, symbols, formals) {
 
   myfun <- vapply(symbols$start, FUN.VALUE = 1L, function(p) {
     cand <- tail(which(funcs$start <= p & p < funcs$end), 1)
@@ -194,5 +194,14 @@ map_assignments <- function(funcs, symbols) {
   })
 
   fac <- factor(myfun, levels = seq_len(nrow(funcs)))
-  tapply(symbols$var, fac, c, simplify = FALSE)
+  res <- tapply(symbols$var, fac, c, simplify = FALSE)
+
+  myfun2 <- vapply(formals$start, FUN.VALUE = 1L, function(p) {
+    tail(which(funcs$start <= p & p < funcs$end), 1)
+  })
+
+  fac2 <- factor(myfun2, levels = seq_len(nrow(funcs)))
+  res2 <- tapply(formals$var, fac2, c, simplify = FALSE)
+
+  mapply(c, res, res2, SIMPLIFY = FALSE)
 }

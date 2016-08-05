@@ -1,6 +1,8 @@
 
 context("find global calls")
 
+test_columns <- c("var", "line1", "col1", "line2", "col2")
+
 test_that("simple global calls", {
 
   code <- "
@@ -40,7 +42,7 @@ test_that("function calls are found", {
     y <- 1:10"
 
   expect_equal(
-    global_calls(text = src)[, c("var", "line1", "col1", "line2", "col2")],
+    global_calls(text = src)[, test_columns],
     df(
       var = c("foo", "bar"),
       line1 = c(4, 8),
@@ -50,4 +52,18 @@ test_that("function calls are found", {
     )
   )
 
+})
+
+test_that("functions passed as arguments are ignored", {
+  src <- "
+    h <- function(k) {
+      k()
+      bar()
+    }
+  "
+
+  expect_equal(
+    global_calls(text = src)[, test_columns],
+    df(var = "bar", line1 = 4, col1 = 7, line2 = 4, col2 = 9)
+  )
 })
